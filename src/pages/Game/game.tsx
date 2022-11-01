@@ -90,9 +90,9 @@ const GameCatEnergyInner = styled.div`
 `;
 
 function Game() {
-  const [dogHitPoints, setDogHitPoints] = useState(100);
-  const [catHitPoints, setCatHitPoints] = useState(100);
-  const [turnOwner, setTurnOwner] = useState<string | undefined>('dog');
+  const [dogHitPoints, setDogHitPoints] = useState(30);
+  const [catHitPoints, setCatHitPoints] = useState(30);
+  const [roomState, setRoomState] = useState<string | undefined>('dogTurn');
   const canvas = useRef<HTMLCanvasElement>(null);
   const GameDogRef = useRef<HTMLDivElement>(null);
   const dogEnergyBarRef = useRef<HTMLDivElement>(null);
@@ -158,6 +158,15 @@ function Game() {
         clearInterval(startAnimation);
       }
 
+      function testGameState() {
+        const currentCatHitPoints = catHitPoints - 15;
+        if (currentCatHitPoints <= 0) {
+          setRoomState('dogWin');
+        } else {
+          setRoomState('catTurn');
+        }
+      }
+
       function startAnimationHandler(quantityOfPower: number) {
         ctx?.clearRect(0, 0, 940, 560);
 
@@ -169,14 +178,14 @@ function Game() {
         if (dogX >= 800 && dogX <= 890 && dogY >= 470 && dogY <= 560) {
           console.log('hit!');
           stopAnimation();
-          setDogHitPoints((prev) => prev - 15);
-          setTurnOwner('cat');
+          setCatHitPoints((prev) => prev - 15);
+          testGameState();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
         } else if (dogX > 940 || dogX <= 0 || dogY > 560 || dogY < 0) {
           console.log('miss!');
           stopAnimation();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
-          setTurnOwner('cat');
+          setRoomState('catTurn');
         }
         drawDog();
         drawWall();
@@ -230,6 +239,15 @@ function Game() {
         clearInterval(startAnimation);
       }
 
+      function testGameState() {
+        const currentDogHitPoints = dogHitPoints - 15;
+        if (currentDogHitPoints <= 0) {
+          setRoomState('catWin');
+        } else {
+          setRoomState('dogTurn');
+        }
+      }
+
       function startAnimationHandler(quantityOfPower: number) {
         ctx?.clearRect(0, 0, 940, 560);
 
@@ -241,14 +259,14 @@ function Game() {
         if (catX >= 60 && catX <= 150 && catY >= 470 && catY <= 560) {
           console.log('hit!');
           stopAnimation();
-          setCatHitPoints((prev) => prev - 15);
-          setTurnOwner('dog');
+          setDogHitPoints((prev) => prev - 15);
+          testGameState();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
         } else if (catX > 940 || catX <= 0 || catY > 560 || catY < 0) {
           console.log('miss!');
           stopAnimation();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
-          setTurnOwner('dog');
+          setRoomState('dogTurn');
         }
         drawCat();
         drawWall();
@@ -275,12 +293,14 @@ function Game() {
     drawWall();
     drawDog();
     drawCat();
-    if (turnOwner === 'dog') {
+    if (roomState === 'dogTurn') {
       setDogTurn();
-    } else if (turnOwner === 'cat') {
+    } else if (roomState === 'catTurn') {
       setCatTurn();
+    } else if (roomState === 'dogWin' || roomState === 'catWin') {
+      alert(roomState);
     }
-  }, [turnOwner]);
+  }, [roomState]);
 
   return (
     <div>
