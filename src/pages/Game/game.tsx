@@ -2,6 +2,10 @@ import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
+interface Props {
+  width: number;
+}
+
 const GameScreen = styled.div`
   position: absolute;
   right: 0;
@@ -36,7 +40,7 @@ const GameCanvas = styled.canvas`
 `;
 const GameDog = styled.div`
   position: absolute;
-  top: 536px;
+  top: 490px;
   left: 80px;
   width: 50px;
   height: 70px;
@@ -45,7 +49,7 @@ const GameDog = styled.div`
 `;
 const GameCat = styled.div`
   position: absolute;
-  top: 536px;
+  top: 490px;
   left: 820px;
   width: 50px;
   height: 70px;
@@ -56,7 +60,7 @@ const GameDogEnergyBar = styled.div`
   display: none;
   position: absolute;
   left: 55px;
-  top: 480px;
+  top: 420px;
   width: 100px;
   height: 13px;
   border: 1px solid black;
@@ -67,7 +71,7 @@ const GameCatEnergyBar = styled.div`
   display: none;
   position: absolute;
   right: 55px;
-  top: 480px;
+  top: 420px;
   width: 100px;
   height: 13px;
   border: 1px solid black;
@@ -88,11 +92,47 @@ const GameCatEnergyInner = styled.div`
   height: 100%;
   background-color: red;
 `;
+const GameDogHitPointsBar = styled.div`
+  position: absolute;
+  left: 55px;
+  top: 20px;
+  width: 200px;
+  height: 19px;
+  border: 1px solid black;
+  background-color: #ffffff;
+  overflow: hidden;
+`;
+const GameDogHitPointsInner = styled.div<Props>`
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: ${(p) => `${p.width}%`};
+  height: 100%;
+  background-color: red;
+`;
+const GameCatHitPointsBar = styled.div`
+  position: absolute;
+  right: 55px;
+  top: 20px;
+  width: 200px;
+  height: 19px;
+  border: 1px solid black;
+  background-color: #ffffff;
+  overflow: hidden;
+`;
+const GameCatHitPointsInner = styled.div<Props>`
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: ${(p) => `${p.width}%`};
+  height: 100%;
+  background-color: red;
+`;
 
 function Game() {
   const [dogHitPoints, setDogHitPoints] = useState(30);
   const [catHitPoints, setCatHitPoints] = useState(30);
-  const [roomState, setRoomState] = useState<string | undefined>('dogTurn');
+  const [roomState, setRoomState] = useState('dogTurn');
   const canvas = useRef<HTMLCanvasElement>(null);
   const GameDogRef = useRef<HTMLDivElement>(null);
   const dogEnergyBarRef = useRef<HTMLDivElement>(null);
@@ -126,6 +166,12 @@ function Game() {
       ctx?.arc(catX, catY, 20, 0, Math.PI * 2, false);
       ctx?.fill();
       ctx?.closePath();
+    }
+    // setBegin
+    function setGameBegin() {
+      drawWall();
+      drawDog();
+      drawCat();
     }
     // setDogTurn
     function setDogTurn() {
@@ -205,6 +251,7 @@ function Game() {
         GameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
         GameDogRef.current?.removeEventListener('mouseup', mouseUpHandler);
       }
+      console.log(111);
       GameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
       GameDogRef.current?.addEventListener('mouseup', mouseUpHandler);
     }
@@ -290,9 +337,7 @@ function Game() {
       GameCatRef.current?.addEventListener('mouseup', mouseUpHandler);
     }
     ctx?.clearRect(0, 0, 940, 560);
-    drawWall();
-    drawDog();
-    drawCat();
+    setGameBegin();
     if (roomState === 'dogTurn') {
       setDogTurn();
     } else if (roomState === 'catTurn') {
@@ -305,9 +350,13 @@ function Game() {
   return (
     <div>
       <GameScreen>
-        <GameDogHitPoints>{dogHitPoints}</GameDogHitPoints>
-        <GameCatHitPoints>{catHitPoints}</GameCatHitPoints>
         <GameCanvasSection>
+          <GameDogHitPointsBar>
+            <GameDogHitPointsInner width={dogHitPoints} />
+          </GameDogHitPointsBar>
+          <GameCatHitPointsBar>
+            <GameCatHitPointsInner width={catHitPoints} />
+          </GameCatHitPointsBar>
           <GameCanvas width={940} height={560} ref={canvas} />
         </GameCanvasSection>
         <GameDogEnergyBar ref={dogEnergyBarRef}>
