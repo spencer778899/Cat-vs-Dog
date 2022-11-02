@@ -2,8 +2,12 @@ import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
-interface Props {
+interface GameDogHitPointsInnerProps {
   width: number;
+}
+
+interface GameWindSpeedProps {
+  windSpeed: number;
 }
 
 const GameScreen = styled.div`
@@ -16,17 +20,25 @@ const GameScreen = styled.div`
   width: 940px;
   margin: auto;
 `;
-const GameDogHitPoints = styled.div`
-  width: 50%;
-  margin-top: 20px;
-  text-align: center;
-  font-size: 24px;
+const GameWindSpeedBar = styled.div`
+  position: absolute;
+  top: 40px;
+  right: 0;
+  left: 0;
+  width: 100px;
+  height: 15px;
+  margin: auto;
+  background-color: #ffffff;
+  border: 1px solid #000000;
 `;
-const GameCatHitPoints = styled.div`
-  width: 50%;
-  margin-top: 20px;
-  text-align: center;
-  font-size: 24px;
+const GameWindSpeed = styled.div<GameWindSpeedProps>`
+  position: absolute;
+  right: ${(p) => (p.windSpeed > 0 ? 'none' : '50px')};
+  left: ${(p) => (p.windSpeed > 0 ? '50px' : 'none')};
+  top: 0;
+  width: ${(p) => `${Math.abs(p.windSpeed) * 25}px`};
+  height: 100%;
+  background-color: red;
 `;
 const GameCanvasSection = styled.div`
   position: relative;
@@ -104,7 +116,7 @@ const GameDogHitPointsBar = styled.div`
   background-color: #ffffff;
   overflow: hidden;
 `;
-const GameDogHitPointsInner = styled.div<Props>`
+const GameDogHitPointsInner = styled.div<GameDogHitPointsInnerProps>`
   position: absolute;
   left: 0;
   top: 0;
@@ -122,7 +134,7 @@ const GameCatHitPointsBar = styled.div`
   background-color: #ffffff;
   overflow: hidden;
 `;
-const GameCatHitPointsInner = styled.div<Props>`
+const GameCatHitPointsInner = styled.div<GameDogHitPointsInnerProps>`
   position: absolute;
   left: 0;
   top: 0;
@@ -134,6 +146,7 @@ const GameCatHitPointsInner = styled.div<Props>`
 function Game() {
   const [dogHitPoints, setDogHitPoints] = useState(30);
   const [catHitPoints, setCatHitPoints] = useState(30);
+  const [windSpeedBar, setWindSpeedBar] = useState<number | undefined>(undefined); // -2 ~ 2
   const [roomState, setRoomState] = useState('dogTurn');
   const canvas = useRef<HTMLCanvasElement>(null);
   const GameDogRef = useRef<HTMLDivElement>(null);
@@ -142,12 +155,14 @@ function Game() {
   const GameCatRef = useRef<HTMLDivElement>(null);
   const catEnergyBarRef = useRef<HTMLDivElement>(null);
   const catEnergyInnerRef = useRef<HTMLDivElement>(null);
+  const windSpeedRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
     let catX = 840;
     let catY = 540;
     let dogX = 100;
     let dogY = 540;
+    let windSpeed: number; // -2 ~ 2
 
     function drawWall() {
       ctx?.beginPath();
@@ -168,6 +183,17 @@ function Game() {
       ctx?.arc(catX, catY, 20, 0, Math.PI * 2, false);
       ctx?.fill();
       ctx?.closePath();
+    }
+    function windSpeedHandler() {
+      const isPositive = Math.floor(Math.random() * 2);
+      const randomNumber = Math.floor(Math.random() * 5);
+      if (isPositive) {
+        windSpeed = 0.5 * randomNumber;
+        setWindSpeedBar(0.5 * randomNumber);
+      } else {
+        windSpeed = -0.5 * randomNumber;
+        setWindSpeedBar(-0.5 * randomNumber);
+      }
     }
     // setBegin
     function setGameBegin() {
@@ -222,7 +248,7 @@ function Game() {
         ctx?.clearRect(0, 0, 940, 560);
 
         // up data dog coordinate
-        dogX += 10 + quantityOfPower - 0 * time;
+        dogX += 10 + quantityOfPower + windSpeed * time;
         dogY -= 10 + quantityOfPower - time ** 2;
 
         // Is dog hit the cat?
@@ -263,6 +289,7 @@ function Game() {
           window.removeEventListener('mouseup', mouseUpHandler);
         }
       }
+      windSpeedRef.current?.setAttribute('value', `${windSpeed}`);
       GameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
       window.addEventListener('mouseup', mouseUpHandler);
     }
@@ -312,7 +339,7 @@ function Game() {
         ctx?.clearRect(0, 0, 940, 560);
 
         // up data cat coordinate
-        catX -= 10 + quantityOfPower - 0 * time;
+        catX -= 10 + quantityOfPower - windSpeed * time;
         catY -= 10 + quantityOfPower - time ** 2;
 
         // Is dog cat the cat?
@@ -353,14 +380,17 @@ function Game() {
           window.removeEventListener('mouseup', mouseUpHandler);
         }
       }
+      windSpeedRef.current?.setAttribute('value', `${windSpeed}`);
       GameCatRef.current?.addEventListener('mousedown', mouseDownHandler);
       window.addEventListener('mouseup', mouseUpHandler);
     }
     ctx?.clearRect(0, 0, 940, 560);
     setGameBegin();
     if (roomState === 'dogTurn') {
+      windSpeedHandler();
       setDogTurn();
     } else if (roomState === 'catTurn') {
+      windSpeedHandler();
       setCatTurn();
     } else if (roomState === 'dogWin' || roomState === 'catWin') {
       alert(roomState);
@@ -371,6 +401,9 @@ function Game() {
     <div>
       <GameScreen>
         <GameCanvasSection>
+          <GameWindSpeedBar>
+            <GameWindSpeed windSpeed={windSpeedBar || 0} />
+          </GameWindSpeedBar>
           <GameDogHitPointsBar>
             <GameDogHitPointsInner width={dogHitPoints} />
           </GameDogHitPointsBar>
