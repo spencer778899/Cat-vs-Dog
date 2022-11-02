@@ -2,6 +2,10 @@ import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
+interface Props {
+  width: number;
+}
+
 const GameScreen = styled.div`
   position: absolute;
   right: 0;
@@ -36,27 +40,29 @@ const GameCanvas = styled.canvas`
 `;
 const GameDog = styled.div`
   position: absolute;
-  top: 536px;
+  top: 490px;
   left: 80px;
   width: 50px;
   height: 70px;
   color: #ffffff;
+  cursor: pointer;
   background-color: cornflowerblue;
 `;
 const GameCat = styled.div`
   position: absolute;
-  top: 536px;
+  top: 490px;
   left: 820px;
   width: 50px;
   height: 70px;
   color: #ffffff;
+  cursor: pointer;
   background-color: cornflowerblue;
 `;
 const GameDogEnergyBar = styled.div`
   display: none;
   position: absolute;
   left: 55px;
-  top: 480px;
+  top: 420px;
   width: 100px;
   height: 13px;
   border: 1px solid black;
@@ -67,7 +73,7 @@ const GameCatEnergyBar = styled.div`
   display: none;
   position: absolute;
   right: 55px;
-  top: 480px;
+  top: 420px;
   width: 100px;
   height: 13px;
   border: 1px solid black;
@@ -88,11 +94,47 @@ const GameCatEnergyInner = styled.div`
   height: 100%;
   background-color: red;
 `;
+const GameDogHitPointsBar = styled.div`
+  position: absolute;
+  left: 55px;
+  top: 20px;
+  width: 200px;
+  height: 19px;
+  border: 1px solid black;
+  background-color: #ffffff;
+  overflow: hidden;
+`;
+const GameDogHitPointsInner = styled.div<Props>`
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: ${(p) => `${p.width}%`};
+  height: 100%;
+  background-color: red;
+`;
+const GameCatHitPointsBar = styled.div`
+  position: absolute;
+  right: 55px;
+  top: 20px;
+  width: 200px;
+  height: 19px;
+  border: 1px solid black;
+  background-color: #ffffff;
+  overflow: hidden;
+`;
+const GameCatHitPointsInner = styled.div<Props>`
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: ${(p) => `${p.width}%`};
+  height: 100%;
+  background-color: red;
+`;
 
 function Game() {
   const [dogHitPoints, setDogHitPoints] = useState(30);
   const [catHitPoints, setCatHitPoints] = useState(30);
-  const [roomState, setRoomState] = useState<string | undefined>('dogTurn');
+  const [roomState, setRoomState] = useState('dogTurn');
   const canvas = useRef<HTMLCanvasElement>(null);
   const GameDogRef = useRef<HTMLDivElement>(null);
   const dogEnergyBarRef = useRef<HTMLDivElement>(null);
@@ -127,14 +169,22 @@ function Game() {
       ctx?.fill();
       ctx?.closePath();
     }
+    // setBegin
+    function setGameBegin() {
+      drawWall();
+      drawDog();
+      drawCat();
+    }
     // setDogTurn
     function setDogTurn() {
       let startTime: number;
       let timeHandler: NodeJS.Timeout;
       let startAnimation: NodeJS.Timeout;
-      let time = 1;
       let dogEnergyInnerHandler: NodeJS.Timeout;
+      let isMouseDown = false;
+      let time = 1;
       let energy = 0;
+
       function increaseEnergy() {
         energy += 1;
         if (energy >= 100) {
@@ -142,12 +192,13 @@ function Game() {
         }
         dogEnergyInnerRef?.current?.setAttribute('style', `width:${energy}%`);
       }
+
       function mouseDownHandler() {
+        isMouseDown = true;
         dogEnergyBarRef?.current?.setAttribute('style', 'display:block');
         dogEnergyInnerHandler = setInterval(increaseEnergy, 20);
         startTime = Number(new Date());
       }
-
       function getQuantityOfPower(endTime: number) {
         const timeLong = endTime - startTime;
         return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
@@ -181,6 +232,11 @@ function Game() {
           setCatHitPoints((prev) => prev - 15);
           testGameState();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
+        } else if (dogX >= 450 && dogX <= 490 && dogY >= 400 && dogY <= 560) {
+          console.log('miss!');
+          stopAnimation();
+          dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
+          setRoomState('catTurn');
         } else if (dogX > 940 || dogX <= 0 || dogY > 560 || dogY < 0) {
           console.log('miss!');
           stopAnimation();
@@ -192,29 +248,32 @@ function Game() {
       }
 
       function mouseUpHandler() {
-        const endTime = Number(new Date());
-        const quantityOfPower = getQuantityOfPower(endTime);
-        console.log(quantityOfPower);
-        clearInterval(dogEnergyInnerHandler);
-        timeHandler = setInterval(() => {
-          time += 0.06;
-        }, 10);
-        startAnimation = setInterval(() => {
-          startAnimationHandler(quantityOfPower);
-        }, 15);
-        GameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
-        GameDogRef.current?.removeEventListener('mouseup', mouseUpHandler);
+        if (isMouseDown) {
+          const endTime = Number(new Date());
+          const quantityOfPower = getQuantityOfPower(endTime);
+          console.log(quantityOfPower);
+          clearInterval(dogEnergyInnerHandler);
+          timeHandler = setInterval(() => {
+            time += 0.06;
+          }, 10);
+          startAnimation = setInterval(() => {
+            startAnimationHandler(quantityOfPower);
+          }, 15);
+          GameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
+          window.removeEventListener('mouseup', mouseUpHandler);
+        }
       }
       GameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
-      GameDogRef.current?.addEventListener('mouseup', mouseUpHandler);
+      window.addEventListener('mouseup', mouseUpHandler);
     }
     // setCatTurn
     function setCatTurn() {
       let startTime: number;
       let timeHandler: NodeJS.Timeout;
       let startAnimation: NodeJS.Timeout;
-      let time = 1;
       let CatEnergyInnerHandler: NodeJS.Timeout;
+      let isMouseDown = false;
+      let time = 1;
       let energy = 0;
       function increaseEnergy() {
         energy += 1;
@@ -224,6 +283,7 @@ function Game() {
         catEnergyInnerRef?.current?.setAttribute('style', `width:${energy}%`);
       }
       function mouseDownHandler() {
+        isMouseDown = true;
         catEnergyBarRef?.current?.setAttribute('style', 'display:block');
         CatEnergyInnerHandler = setInterval(increaseEnergy, 20);
         startTime = Number(new Date());
@@ -262,6 +322,11 @@ function Game() {
           setDogHitPoints((prev) => prev - 15);
           testGameState();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+        } else if (catX >= 450 && catX <= 490 && catY >= 400 && catY <= 560) {
+          console.log('miss!');
+          stopAnimation();
+          catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+          setRoomState('dogTurn');
         } else if (catX > 940 || catX <= 0 || catY > 560 || catY < 0) {
           console.log('miss!');
           stopAnimation();
@@ -273,26 +338,26 @@ function Game() {
       }
 
       function mouseUpHandler() {
-        const endTime = Number(new Date());
-        const quantityOfPower = getQuantityOfPower(endTime);
-        console.log(quantityOfPower);
-        clearInterval(CatEnergyInnerHandler);
-        timeHandler = setInterval(() => {
-          time += 0.06;
-        }, 10);
-        startAnimation = setInterval(() => {
-          startAnimationHandler(quantityOfPower);
-        }, 15);
-        GameCatRef.current?.removeEventListener('mousedown', mouseDownHandler);
-        GameCatRef.current?.removeEventListener('mouseup', mouseUpHandler);
+        if (isMouseDown) {
+          const endTime = Number(new Date());
+          const quantityOfPower = getQuantityOfPower(endTime);
+          console.log(quantityOfPower);
+          clearInterval(CatEnergyInnerHandler);
+          timeHandler = setInterval(() => {
+            time += 0.06;
+          }, 10);
+          startAnimation = setInterval(() => {
+            startAnimationHandler(quantityOfPower);
+          }, 15);
+          GameCatRef.current?.removeEventListener('mousedown', mouseDownHandler);
+          window.removeEventListener('mouseup', mouseUpHandler);
+        }
       }
       GameCatRef.current?.addEventListener('mousedown', mouseDownHandler);
-      GameCatRef.current?.addEventListener('mouseup', mouseUpHandler);
+      window.addEventListener('mouseup', mouseUpHandler);
     }
     ctx?.clearRect(0, 0, 940, 560);
-    drawWall();
-    drawDog();
-    drawCat();
+    setGameBegin();
     if (roomState === 'dogTurn') {
       setDogTurn();
     } else if (roomState === 'catTurn') {
@@ -305,9 +370,13 @@ function Game() {
   return (
     <div>
       <GameScreen>
-        <GameDogHitPoints>{dogHitPoints}</GameDogHitPoints>
-        <GameCatHitPoints>{catHitPoints}</GameCatHitPoints>
         <GameCanvasSection>
+          <GameDogHitPointsBar>
+            <GameDogHitPointsInner width={dogHitPoints} />
+          </GameDogHitPointsBar>
+          <GameCatHitPointsBar>
+            <GameCatHitPointsInner width={catHitPoints} />
+          </GameCatHitPointsBar>
           <GameCanvas width={940} height={560} ref={canvas} />
         </GameCanvasSection>
         <GameDogEnergyBar ref={dogEnergyBarRef}>
