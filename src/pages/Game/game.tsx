@@ -5,9 +5,17 @@ import styled from 'styled-components';
 interface GameDogHitPointsInnerProps {
   width: number;
 }
-
 interface GameWindSpeedProps {
   windSpeed: number;
+}
+interface GameDogPowerUpProps {
+  havePowerUp: boolean;
+}
+interface GameDogDoubleHitProps {
+  haveDoubleHit: boolean;
+}
+interface GameDogHealProps {
+  haveHeal: boolean;
 }
 
 const GameScreen = styled.div`
@@ -44,31 +52,33 @@ const GameDogSkillBox = styled.div`
   display: flex;
   justify-content: space-between;
   position: absolute;
-  top: 45px;
+  top: 50px;
   left: 80px;
   width: 150px;
   height: 30px;
 `;
-const GameDogPowerUP = styled.div`
-  display: flex;
+const GameDogPowerUp = styled.div<GameDogPowerUpProps>`
+  display: ${(p) => (p.havePowerUp ? 'flex' : 'none')};
   justify-content: center;
   align-items: center;
   width: 30px;
   height: 30px;
   border: 1px solid #000000;
   border-radius: 50%;
+  cursor: pointer;
 `;
-const GameDogDoubleHit = styled.div`
-  display: flex;
+const GameDogDoubleHit = styled.div<GameDogDoubleHitProps>`
+  display: ${(p) => (p.haveDoubleHit ? 'flex' : 'none')};
   justify-content: center;
   align-items: center;
   width: 30px;
   height: 30px;
   border: 1px solid #000000;
   border-radius: 50%;
+  cursor: pointer;
 `;
-const GameDogHeal = styled.div`
-  display: flex;
+const GameDogHeal = styled.div<GameDogHealProps>`
+  display: ${(p) => (p.haveHeal ? 'flex' : 'none')};
   justify-content: center;
   align-items: center;
   width: 30px;
@@ -77,6 +87,7 @@ const GameDogHeal = styled.div`
   border-radius: 50%;
   color: red;
   font-size: 24px;
+  cursor: pointer;
 `;
 const GameCanvasSection = styled.div`
   position: relative;
@@ -185,6 +196,9 @@ function Game() {
   const [dogHitPoints, setDogHitPoints] = useState(30);
   const [catHitPoints, setCatHitPoints] = useState(30);
   const [windSpeedBar, setWindSpeedBar] = useState<number | undefined>(undefined); // -2 ~ 2
+  const [havePowerUp, setHavePowerUp] = useState(true);
+  const [haveDoubleHit, setDoubleHit] = useState(true);
+  const [haveHeal, setHaveHeal] = useState(true);
   const [roomState, setRoomState] = useState('dogTurn');
   const canvas = useRef<HTMLCanvasElement>(null);
   const GameDogRef = useRef<HTMLDivElement>(null);
@@ -194,6 +208,10 @@ function Game() {
   const catEnergyBarRef = useRef<HTMLDivElement>(null);
   const catEnergyInnerRef = useRef<HTMLDivElement>(null);
   const windSpeedRef = useRef<HTMLDivElement>(null);
+  const DogPowerUpRef = useRef<HTMLDivElement>(null);
+  const DogDoubleHitRef = useRef<HTMLDivElement>(null);
+  const GameDogHealRef = useRef<HTMLDivElement>(null);
+  console.log(haveHeal);
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
     let catX = 840;
@@ -327,8 +345,17 @@ function Game() {
           window.removeEventListener('mouseup', mouseUpHandler);
         }
       }
+      function PowerUpHandler() {
+        setHaveHeal(false);
+        setDogHitPoints((prev) => prev + 20);
+        GameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
+        GameDogHealRef.current?.removeEventListener('click', PowerUpHandler);
+        window.removeEventListener('mouseup', mouseUpHandler);
+        setRoomState('catTurn');
+      }
       windSpeedRef.current?.setAttribute('value', `${windSpeed}`);
       GameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
+      GameDogHealRef.current?.addEventListener('click', PowerUpHandler);
       window.addEventListener('mouseup', mouseUpHandler);
     }
     // setCatTurn
@@ -446,9 +473,11 @@ function Game() {
             <GameDogHitPointsInner width={dogHitPoints} />
           </GameDogHitPointsBar>
           <GameDogSkillBox>
-            <GameDogPowerUP>⚡</GameDogPowerUP>
-            <GameDogDoubleHit>X2</GameDogDoubleHit>
-            <GameDogHeal>✚</GameDogHeal>
+            <GameDogPowerUp havePowerUp={havePowerUp}>⚡</GameDogPowerUp>
+            <GameDogDoubleHit haveDoubleHit={haveDoubleHit}>X2</GameDogDoubleHit>
+            <GameDogHeal ref={GameDogHealRef} haveHeal={haveHeal}>
+              ✚
+            </GameDogHeal>
           </GameDogSkillBox>
           <GameCatHitPointsBar>
             <GameCatHitPointsInner width={catHitPoints} />
