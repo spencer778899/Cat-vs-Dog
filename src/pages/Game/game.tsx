@@ -227,6 +227,11 @@ function Game() {
           setCatHitPoints((prev) => prev - 15);
           testGameState();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
+        } else if (dogX >= 450 && dogX <= 490 && dogY >= 400 && dogY <= 560) {
+          console.log('miss!');
+          stopAnimation();
+          dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
+          setRoomState('catTurn');
         } else if (dogX > 940 || dogX <= 0 || dogY > 560 || dogY < 0) {
           console.log('miss!');
           stopAnimation();
@@ -309,6 +314,11 @@ function Game() {
           setDogHitPoints((prev) => prev - 15);
           testGameState();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+        } else if (catX >= 450 && catX <= 490 && catY >= 400 && catY <= 560) {
+          console.log('miss!');
+          stopAnimation();
+          catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+          setRoomState('dogTurn');
         } else if (catX > 940 || catX <= 0 || catY > 560 || catY < 0) {
           console.log('miss!');
           stopAnimation();
