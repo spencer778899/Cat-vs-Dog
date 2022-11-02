@@ -40,6 +40,44 @@ const GameWindSpeed = styled.div<GameWindSpeedProps>`
   height: 100%;
   background-color: red;
 `;
+const GameDogSkillBox = styled.div`
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 45px;
+  left: 80px;
+  width: 150px;
+  height: 30px;
+`;
+const GameDogPowerUP = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #000000;
+  border-radius: 50%;
+`;
+const GameDogDoubleHit = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #000000;
+  border-radius: 50%;
+`;
+const GameDogHeal = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  color: red;
+  font-size: 24px;
+`;
 const GameCanvasSection = styled.div`
   position: relative;
   width: 940px;
@@ -407,6 +445,11 @@ function Game() {
           <GameDogHitPointsBar>
             <GameDogHitPointsInner width={dogHitPoints} />
           </GameDogHitPointsBar>
+          <GameDogSkillBox>
+            <GameDogPowerUP>⚡</GameDogPowerUP>
+            <GameDogDoubleHit>X2</GameDogDoubleHit>
+            <GameDogHeal>✚</GameDogHeal>
+          </GameDogSkillBox>
           <GameCatHitPointsBar>
             <GameCatHitPointsInner width={catHitPoints} />
           </GameCatHitPointsBar>
