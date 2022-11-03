@@ -475,7 +475,7 @@ function Game() {
         if (catX >= 80 - catRadius && catX <= 130 + catRadius && catY >= 490 - catRadius) {
           console.log('hit!');
           stopAnimation();
-          setDogHitPoints((prev) => prev - 15);
+          setDogHitPoints((prev) => prev - hitPointsAvailable);
           testGameState();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
         } else if (catX >= 450 - catRadius && catX <= 490 + catRadius && catY >= 400 - catRadius) {
