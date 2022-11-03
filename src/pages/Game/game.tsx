@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import Arrow from './arrow.png';
 
 const GameScreen = styled.div`
   position: absolute;
@@ -125,6 +126,41 @@ const GameCanvas = styled.canvas`
   display: block;
   margin: 0 auto;
 `;
+const GameWhoseTurnMark = styled.div<{ roomState: string; isDisplayArrow: boolean }>`
+  display: ${(p) => (p.isDisplayArrow ? 'block' : 'none')};
+  position: absolute;
+  top: 380px;
+  left: ${(p) => (p.roomState === 'dogTurn' ? '90px' : '829px')};
+  width: 21px;
+  height: 35px;
+  background-image: url(${Arrow});
+  background-size: cover;
+  animation-duration: 0.7s;
+  animation-name: blink;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+  @keyframes blink {
+    0% {
+      opacity: 10%;
+    }
+    20% {
+      opacity: 20%;
+    }
+    40% {
+      opacity: 30%;
+    }
+    60% {
+      opacity: 50%;
+    }
+    80% {
+      opacity: 80%;
+    }
+    100% {
+      opacity: 100%;
+    }
+  }
+`;
 const GameDog = styled.div`
   position: absolute;
   top: 490px;
@@ -230,6 +266,7 @@ function Game() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [roomState, setRoomState] = useState('dogTurn');
   const [windSpeedBar, setWindSpeedBar] = useState<number | undefined>(undefined); // -2 ~ 2
+  const [isDisplayArrow, setIsDisplayArrow] = useState(true);
   // dog useState
   const [dogHitPoints, setDogHitPoints] = useState(40);
   const [dogHavePowerUp, setDogHavePowerUp] = useState(true);
@@ -300,6 +337,7 @@ function Game() {
 
       function mouseDownHandler() {
         isMouseDown = true;
+        setIsDisplayArrow(false);
         dogEnergyBarRef?.current?.setAttribute('style', 'display:block');
         dogEnergyInnerHandler = setInterval(increaseEnergy, 20);
         startTime = Number(new Date());
@@ -392,6 +430,7 @@ function Game() {
         window.removeEventListener('mouseup', mouseUpHandler);
       }
       windSpeedHandler();
+      setIsDisplayArrow(true);
       gameDogHealRef.current?.addEventListener('click', healHandler);
       gameDogDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
       gameDogPowerUpRef.current?.addEventListener('click', PowerUpHandler);
@@ -439,6 +478,7 @@ function Game() {
       }
       function mouseDownHandler() {
         isMouseDown = true;
+        setIsDisplayArrow(false);
         catEnergyBarRef?.current?.setAttribute('style', 'display:block');
         CatEnergyInnerHandler = setInterval(increaseEnergy, 20);
         startTime = Number(new Date());
@@ -532,6 +572,7 @@ function Game() {
         window.removeEventListener('mouseup', mouseUpHandler);
       }
       windSpeedHandler();
+      setIsDisplayArrow(true);
       gameCatHealRef.current?.addEventListener('click', healHandler);
       gameCatDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
       gameCatPowerUpRef.current?.addEventListener('click', PowerUpHandler);
@@ -591,6 +632,7 @@ function Game() {
         <GameCatEnergyBar ref={catEnergyBarRef}>
           <GameCatEnergyInner ref={catEnergyInnerRef} />
         </GameCatEnergyBar>
+        <GameWhoseTurnMark roomState={roomState} isDisplayArrow={isDisplayArrow} />
         <GameDog ref={gameDogRef}>dog</GameDog>
         <GameCat ref={gameCatRef}>cat</GameCat>
         <GameWall>我是div，不是canvas</GameWall>
