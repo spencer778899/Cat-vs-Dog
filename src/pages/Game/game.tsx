@@ -42,8 +42,8 @@ const GameDogSkillBox = styled.div`
   width: 150px;
   height: 30px;
 `;
-const GameDogPowerUp = styled.div<{ havePowerUp: boolean }>`
-  display: ${(p) => (p.havePowerUp ? 'flex' : 'none')};
+const GameDogPowerUp = styled.div<{ dogHavePowerUp: boolean }>`
+  display: ${(p) => (p.dogHavePowerUp ? 'flex' : 'none')};
   justify-content: center;
   align-items: center;
   width: 30px;
@@ -52,8 +52,8 @@ const GameDogPowerUp = styled.div<{ havePowerUp: boolean }>`
   border-radius: 50%;
   cursor: pointer;
 `;
-const GameDogDoubleHit = styled.div<{ haveDoubleHit: boolean }>`
-  display: ${(p) => (p.haveDoubleHit ? 'flex' : 'none')};
+const GameDogDoubleHit = styled.div<{ dogHaveDoubleHit: boolean }>`
+  display: ${(p) => (p.dogHaveDoubleHit ? 'flex' : 'none')};
   justify-content: center;
   align-items: center;
   width: 30px;
@@ -62,8 +62,49 @@ const GameDogDoubleHit = styled.div<{ haveDoubleHit: boolean }>`
   border-radius: 50%;
   cursor: pointer;
 `;
-const GameDogHeal = styled.div<{ haveHeal: boolean }>`
-  display: ${(p) => (p.haveHeal ? 'flex' : 'none')};
+const GameDogHeal = styled.div<{ dogHaveHeal: boolean }>`
+  display: ${(p) => (p.dogHaveHeal ? 'flex' : 'none')};
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  color: red;
+  font-size: 24px;
+  cursor: pointer;
+`;
+const GameCatSkillBox = styled.div`
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 50px;
+  right: 80px;
+  width: 150px;
+  height: 30px;
+`;
+const GameCatPowerUp = styled.div<{ catHavePowerUp: boolean }>`
+  display: ${(p) => (p.catHavePowerUp ? 'flex' : 'none')};
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  cursor: pointer;
+`;
+const GameCatDoubleHit = styled.div<{ catHaveDoubleHit: boolean }>`
+  display: ${(p) => (p.catHaveDoubleHit ? 'flex' : 'none')};
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  cursor: pointer;
+`;
+const GameCatHeal = styled.div<{ catHaveHeal: boolean }>`
+  display: ${(p) => (p.catHaveHeal ? 'flex' : 'none')};
   justify-content: center;
   align-items: center;
   width: 30px;
@@ -188,21 +229,31 @@ const GameWall = styled.div`
 function Game() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [roomState, setRoomState] = useState('dogTurn');
-  const [dogHitPoints, setDogHitPoints] = useState(40);
-  const [catHitPoints, setCatHitPoints] = useState(40);
   const [windSpeedBar, setWindSpeedBar] = useState<number | undefined>(undefined); // -2 ~ 2
-  const [havePowerUp, setHavePowerUp] = useState(true);
-  const [haveDoubleHit, setHaveDoubleHit] = useState(true);
-  const [haveHeal, setHaveHeal] = useState(true);
+  // dog useState
+  const [dogHitPoints, setDogHitPoints] = useState(40);
+  const [dogHavePowerUp, setDogHavePowerUp] = useState(true);
+  const [dogHaveDoubleHit, setDogHaveDoubleHit] = useState(true);
+  const [dogHaveHeal, setDogHaveHeal] = useState(true);
+  // cat useState
+  const [catHitPoints, setCatHitPoints] = useState(40);
+  const [catHavePowerUp, setCatHavePowerUp] = useState(true);
+  const [catHaveDoubleHit, setCatHaveDoubleHit] = useState(true);
+  const [catHaveHeal, setCatHaveHeal] = useState(true);
+  // dog useRef
   const gameDogRef = useRef<HTMLDivElement>(null);
   const dogEnergyBarRef = useRef<HTMLDivElement>(null);
   const dogEnergyInnerRef = useRef<HTMLDivElement>(null);
-  const gameCatRef = useRef<HTMLDivElement>(null);
-  const catEnergyBarRef = useRef<HTMLDivElement>(null);
-  const catEnergyInnerRef = useRef<HTMLDivElement>(null);
   const gameDogPowerUpRef = useRef<HTMLDivElement>(null);
   const gameDogDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameDogHealRef = useRef<HTMLDivElement>(null);
+  // cat useRef
+  const gameCatRef = useRef<HTMLDivElement>(null);
+  const catEnergyBarRef = useRef<HTMLDivElement>(null);
+  const catEnergyInnerRef = useRef<HTMLDivElement>(null);
+  const gameCatPowerUpRef = useRef<HTMLDivElement>(null);
+  const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
+  const gameCatHealRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
     // setDogTurn
@@ -300,20 +351,20 @@ function Game() {
         }
       }
       function healHandler() {
-        setHaveHeal(false);
+        setDogHaveHeal(false);
         setDogHitPoints((prev) => prev + 20);
         removeAllListener();
         setRoomState('catTurn');
       }
 
       function doubleHitHandler() {
-        setHaveDoubleHit(false);
+        setDogHaveDoubleHit(false);
         hitPointsAvailable = 30;
         gameDogHealRef.current?.removeEventListener('click', healHandler);
         gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
       }
       function PowerUpHandler() {
-        setHavePowerUp(false);
+        setDogHavePowerUp(false);
         dogRadius = 40;
         gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
         gameDogHealRef.current?.removeEventListener('click', healHandler);
@@ -351,6 +402,7 @@ function Game() {
     function setCatTurn() {
       let catX = 840;
       let catY = 540;
+      let catRadius = 20;
       let startTime: number;
       let timeHandler: NodeJS.Timeout;
       let startAnimation: NodeJS.Timeout;
@@ -358,13 +410,15 @@ function Game() {
       let isMouseDown = false;
       let time = 1;
       let energy = 0;
+      let hitPointsAvailable = 15;
+      let windSpeed: number; // -2 ~ 2
+
       function drawCat() {
         ctx?.beginPath();
-        ctx?.arc(catX, catY, 20, 0, Math.PI * 2, false);
+        ctx?.arc(catX, catY, catRadius, 0, Math.PI * 2, false);
         ctx?.fill();
         ctx?.closePath();
       }
-      let windSpeed: number; // -2 ~ 2
       function windSpeedHandler() {
         const isPositive = Math.floor(Math.random() * 2);
         const randomNumber = Math.floor(Math.random() * 5);
@@ -401,7 +455,7 @@ function Game() {
       }
 
       function testGameState() {
-        const currentDogHitPoints = dogHitPoints - 15;
+        const currentDogHitPoints = dogHitPoints - hitPointsAvailable;
         if (currentDogHitPoints <= 0) {
           setRoomState('catWin');
         } else {
@@ -411,33 +465,50 @@ function Game() {
 
       function startAnimationHandler(quantityOfPower: number) {
         ctx?.clearRect(0, 0, 940, 560);
+        drawCat();
 
         // up data cat coordinate
         catX -= 10 + quantityOfPower - windSpeed * time;
         catY -= 10 + quantityOfPower - time ** 2;
 
         // Is dog cat the cat?
-        if (catX >= 60 && catX <= 150 && catY >= 470 && catY <= 560) {
+        if (catX >= 80 - catRadius && catX <= 130 + catRadius && catY >= 490 - catRadius) {
           console.log('hit!');
           stopAnimation();
           setDogHitPoints((prev) => prev - 15);
           testGameState();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
-        } else if (catX >= 450 && catX <= 490 && catY >= 400 && catY <= 560) {
+        } else if (catX >= 450 - catRadius && catX <= 490 + catRadius && catY >= 400 - catRadius) {
           console.log('miss!');
           stopAnimation();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
           setRoomState('dogTurn');
-        } else if (catX > 940 || catX <= 0 || catY > 560 || catY < 0) {
+        } else if (catY > 580 || catY < 0) {
           console.log('miss!');
           stopAnimation();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
           setRoomState('dogTurn');
         }
-        drawCat();
-        // drawWall();
+      }
+      function healHandler() {
+        setCatHaveHeal(false);
+        setCatHitPoints((prev) => prev + 20);
+        removeAllListener();
+        setRoomState('dogTurn');
       }
 
+      function doubleHitHandler() {
+        setCatHaveDoubleHit(false);
+        hitPointsAvailable = 30;
+        gameCatHealRef.current?.removeEventListener('click', healHandler);
+        gameCatPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+      }
+      function PowerUpHandler() {
+        setCatHavePowerUp(false);
+        catRadius = 40;
+        gameCatDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+        gameCatHealRef.current?.removeEventListener('click', healHandler);
+      }
       function mouseUpHandler() {
         if (isMouseDown) {
           const endTime = Number(new Date());
@@ -450,11 +521,20 @@ function Game() {
           startAnimation = setInterval(() => {
             startAnimationHandler(quantityOfPower);
           }, 15);
-          gameCatRef.current?.removeEventListener('mousedown', mouseDownHandler);
-          window.removeEventListener('mouseup', mouseUpHandler);
+          removeAllListener();
         }
       }
+      function removeAllListener() {
+        gameCatHealRef.current?.removeEventListener('click', healHandler);
+        gameCatDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+        gameCatPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+        gameCatRef.current?.removeEventListener('mousedown', mouseDownHandler);
+        window.removeEventListener('mouseup', mouseUpHandler);
+      }
       windSpeedHandler();
+      gameCatHealRef.current?.addEventListener('click', healHandler);
+      gameCatDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
+      gameCatPowerUpRef.current?.addEventListener('click', PowerUpHandler);
       gameCatRef.current?.addEventListener('mousedown', mouseDownHandler);
       window.addEventListener('mouseup', mouseUpHandler);
     }
@@ -479,19 +559,30 @@ function Game() {
             <GameDogHitPointsInner width={dogHitPoints} />
           </GameDogHitPointsBar>
           <GameDogSkillBox>
-            <GameDogPowerUp ref={gameDogPowerUpRef} havePowerUp={havePowerUp}>
+            <GameDogPowerUp ref={gameDogPowerUpRef} dogHavePowerUp={dogHavePowerUp}>
               ⚡
             </GameDogPowerUp>
-            <GameDogDoubleHit ref={gameDogDoubleHitRef} haveDoubleHit={haveDoubleHit}>
+            <GameDogDoubleHit ref={gameDogDoubleHitRef} dogHaveDoubleHit={dogHaveDoubleHit}>
               X2
             </GameDogDoubleHit>
-            <GameDogHeal ref={gameDogHealRef} haveHeal={haveHeal}>
+            <GameDogHeal ref={gameDogHealRef} dogHaveHeal={dogHaveHeal}>
               ✚
             </GameDogHeal>
           </GameDogSkillBox>
           <GameCatHitPointsBar>
             <GameCatHitPointsInner width={catHitPoints} />
           </GameCatHitPointsBar>
+          <GameCatSkillBox>
+            <GameCatPowerUp ref={gameCatPowerUpRef} catHavePowerUp={catHavePowerUp}>
+              ⚡
+            </GameCatPowerUp>
+            <GameCatDoubleHit ref={gameCatDoubleHitRef} catHaveDoubleHit={catHaveDoubleHit}>
+              X2
+            </GameCatDoubleHit>
+            <GameCatHeal ref={gameCatHealRef} catHaveHeal={catHaveHeal}>
+              ✚
+            </GameCatHeal>
+          </GameCatSkillBox>
           <GameCanvas width={940} height={560} ref={canvas} />
         </GameCanvasSection>
         <GameDogEnergyBar ref={dogEnergyBarRef}>
