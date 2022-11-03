@@ -130,7 +130,7 @@ const GameWhoseTurnMark = styled.div<{ roomState: string; isDisplayArrow: boolea
   display: ${(p) => (p.isDisplayArrow ? 'block' : 'none')};
   position: absolute;
   top: 380px;
-  left: ${(p) => (p.roomState === 'dogTurn' ? '90px' : '829px')};
+  left: ${(p) => (p.roomState === 'dogTurn' ? '95px' : '829px')};
   width: 21px;
   height: 35px;
   background-image: url(${Arrow});
@@ -161,6 +161,17 @@ const GameWhoseTurnMark = styled.div<{ roomState: string; isDisplayArrow: boolea
     }
   }
 `;
+const GameDogTimer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 440px;
+  left: 92px;
+  width: 25px;
+  height: 40px;
+  font-size: 30px;
+`;
 const GameDog = styled.div`
   position: absolute;
   top: 490px;
@@ -170,6 +181,17 @@ const GameDog = styled.div`
   color: #ffffff;
   cursor: pointer;
   background-color: cornflowerblue;
+`;
+const GameCatTimer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 440px;
+  right: 82px;
+  width: 25px;
+  height: 40px;
+  font-size: 30px;
 `;
 const GameCat = styled.div`
   position: absolute;
@@ -259,7 +281,7 @@ const GameWall = styled.div`
   left: 450px;
   width: 40px;
   height: 160px;
-  border: 1px solid #000000;
+  background-color: #000000;
 `;
 
 function Game() {
@@ -268,12 +290,14 @@ function Game() {
   const [windSpeedBar, setWindSpeedBar] = useState<number | undefined>(undefined); // -2 ~ 2
   const [isDisplayArrow, setIsDisplayArrow] = useState(true);
   // dog useState
-  const [dogHitPoints, setDogHitPoints] = useState(40);
+  const [dogTurnTimeSpent, setDogTurnTimeSpent] = useState<number | undefined>(undefined);
+  const [dogHitPoints, setDogHitPoints] = useState(100);
   const [dogHavePowerUp, setDogHavePowerUp] = useState(true);
   const [dogHaveDoubleHit, setDogHaveDoubleHit] = useState(true);
   const [dogHaveHeal, setDogHaveHeal] = useState(true);
   // cat useState
-  const [catHitPoints, setCatHitPoints] = useState(40);
+  const [catTurnTimeSpent, setCatTurnTimeSpent] = useState<number | undefined>(undefined);
+  const [catHitPoints, setCatHitPoints] = useState(100);
   const [catHavePowerUp, setCatHavePowerUp] = useState(true);
   const [catHaveDoubleHit, setCatHaveDoubleHit] = useState(true);
   const [catHaveHeal, setCatHaveHeal] = useState(true);
@@ -338,6 +362,8 @@ function Game() {
       function mouseDownHandler() {
         isMouseDown = true;
         setIsDisplayArrow(false);
+        setDogTurnTimeSpent(undefined);
+        clearInterval(countTimer);
         dogEnergyBarRef?.current?.setAttribute('style', 'display:block');
         dogEnergyInnerHandler = setInterval(increaseEnergy, 20);
         startTime = Number(new Date());
@@ -428,7 +454,22 @@ function Game() {
         gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
         gameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
         window.removeEventListener('mouseup', mouseUpHandler);
+        clearInterval(countTimer);
+        setDogTurnTimeSpent(undefined);
       }
+      let turnTimeSpent = 10;
+      function startCountTimer() {
+        turnTimeSpent -= 1;
+        if (turnTimeSpent === 0) {
+          setDogTurnTimeSpent(undefined);
+          setRoomState('catTurn');
+          removeAllListener();
+          clearInterval(countTimer);
+        } else if (turnTimeSpent <= 5) {
+          setDogTurnTimeSpent(turnTimeSpent);
+        }
+      }
+      const countTimer = setInterval(startCountTimer, 1000);
       windSpeedHandler();
       setIsDisplayArrow(true);
       gameDogHealRef.current?.addEventListener('click', healHandler);
@@ -479,6 +520,8 @@ function Game() {
       function mouseDownHandler() {
         isMouseDown = true;
         setIsDisplayArrow(false);
+        clearInterval(countTimer);
+        setCatTurnTimeSpent(undefined);
         catEnergyBarRef?.current?.setAttribute('style', 'display:block');
         CatEnergyInnerHandler = setInterval(increaseEnergy, 20);
         startTime = Number(new Date());
@@ -570,7 +613,22 @@ function Game() {
         gameCatPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
         gameCatRef.current?.removeEventListener('mousedown', mouseDownHandler);
         window.removeEventListener('mouseup', mouseUpHandler);
+        clearInterval(countTimer);
+        setCatTurnTimeSpent(undefined);
       }
+      let turnTimeSpent = 10;
+      function startCountTimer() {
+        turnTimeSpent -= 1;
+        if (turnTimeSpent === 0) {
+          setCatTurnTimeSpent(undefined);
+          setRoomState('dogTurn');
+          removeAllListener();
+          clearInterval(countTimer);
+        } else if (turnTimeSpent <= 5) {
+          setCatTurnTimeSpent(turnTimeSpent);
+        }
+      }
+      const countTimer = setInterval(startCountTimer, 1000);
       windSpeedHandler();
       setIsDisplayArrow(true);
       gameCatHealRef.current?.addEventListener('click', healHandler);
@@ -633,9 +691,11 @@ function Game() {
           <GameCatEnergyInner ref={catEnergyInnerRef} />
         </GameCatEnergyBar>
         <GameWhoseTurnMark roomState={roomState} isDisplayArrow={isDisplayArrow} />
+        <GameDogTimer>{dogTurnTimeSpent}</GameDogTimer>
         <GameDog ref={gameDogRef}>dog</GameDog>
+        <GameCatTimer>{catTurnTimeSpent}</GameCatTimer>
         <GameCat ref={gameCatRef}>cat</GameCat>
-        <GameWall>我是div，不是canvas</GameWall>
+        <GameWall />
       </GameScreen>
     </div>
   );
