@@ -176,73 +176,40 @@ const GameCatHitPointsInner = styled.div<{ width: number }>`
   height: 100%;
   background-color: red;
 `;
+const GameWall = styled.div`
+  position: absolute;
+  top: 400px;
+  left: 450px;
+  width: 40px;
+  height: 160px;
+  border: 1px solid #000000;
+`;
 
 function Game() {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const [roomState, setRoomState] = useState('dogTurn');
   const [dogHitPoints, setDogHitPoints] = useState(40);
   const [catHitPoints, setCatHitPoints] = useState(40);
   const [windSpeedBar, setWindSpeedBar] = useState<number | undefined>(undefined); // -2 ~ 2
   const [havePowerUp, setHavePowerUp] = useState(true);
   const [haveDoubleHit, setHaveDoubleHit] = useState(true);
   const [haveHeal, setHaveHeal] = useState(true);
-  const [roomState, setRoomState] = useState('dogTurn');
-  const canvas = useRef<HTMLCanvasElement>(null);
   const gameDogRef = useRef<HTMLDivElement>(null);
   const dogEnergyBarRef = useRef<HTMLDivElement>(null);
   const dogEnergyInnerRef = useRef<HTMLDivElement>(null);
   const gameCatRef = useRef<HTMLDivElement>(null);
   const catEnergyBarRef = useRef<HTMLDivElement>(null);
   const catEnergyInnerRef = useRef<HTMLDivElement>(null);
-  const windSpeedRef = useRef<HTMLDivElement>(null);
   const gameDogPowerUpRef = useRef<HTMLDivElement>(null);
   const gameDogDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameDogHealRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
-    let catX = 840;
-    let catY = 540;
-    let dogX = 100;
-    let dogY = 540;
-    let windSpeed: number; // -2 ~ 2
-
-    function drawWall() {
-      ctx?.beginPath();
-      ctx?.rect(450, 400, 40, 160);
-      ctx?.fill();
-      ctx?.closePath();
-    }
-
-    function drawDog() {
-      ctx?.beginPath();
-      ctx?.arc(dogX, dogY, 20, 0, Math.PI * 2, false);
-      ctx?.fill();
-      ctx?.closePath();
-    }
-
-    function drawCat() {
-      ctx?.beginPath();
-      ctx?.arc(catX, catY, 20, 0, Math.PI * 2, false);
-      ctx?.fill();
-      ctx?.closePath();
-    }
-    function windSpeedHandler() {
-      const isPositive = Math.floor(Math.random() * 2);
-      const randomNumber = Math.floor(Math.random() * 5);
-      if (isPositive) {
-        windSpeed = 0.5 * randomNumber;
-        setWindSpeedBar(0.5 * randomNumber);
-      } else {
-        windSpeed = -0.5 * randomNumber;
-        setWindSpeedBar(-0.5 * randomNumber);
-      }
-    }
-    // setBegin
-    function setGameBegin() {
-      drawWall();
-      drawDog();
-      drawCat();
-    }
     // setDogTurn
     function setDogTurn() {
+      let dogX = 100;
+      let dogY = 540;
+      let dogRadius = 20;
       let startTime: number;
       let timeHandler: NodeJS.Timeout;
       let startAnimation: NodeJS.Timeout;
@@ -251,6 +218,26 @@ function Game() {
       let time = 1;
       let energy = 0;
       let hitPointsAvailable = 15;
+      let windSpeed: number; // -2 ~ 2
+
+      function drawDog() {
+        ctx?.beginPath();
+        ctx?.arc(dogX, dogY, dogRadius, 0, Math.PI * 2, false);
+        ctx?.fill();
+        ctx?.closePath();
+      }
+
+      function windSpeedHandler() {
+        const isPositive = Math.floor(Math.random() * 2);
+        const randomNumber = Math.floor(Math.random() * 5);
+        if (isPositive) {
+          windSpeed = 0.5 * randomNumber;
+          setWindSpeedBar(0.5 * randomNumber);
+        } else {
+          windSpeed = -0.5 * randomNumber;
+          setWindSpeedBar(-0.5 * randomNumber);
+        }
+      }
 
       function increaseEnergy() {
         energy += 1;
@@ -287,31 +274,30 @@ function Game() {
 
       function startAnimationHandler(quantityOfPower: number) {
         ctx?.clearRect(0, 0, 940, 560);
+        drawDog();
 
         // up data dog coordinate
-        dogX += 10 + quantityOfPower - windSpeed * time;
+        dogX += 10 + quantityOfPower + windSpeed * time;
         dogY -= 10 + quantityOfPower - time ** 2;
 
         // Is dog hit the cat?
-        if (dogX >= 800 && dogX <= 890 && dogY >= 470 && dogY <= 560) {
+        if (dogX >= 820 - dogRadius && dogX <= 870 + dogRadius && dogY >= 490 - dogRadius) {
           console.log('hit!');
           stopAnimation();
           setCatHitPoints((prev) => prev - hitPointsAvailable);
           testGameState();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
-        } else if (dogX >= 450 && dogX <= 490 && dogY >= 400 && dogY <= 560) {
+        } else if (dogX >= 450 - dogRadius && dogX <= 490 + dogRadius && dogY >= 400 - dogRadius) {
           console.log('miss!');
           stopAnimation();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
           setRoomState('catTurn');
-        } else if (dogX > 940 || dogX <= 0 || dogY > 560 || dogY < 0) {
+        } else if (dogY > 580 || dogY < 0) {
           console.log('miss!');
           stopAnimation();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
           setRoomState('catTurn');
         }
-        drawDog();
-        drawWall();
       }
       function healHandler() {
         setHaveHeal(false);
@@ -323,6 +309,12 @@ function Game() {
       function doubleHitHandler() {
         setHaveDoubleHit(false);
         hitPointsAvailable = 30;
+        gameDogHealRef.current?.removeEventListener('click', healHandler);
+        gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+      }
+      function PowerUpHandler() {
+        setHavePowerUp(false);
+        dogRadius = 40;
         gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
         gameDogHealRef.current?.removeEventListener('click', healHandler);
       }
@@ -344,17 +336,21 @@ function Game() {
       function removeAllListener() {
         gameDogHealRef.current?.removeEventListener('click', healHandler);
         gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+        gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
         gameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
         window.removeEventListener('mouseup', mouseUpHandler);
       }
-      windSpeedRef.current?.setAttribute('value', `${windSpeed}`);
+      windSpeedHandler();
       gameDogHealRef.current?.addEventListener('click', healHandler);
       gameDogDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
+      gameDogPowerUpRef.current?.addEventListener('click', PowerUpHandler);
       gameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
       window.addEventListener('mouseup', mouseUpHandler);
     }
     // setCatTurn
     function setCatTurn() {
+      let catX = 840;
+      let catY = 540;
       let startTime: number;
       let timeHandler: NodeJS.Timeout;
       let startAnimation: NodeJS.Timeout;
@@ -362,6 +358,24 @@ function Game() {
       let isMouseDown = false;
       let time = 1;
       let energy = 0;
+      function drawCat() {
+        ctx?.beginPath();
+        ctx?.arc(catX, catY, 20, 0, Math.PI * 2, false);
+        ctx?.fill();
+        ctx?.closePath();
+      }
+      let windSpeed: number; // -2 ~ 2
+      function windSpeedHandler() {
+        const isPositive = Math.floor(Math.random() * 2);
+        const randomNumber = Math.floor(Math.random() * 5);
+        if (isPositive) {
+          windSpeed = 0.5 * randomNumber;
+          setWindSpeedBar(0.5 * randomNumber);
+        } else {
+          windSpeed = -0.5 * randomNumber;
+          setWindSpeedBar(-0.5 * randomNumber);
+        }
+      }
       function increaseEnergy() {
         energy += 1;
         if (energy >= 100) {
@@ -421,7 +435,7 @@ function Game() {
           setRoomState('dogTurn');
         }
         drawCat();
-        drawWall();
+        // drawWall();
       }
 
       function mouseUpHandler() {
@@ -440,17 +454,14 @@ function Game() {
           window.removeEventListener('mouseup', mouseUpHandler);
         }
       }
-      windSpeedRef.current?.setAttribute('value', `${windSpeed}`);
+      windSpeedHandler();
       gameCatRef.current?.addEventListener('mousedown', mouseDownHandler);
       window.addEventListener('mouseup', mouseUpHandler);
     }
     ctx?.clearRect(0, 0, 940, 560);
-    setGameBegin();
     if (roomState === 'dogTurn') {
-      windSpeedHandler();
       setDogTurn();
     } else if (roomState === 'catTurn') {
-      windSpeedHandler();
       setCatTurn();
     } else if (roomState === 'dogWin' || roomState === 'catWin') {
       alert(roomState);
@@ -491,6 +502,7 @@ function Game() {
         </GameCatEnergyBar>
         <GameDog ref={gameDogRef}>dog</GameDog>
         <GameCat ref={gameCatRef}>cat</GameCat>
+        <GameWall>我是div，不是canvas</GameWall>
       </GameScreen>
     </div>
   );
