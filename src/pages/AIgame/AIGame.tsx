@@ -142,6 +142,12 @@ const GameDog = styled.div`
   cursor: pointer;
   background-color: cornflowerblue;
 `;
+const GameAILevelText = styled.div`
+  position: absolute;
+  top: 450px;
+  left: 830px;
+  font-size: 24px;
+`;
 const GameCat = styled.div`
   position: absolute;
   top: 490px;
@@ -550,6 +556,7 @@ function AIGame() {
         <GameWhoseTurnMark roomState={roomState} isDisplayArrow={isDisplayArrow} />
         <GameDogTimer>{dogTurnTimeSpent}</GameDogTimer>
         <GameDog ref={gameDogRef}>dog</GameDog>
+        <GameAILevelText>{AILevel ? 'AI' : ''}</GameAILevelText>
         <GameCat ref={gameCatRef}>cat</GameCat>
         <GameWall />
       </GameScreen>
