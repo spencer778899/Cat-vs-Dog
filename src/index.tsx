@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import App from './App';
-import AIGame from './pages/AIGame/AIGame';
-import Home from './pages/Home/home';
-import Game from './pages/Game/game';
-import OnlineGame from './pages/OnlineGame/onlinegame';
+import AIGame from './pages/AIGame';
+import Home from './pages/Home';
+import Game from './pages/Game';
+import OnlineGame from './pages/OnlineGame';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
