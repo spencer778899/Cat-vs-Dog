@@ -17,7 +17,7 @@ root.render(
           <Route path="game" element={<Game />} />
           <Route path="AIgame" element={<AIGame />} />
           <Route path="onlinegame" element={<OnlineGame />} />
-          <Route path="onlinegame/:roomID" element={<OnlineGame />} />
+          <Route path="onlinegame/:roomID/:identity" element={<OnlineGame />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
