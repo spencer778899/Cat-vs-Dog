@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, addDoc, collection } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, collection } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_firebaseConfig_apiKey,
@@ -14,10 +14,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const firestore = {
-  async setDocRoom() {
-    await addDoc(collection(db, 'games'), {
+  async setDocRoomID() {
+    const roomID = doc(collection(db, 'games'));
+    await setDoc(roomID, {
       roomState: 'wait',
     });
+    return roomID.id;
   },
 };
 
