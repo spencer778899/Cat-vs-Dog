@@ -1,6 +1,7 @@
 /* eslint-disable no-use-before-define */
 import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import Arrow from './arrow.png';
 import SelectLevelModel from './selectLevelModal';
@@ -525,8 +526,16 @@ function AIGame() {
 
   return (
     <div>
-      {AILevel ? '' : <SelectLevelModel getAILevel={getAILevel} />}
       <GameScreen>
+        {
+          // prettier-ignore
+          AILevel
+            ? ''
+            : ReactDOM.createPortal(
+              <SelectLevelModel getAILevel={getAILevel} />,
+              document?.getElementById('modal-root') as HTMLElement,
+            )
+        }
         <GameCanvasSection>
           <GameWindSpeedBar>
             <GameWindSpeed windSpeed={windSpeedBar || 0} />

@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
 interface AIgameProps {
@@ -37,7 +36,7 @@ const SelectLevelModalButton = styled.button`
   width: 100px;
   margin: 30px 150px;
 `;
-function Content({ getAILevel }: AIgameProps) {
+function SelectLevelModal({ getAILevel }: AIgameProps) {
   return (
     <div>
       <SelectLevelModalBody>
@@ -65,17 +64,6 @@ function Content({ getAILevel }: AIgameProps) {
           </SelectLevelModalButton>
         </SelectLevelModalMain>
       </SelectLevelModalBody>
-    </div>
-  );
-}
-
-function SelectLevelModal({ getAILevel }: AIgameProps) {
-  return (
-    <div>
-      {ReactDOM.createPortal(
-        <Content getAILevel={getAILevel} />,
-        document?.getElementById('modal-root') as HTMLElement,
-      )}
     </div>
   );
 }
