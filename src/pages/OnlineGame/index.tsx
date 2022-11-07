@@ -296,7 +296,7 @@ function OnlineGame() {
   const urlParams = useParams();
   const [roomID, setRoomID] = useState<string | undefined>();
   const [roomState, setRoomState] = useState<string>();
-  const [windSpeedBar, setWindSpeedBar] = useState<number | undefined>(undefined);
+  const [windSpeed, setWindSpeed] = useState<number | undefined>(undefined);
   const [isDisplayArrow, setIsDisplayArrow] = useState(true);
   // dog useState
   const [dogTurnTimeSpent, setDogTurnTimeSpent] = useState<number | undefined>(undefined);
@@ -312,6 +312,8 @@ function OnlineGame() {
   const [catHavePowerUp, setCatHavePowerUp] = useState();
   const [catHaveDoubleHit, setCatHaveDoubleHit] = useState();
   const [catHaveHeal, setCatHaveHeal] = useState();
+  // roomRef
+  const roundCount = useRef(1);
   // dog useRef
   const gameDogRef = useRef<HTMLDivElement>(null);
   const dogEnergyBarRef = useRef<HTMLDivElement>(null);
@@ -328,14 +330,7 @@ function OnlineGame() {
   const gameCatHealRef = useRef<HTMLDivElement>(null);
 
   console.log('roomState', roomState);
-  console.log('dogHitPoints', dogHitPoints);
-  console.log('dogHavePowerUp', dogHavePowerUp);
-  console.log('dogHaveDoubleHit', dogHaveDoubleHit);
-  console.log('dogHaveHeal', dogHaveHeal);
-  console.log('catHitPoints', catHitPoints);
-  console.log('catHavePowerUp', catHavePowerUp);
-  console.log('catHaveDoubleHit', catHaveDoubleHit);
-  console.log('catHaveHeal', catHaveHeal);
+  console.log('windSpeed', windSpeed);
   console.log('----------------------------------------------');
 
   // If room isn't exist,create a new one
@@ -397,6 +392,36 @@ function OnlineGame() {
       setGuestDocHander();
     }
   });
+  // setNewRound doc before game start
+  useEffect(() => {
+    async function setNewRound() {
+      const isPositive = Math.floor(Math.random() * 2);
+      const randomNumber = Math.floor(Math.random() * 5);
+      const randomWindSpeed = isPositive ? 0.5 * randomNumber : -0.5 * randomNumber;
+      await firestore.setNewRound(roomID, roundCount.current, randomWindSpeed);
+      roundCount.current += 1;
+    }
+    if (roomState === 'dogTurn') {
+      setNewRound();
+    }
+  }, [roomState]);
+  // subscribe round doc
+  useEffect(() => {
+    async function subscribeRound() {
+      const roundRef = doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount.current}`);
+      const roundSubscriber = onSnapshot(roundRef, (docs) => {
+        const data = docs.data();
+        console.log(data);
+        setWindSpeed(data?.windSpeed);
+      });
+      return () => {
+        roundSubscriber();
+      };
+    }
+    if (roomState === 'dogTurn') {
+      subscribeRound();
+    }
+  }, [roomState]);
   // handle game
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
@@ -413,24 +438,12 @@ function OnlineGame() {
       // let time = 1;
       // let energy = 0;
       // let hitPointsAvailable = 15;
-      let windSpeed: number;
       // function drawDog() {
       //   ctx?.beginPath();
       //   ctx?.arc(dogX, dogY, dogRadius, 0, Math.PI * 2, false);
       //   ctx?.fill();
       //   ctx?.closePath();
       // }
-      function windSpeedHandler() {
-        const isPositive = Math.floor(Math.random() * 2);
-        const randomNumber = Math.floor(Math.random() * 5);
-        if (isPositive) {
-          windSpeed = 0.5 * randomNumber;
-          setWindSpeedBar(0.5 * randomNumber);
-        } else {
-          windSpeed = -0.5 * randomNumber;
-          setWindSpeedBar(-0.5 * randomNumber);
-        }
-      }
       //     function increaseEnergy() {
       //       energy += 1;
       //       if (energy >= 100) {
@@ -577,10 +590,10 @@ function OnlineGame() {
       //       const randomNumber = Math.floor(Math.random() * 5);
       //       if (isPositive) {
       //         windSpeed = 0.5 * randomNumber;
-      //         setWindSpeedBar(0.5 * randomNumber);
+      //         setWindSpeed(0.5 * randomNumber);
       //       } else {
       //         windSpeed = -0.5 * randomNumber;
-      //         setWindSpeedBar(-0.5 * randomNumber);
+      //         setWindSpeed(-0.5 * randomNumber);
       //       }
       //     }
       //     function increaseEnergy() {
@@ -728,7 +741,7 @@ function OnlineGame() {
       <GameScreen>
         <GameCanvasSection>
           <GameWindSpeedBar>
-            <GameWindSpeed windSpeed={windSpeedBar || 0} />
+            <GameWindSpeed windSpeed={windSpeed || 0} />
           </GameWindSpeedBar>
           <GameDogHitPointsBar>
             <GameDogHitPointsInner width={dogHitPoints} />

@@ -48,6 +48,11 @@ const firestore = {
       },
     });
   },
+  async setNewRound(roomID: string | undefined, round: number, windSpeed: number) {
+    await setDoc(doc(db, 'games', `${roomID}`, 'scoreboard', `round${round}`), {
+      windSpeed: `${windSpeed}`,
+    });
+  },
 };
 
 export default firestore;
