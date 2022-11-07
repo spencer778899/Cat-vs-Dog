@@ -21,7 +21,7 @@ const firestore = {
     });
     return roomID.id;
   },
-  async updateRoomState(roomID: string, state: string) {
+  async updateRoomState(roomID: string | undefined, state: string) {
     await updateDoc(doc(db, 'games', `${roomID}`), {
       roomState: `${state}`,
     });

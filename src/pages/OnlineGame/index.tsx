@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactDOM from 'react-dom';
@@ -293,8 +294,8 @@ function OnlineGame() {
   const [identity, setIdentity] = useState<string>();
   const navigate = useNavigate();
   const urlParams = useParams();
-  const [roomID, setRoomID] = useState<string>();
-  const [roomState, setRoomState] = useState();
+  const [roomID, setRoomID] = useState<string | undefined>();
+  const [roomState, setRoomState] = useState<string>();
   const [windSpeedBar, setWindSpeedBar] = useState<number | undefined>(undefined);
   const [isDisplayArrow, setIsDisplayArrow] = useState(true);
   // dog useState
@@ -353,7 +354,7 @@ function OnlineGame() {
   });
   // subscribe room
   useEffect(() => {
-    async function subscribeRoom() {
+    function subscribeRoom() {
       const roomStateRef = doc(db, 'games', `${roomID}`);
       const roomStateSubscriber = onSnapshot(roomStateRef, (docs) => {
         const data = docs.data();
@@ -380,7 +381,7 @@ function OnlineGame() {
   // updateDoc of host when host enter
   useEffect(() => {
     async function setHostDocHander() {
-      await firestore.updateDocHost('11111', roomID!);
+      await firestore.updateDocHost('111111', roomID!);
     }
     if (dogUid === undefined && identity === 'host') {
       setHostDocHander();
@@ -396,11 +397,334 @@ function OnlineGame() {
       setGuestDocHander();
     }
   });
+  // handle game
+  useEffect(() => {
+    const ctx = canvas.current?.getContext('2d');
+    // setDogTurn
+    function setDogTurn() {
+      // let dogX = 100;
+      // let dogY = 540;
+      // let dogRadius = 20;
+      // let startTime: number;
+      // let timeHandler: NodeJS.Timeout;
+      // let startAnimation: NodeJS.Timeout;
+      // let dogEnergyInnerHandler: NodeJS.Timeout;
+      // let isMouseDown = false;
+      // let time = 1;
+      // let energy = 0;
+      // let hitPointsAvailable = 15;
+      let windSpeed: number;
+      // function drawDog() {
+      //   ctx?.beginPath();
+      //   ctx?.arc(dogX, dogY, dogRadius, 0, Math.PI * 2, false);
+      //   ctx?.fill();
+      //   ctx?.closePath();
+      // }
+      function windSpeedHandler() {
+        const isPositive = Math.floor(Math.random() * 2);
+        const randomNumber = Math.floor(Math.random() * 5);
+        if (isPositive) {
+          windSpeed = 0.5 * randomNumber;
+          setWindSpeedBar(0.5 * randomNumber);
+        } else {
+          windSpeed = -0.5 * randomNumber;
+          setWindSpeedBar(-0.5 * randomNumber);
+        }
+      }
+      //     function increaseEnergy() {
+      //       energy += 1;
+      //       if (energy >= 100) {
+      //         clearInterval(dogEnergyInnerHandler);
+      //       }
+      //       dogEnergyInnerRef?.current?.setAttribute('style', `width:${energy}%`);
+      //     }
+      //     function mouseDownHandler() {
+      //       isMouseDown = true;
+      //       setIsDisplayArrow(false);
+      //       setDogTurnTimeSpent(undefined);
+      //       clearInterval(countTimer);
+      //       dogEnergyBarRef?.current?.setAttribute('style', 'display:block');
+      //       dogEnergyInnerHandler = setInterval(increaseEnergy, 20);
+      //       startTime = Number(new Date());
+      //     }
+      //     function getQuantityOfPower(endTime: number) {
+      //       const timeLong = endTime - startTime;
+      //       return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
+      //     }
+      //     function stopAnimation() {
+      //       clearInterval(timeHandler);
+      //       clearInterval(startAnimation);
+      //     }
+      //     function testGameState() {
+      //       const currentCatHitPoints = catHitPoints - hitPointsAvailable;
+      //       if (currentCatHitPoints <= 0) {
+      //         setRoomState('dogWin');
+      //       } else {
+      //         setRoomState('catTurn');
+      //       }
+      //     }
+      //     function startAnimationHandler(quantityOfPower: number) {
+      //       ctx?.clearRect(0, 0, 940, 560);
+      //       drawDog();
+      //       // up data dog coordinate
+      //       dogX += 10 + quantityOfPower + windSpeed * time;
+      //       dogY -= 10 + quantityOfPower - time ** 2;
+      //       // Is dog hit the cat?
+      //    if (dogX >= 820 - dogRadius && dogX <= 870 + dogRadius && dogY >= 490 - dogRadius) {
+      //         console.log('hit!');
+      //         stopAnimation();
+      //         setCatHitPoints((prev) => prev - hitPointsAvailable);
+      //         testGameState();
+      //         dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
+      // } else if (dogX >= 450 - dogRadius &&
+      // dogX <= 490 + dogRadius && dogY >= 400 - dogRadius) {
+      //         console.log('miss!');
+      //         stopAnimation();
+      //         dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
+      //         setRoomState('catTurn');
+      //       } else if (dogY > 580 || dogY < 0) {
+      //         console.log('miss!');
+      //         stopAnimation();
+      //         dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
+      //         setRoomState('catTurn');
+      //       }
+      //     }
+      //     function healHandler() {
+      //       setDogHaveHeal(false);
+      //       setDogHitPoints((prev) => prev + 20);
+      //       removeAllListener();
+      //       setRoomState('catTurn');
+      //     }
+      //     function doubleHitHandler() {
+      //       setDogHaveDoubleHit(false);
+      //       hitPointsAvailable = 30;
+      //       gameDogHealRef.current?.removeEventListener('click', healHandler);
+      //       gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+      //     }
+      //     function PowerUpHandler() {
+      //       setDogHavePowerUp(false);
+      //       dogRadius = 40;
+      //       gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+      //       gameDogHealRef.current?.removeEventListener('click', healHandler);
+      //     }
+      //     function mouseUpHandler() {
+      //       if (isMouseDown) {
+      //         const endTime = Number(new Date());
+      //         const quantityOfPower = getQuantityOfPower(endTime);
+      //         console.log(quantityOfPower);
+      //         clearInterval(dogEnergyInnerHandler);
+      //         timeHandler = setInterval(() => {
+      //           time += 0.06;
+      //         }, 10);
+      //         startAnimation = setInterval(() => {
+      //           startAnimationHandler(quantityOfPower);
+      //         }, 15);
+      //         removeAllListener();
+      //       }
+      //     }
+      function removeAllListener() {
+        //       gameDogHealRef.current?.removeEventListener('click', healHandler);
+        //       gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+        //       gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+        //       gameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
+        //       window.removeEventListener('mouseup', mouseUpHandler);
+        clearInterval(countTimer);
+        //       setDogTurnTimeSpent(undefined);
+      }
+      let turnTimeSpent = 10;
+      function startCountTimer() {
+        turnTimeSpent -= 1;
+        if (turnTimeSpent === 0) {
+          setDogTurnTimeSpent(undefined);
+          firestore.updateRoomState(roomID, 'catTurn');
+          removeAllListener();
+          clearInterval(countTimer);
+        } else if (turnTimeSpent <= 5) {
+          setDogTurnTimeSpent(turnTimeSpent);
+        }
+      }
+      const countTimer = setInterval(startCountTimer, 1000);
+      // windSpeedHandler();
+      setIsDisplayArrow(true);
+      //     gameDogHealRef.current?.addEventListener('click', healHandler);
+      //     gameDogDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
+      //     gameDogPowerUpRef.current?.addEventListener('click', PowerUpHandler);
+      //     gameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
+      //     window.addEventListener('mouseup', mouseUpHandler);
+    }
+    // setCatTurn
+    function setCatTurn() {
+      //     let catX = 840;
+      //     let catY = 540;
+      //     let catRadius = 20;
+      //     let startTime: number;
+      //     let timeHandler: NodeJS.Timeout;
+      //     let startAnimation: NodeJS.Timeout;
+      //     let CatEnergyInnerHandler: NodeJS.Timeout;
+      //     let isMouseDown = false;
+      //     let time = 1;
+      //     let energy = 0;
+      //     let hitPointsAvailable = 15;
+      //     let windSpeed: number; // -2 ~ 2
+      //     function drawCat() {
+      //       ctx?.beginPath();
+      //       ctx?.arc(catX, catY, catRadius, 0, Math.PI * 2, false);
+      //       ctx?.fill();
+      //       ctx?.closePath();
+      //     }
+      //     function windSpeedHandler() {
+      //       const isPositive = Math.floor(Math.random() * 2);
+      //       const randomNumber = Math.floor(Math.random() * 5);
+      //       if (isPositive) {
+      //         windSpeed = 0.5 * randomNumber;
+      //         setWindSpeedBar(0.5 * randomNumber);
+      //       } else {
+      //         windSpeed = -0.5 * randomNumber;
+      //         setWindSpeedBar(-0.5 * randomNumber);
+      //       }
+      //     }
+      //     function increaseEnergy() {
+      //       energy += 1;
+      //       if (energy >= 100) {
+      //         clearInterval(CatEnergyInnerHandler);
+      //       }
+      //       catEnergyInnerRef?.current?.setAttribute('style', `width:${energy}%`);
+      //     }
+      //     function mouseDownHandler() {
+      //       isMouseDown = true;
+      //       setIsDisplayArrow(false);
+      //       clearInterval(countTimer);
+      //       setCatTurnTimeSpent(undefined);
+      //       catEnergyBarRef?.current?.setAttribute('style', 'display:block');
+      //       CatEnergyInnerHandler = setInterval(increaseEnergy, 20);
+      //       startTime = Number(new Date());
+      //     }
+      //     function getQuantityOfPower(endTime: number) {
+      //       const timeLong = endTime - startTime;
+      //       return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
+      //     }
+      //     function stopAnimation() {
+      //       clearInterval(timeHandler);
+      //       clearInterval(startAnimation);
+      //     }
+      //     function testGameState() {
+      //       const currentDogHitPoints = dogHitPoints - hitPointsAvailable;
+      //       if (currentDogHitPoints <= 0) {
+      //         setRoomState('catWin');
+      //       } else {
+      //         setRoomState('dogTurn');
+      //       }
+      //     }
+      //     function startAnimationHandler(quantityOfPower: number) {
+      //       ctx?.clearRect(0, 0, 940, 560);
+      //       drawCat();
+      //       // up data cat coordinate
+      //       catX -= 10 + quantityOfPower - windSpeed * time;
+      //       catY -= 10 + quantityOfPower - time ** 2;
+      //       // Is dog cat the cat?
+      //       if (catX >= 80 - catRadius && catX <= 130 + catRadius && catY >= 490 - catRadius) {
+      //         console.log('hit!');
+      //         stopAnimation();
+      //         setDogHitPoints((prev) => prev - hitPointsAvailable);
+      //         testGameState();
+      //         catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+      // } else if (catX >= 450 - catRadius && catX <= 490 + catRadius
+      // && catY >= 400 - catRadius) {
+      //         console.log('miss!');
+      //         stopAnimation();
+      //         catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+      //         setRoomState('dogTurn');
+      //       } else if (catY > 580 || catY < 0) {
+      //         console.log('miss!');
+      //         stopAnimation();
+      //         catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+      //         setRoomState('dogTurn');
+      //       }
+      //     }
+      //     function healHandler() {
+      //       setCatHaveHeal(false);
+      //       setCatHitPoints((prev) => prev + 20);
+      //       removeAllListener();
+      //       setRoomState('dogTurn');
+      //     }
+      //     function doubleHitHandler() {
+      //       setCatHaveDoubleHit(false);
+      //       hitPointsAvailable = 30;
+      //       gameCatHealRef.current?.removeEventListener('click', healHandler);
+      //       gameCatPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+      //     }
+      //     function PowerUpHandler() {
+      //       setCatHavePowerUp(false);
+      //       catRadius = 40;
+      //       gameCatDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+      //       gameCatHealRef.current?.removeEventListener('click', healHandler);
+      //     }
+      //     function mouseUpHandler() {
+      //       if (isMouseDown) {
+      //         const endTime = Number(new Date());
+      //         const quantityOfPower = getQuantityOfPower(endTime);
+      //         console.log(quantityOfPower);
+      //         clearInterval(CatEnergyInnerHandler);
+      //         timeHandler = setInterval(() => {
+      //           time += 0.06;
+      //         }, 10);
+      //         startAnimation = setInterval(() => {
+      //           startAnimationHandler(quantityOfPower);
+      //         }, 15);
+      //         removeAllListener();
+      //       }
+      //     }
+      function removeAllListener() {
+        //       gameCatHealRef.current?.removeEventListener('click', healHandler);
+        //       gameCatDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+        //       gameCatPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+        //       gameCatRef.current?.removeEventListener('mousedown', mouseDownHandler);
+        //       window.removeEventListener('mouseup', mouseUpHandler);
+        clearInterval(countTimer);
+        //       setCatTurnTimeSpent(undefined);
+      }
+      let turnTimeSpent = 10;
+      function startCountTimer() {
+        turnTimeSpent -= 1;
+        if (turnTimeSpent === 0) {
+          setCatTurnTimeSpent(undefined);
+          firestore.updateRoomState(roomID, 'dogTurn');
+          removeAllListener();
+          clearInterval(countTimer);
+        } else if (turnTimeSpent <= 5) {
+          setCatTurnTimeSpent(turnTimeSpent);
+        }
+      }
+      const countTimer = setInterval(startCountTimer, 1000);
+      //     windSpeedHandler();
+      setIsDisplayArrow(true);
+      //     gameCatHealRef.current?.addEventListener('click', healHandler);
+      //     gameCatDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
+      //     gameCatPowerUpRef.current?.addEventListener('click', PowerUpHandler);
+      //     gameCatRef.current?.addEventListener('mousedown', mouseDownHandler);
+      //     window.addEventListener('mouseup', mouseUpHandler);
+    }
+    ctx?.clearRect(0, 0, 940, 560);
+    if (roomState === 'dogTurn' && identity === 'host') {
+      setDogTurn();
+    } else if (roomState === 'catTurn' && identity === 'guest') {
+      setCatTurn();
+    } else if (roomState === 'dogWin' || roomState === 'catWin') {
+      alert(roomState);
+    }
+  }, [roomState]);
+
   return (
     <div>
-      {roomState === 'wait' || roomState === undefined
-        ? ReactDOM.createPortal(<WaitOpponentModal />, document?.getElementById('modal-root') as HTMLElement)
-        : ''}
+      {
+        // prettier-ignore
+        roomState === 'wait' || roomState === undefined
+          ? ReactDOM.createPortal(
+            <WaitOpponentModal />,
+            document?.getElementById('modal-root') as HTMLElement,
+          )
+          : ''
+      }
       <GameScreen>
         <GameCanvasSection>
           <GameWindSpeedBar>

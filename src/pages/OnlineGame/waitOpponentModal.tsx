@@ -30,7 +30,7 @@ function WaitOpponentModal() {
   return (
     <div>
       <WaitOpponentModalBody>
-        <WaitOpponentModalMain>Wait your opponent...</WaitOpponentModalMain>
+        <WaitOpponentModalMain>Wait for your opponent...</WaitOpponentModalMain>
       </WaitOpponentModalBody>
     </div>
   );
