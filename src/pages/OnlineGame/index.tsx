@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { doc, onSnapshot, collection, query, where } from 'firebase/firestore';
 import firestore, { app, db } from '../../utils/firestore';
 import Arrow from './arrow.png';
+import WaitOpponentModal from './waitOpponentModal';
 
 const GameScreen = styled.div`
   position: absolute;
@@ -396,6 +398,9 @@ function OnlineGame() {
   });
   return (
     <div>
+      {roomState === 'wait' || roomState === undefined
+        ? ReactDOM.createPortal(<WaitOpponentModal />, document?.getElementById('modal-root') as HTMLElement)
+        : ''}
       <GameScreen>
         <GameCanvasSection>
           <GameWindSpeedBar>
