@@ -37,6 +37,36 @@ const firestore = {
       },
     });
   },
+  async updateHostHitPoints(roomID: string | undefined, hitPoints: number) {
+    await updateDoc(doc(db, 'games', `${roomID}`), {
+      'host.hitPoints': increment(hitPoints),
+    });
+  },
+  async updateHostHavePowerUp(roomID: string | undefined) {
+    await updateDoc(doc(db, 'games', `${roomID}`), {
+      'host.havePowerUp': false,
+    });
+  },
+  async updateHostHaveHeal(roomID: string | undefined) {
+    await updateDoc(doc(db, 'games', `${roomID}`), {
+      'host.haveHeal': false,
+    });
+  },
+  async updateHostHaveDoubleHit(roomID: string | undefined) {
+    await updateDoc(doc(db, 'games', `${roomID}`), {
+      'host.haveDoubleHit': false,
+    });
+  },
+  async updateHostQuantityOfPower(roomID: string | undefined, roundCount: number, power: number) {
+    await updateDoc(doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount}`), {
+      'host.quantityOfPower': power,
+    });
+  },
+  async updateHostGetPoints(roomID: string | undefined, roundCount: number, points: number) {
+    await updateDoc(doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount}`), {
+      'host.getPoints': points,
+    });
+  },
   async updateDocGuest(guestUid: string, roomID: string) {
     await updateDoc(doc(db, 'games', `${roomID}`), {
       guest: {
@@ -48,19 +78,14 @@ const firestore = {
       },
     });
   },
-  async decreaseGuestHitPoints(roomID: string | undefined, hitPoints: number) {
+  async updateGuestHitPoints(roomID: string | undefined, hitPoints: number) {
     await updateDoc(doc(db, 'games', `${roomID}`), {
-      'guest.hitPoints': increment(-1 * hitPoints),
+      'guest.hitPoints': increment(hitPoints),
     });
   },
   async setNewRound(roomID: string | undefined, roundCount: number, windSpeed: number) {
     await setDoc(doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount}`), {
       windSpeed: `${windSpeed}`,
-    });
-  },
-  async updateHostQuantityOfPower(roomID: string | undefined, roundCount: number, power: number) {
-    await updateDoc(doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount}`), {
-      host: { quantityOfPower: power },
     });
   },
 };

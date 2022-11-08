@@ -3,7 +3,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import { doc, onSnapshot, collection, query, where } from 'firebase/firestore';
+import {
+  doc,
+  onSnapshot,
+  collection,
+  query,
+  where,
+  connectFirestoreEmulator,
+} from 'firebase/firestore';
 import firestore, { app, db } from '../../utils/firestore';
 import Arrow from './arrow.png';
 import WaitOpponentModal from './waitOpponentModal';
@@ -314,7 +321,7 @@ function OnlineGame() {
   const [catHaveDoubleHit, setCatHaveDoubleHit] = useState();
   const [catHaveHeal, setCatHaveHeal] = useState();
   // roomRef
-  const roundCount = useRef(1);
+  const roundCount = useRef(0);
   // dog useRef
   const gameDogRef = useRef<HTMLDivElement>(null);
   const dogEnergyBarRef = useRef<HTMLDivElement>(null);
@@ -395,15 +402,19 @@ function OnlineGame() {
       const isPositive = Math.floor(Math.random() * 2);
       const randomNumber = Math.floor(Math.random() * 5);
       const randomWindSpeed = isPositive ? 0.5 * randomNumber : -0.5 * randomNumber;
+      console.log(roundCount.current);
       await firestore.setNewRound(roomID, roundCount.current, randomWindSpeed);
     }
-    if (roomState === 'dogTurn') {
+    if (roomState === 'dogTurn' && identity === 'host') {
+      roundCount.current += 1;
       setNewRound();
+    } else if (roomState === 'dogTurn' && identity === 'guest') {
+      roundCount.current += 1;
     }
   }, [roomState]);
   // subscribe round doc
   useEffect(() => {
-    async function subscribeRound() {
+    function subscribeRound() {
       const roundRef = doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount.current}`);
       const roundSubscriber = onSnapshot(roundRef, (docs) => {
         const data = docs.data();
@@ -449,18 +460,17 @@ function OnlineGame() {
         const timeLong = endTime - startTime;
         return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
       }
-      //     function healHandler() {
-      //       setDogHaveHeal(false);
-      //       setDogHitPoints((prev) => prev + 20);
-      //       removeAllListener();
-      //       setRoomState('catTurn');
-      //     }
-      //     function doubleHitHandler() {
-      //       setDogHaveDoubleHit(false);
-      //       hitPointsAvailable = 30;
-      //       gameDogHealRef.current?.removeEventListener('click', healHandler);
-      //       gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
-      //     }
+      function healHandler() {
+        firestore.updateHostHaveHeal(roomID);
+        firestore.updateHostHitPoints(roomID, 20);
+        firestore.updateRoomState(roomID, 'catTurn');
+        removeAllListener();
+      }
+      function doubleHitHandler() {
+        firestore.updateHostHaveDoubleHit(roomID);
+        gameDogHealRef.current?.removeEventListener('click', healHandler);
+        // gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+      }
       //     function PowerUpHandler() {
       //       setDogHavePowerUp(false);
       //       dogRadius = 40;
@@ -472,13 +482,14 @@ function OnlineGame() {
           const endTime = Number(new Date());
           const quantityOfPower = getQuantityOfPower(endTime);
           console.log(quantityOfPower);
+          console.log(roundCount.current);
           firestore.updateHostQuantityOfPower(roomID, roundCount.current, quantityOfPower);
           removeAllListener();
         }
       }
       function removeAllListener() {
-        // gameDogHealRef.current?.removeEventListener('click', healHandler);
-        // gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+        gameDogHealRef.current?.removeEventListener('click', healHandler);
+        gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
         // gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
         gameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
         window.removeEventListener('mouseup', mouseUpHandler);
@@ -498,8 +509,8 @@ function OnlineGame() {
         }
       }
       const countTimer = setInterval(startCountTimer, 1000);
-      // gameDogHealRef.current?.addEventListener('click', healHandler);
-      // gameDogDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
+      gameDogHealRef.current?.addEventListener('click', healHandler);
+      gameDogDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
       // gameDogPowerUpRef.current?.addEventListener('click', PowerUpHandler);
       gameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
       window.addEventListener('mouseup', mouseUpHandler);
@@ -633,7 +644,6 @@ function OnlineGame() {
           firestore.updateRoomState(roomID, 'dogTurn');
           removeAllListener();
           clearInterval(countTimer);
-          roundCount.current += 1;
         } else if (turnTimeSpent <= 5) {
           setCatTurnTimeSpent(turnTimeSpent);
         }
@@ -671,7 +681,7 @@ function OnlineGame() {
       ctx?.closePath();
     }
 
-    async function HostDogAnimationHandler() {
+    function HostDogAnimationHandler() {
       function stopAnimation() {
         clearInterval(timeHandler);
         clearInterval(startAnimation);
@@ -694,7 +704,9 @@ function OnlineGame() {
         if (dogX >= 820 - dogRadius && dogX <= 870 + dogRadius && dogY >= 490 - dogRadius) {
           console.log('hit!');
           stopAnimation();
-          firestore.decreaseGuestHitPoints(roomID, hitPointsAvailable);
+          firestore.updateGuestHitPoints(roomID, -1 * hitPointsAvailable);
+          console.log(roundCount.current);
+          firestore.updateHostGetPoints(roomID, roundCount.current, hitPointsAvailable);
           ctx?.clearRect(0, 0, 940, 560);
           testGameState();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
@@ -703,12 +715,14 @@ function OnlineGame() {
           stopAnimation();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
           firestore.updateRoomState(roomID, 'catTurn');
+          firestore.updateHostGetPoints(roomID, roundCount.current, 0);
           ctx?.clearRect(0, 0, 940, 560);
         } else if (dogY > 580 || dogY < 0) {
           console.log('miss!');
           stopAnimation();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
           firestore.updateRoomState(roomID, 'catTurn');
+          firestore.updateHostGetPoints(roomID, roundCount.current, 0);
           ctx?.clearRect(0, 0, 940, 560);
         }
       }
@@ -720,7 +734,7 @@ function OnlineGame() {
       }, 15);
     }
 
-    async function guestDogAnimationHandler() {
+    function guestDogAnimationHandler() {
       function stopAnimation() {
         clearInterval(timeHandler);
         clearInterval(startAnimation);
