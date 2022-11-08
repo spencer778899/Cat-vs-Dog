@@ -475,14 +475,13 @@ function OnlineGame() {
       function doubleHitHandler() {
         firestore.updateHostHaveDoubleHit(roomID, roundCount.current);
         gameDogHealRef.current?.removeEventListener('click', healHandler);
-        // gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+        gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
       }
-      //     function PowerUpHandler() {
-      //       setDogHavePowerUp(false);
-      //       dogRadius = 40;
-      //       gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
-      //       gameDogHealRef.current?.removeEventListener('click', healHandler);
-      //     }
+      function PowerUpHandler() {
+        firestore.updateHostHavePowerUp(roomID, roundCount.current);
+        gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+        gameDogHealRef.current?.removeEventListener('click', healHandler);
+      }
       function mouseUpHandler() {
         if (isMouseDown) {
           const endTime = Number(new Date());
@@ -496,7 +495,7 @@ function OnlineGame() {
       function removeAllListener() {
         gameDogHealRef.current?.removeEventListener('click', healHandler);
         gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
-        // gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+        gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
         gameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
         window.removeEventListener('mouseup', mouseUpHandler);
         clearInterval(countTimer);
@@ -517,7 +516,7 @@ function OnlineGame() {
       const countTimer = setInterval(startCountTimer, 1000);
       gameDogHealRef.current?.addEventListener('click', healHandler);
       gameDogDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
-      // gameDogPowerUpRef.current?.addEventListener('click', PowerUpHandler);
+      gameDogPowerUpRef.current?.addEventListener('click', PowerUpHandler);
       gameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
       window.addEventListener('mouseup', mouseUpHandler);
     }
