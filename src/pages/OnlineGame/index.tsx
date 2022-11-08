@@ -305,6 +305,7 @@ function OnlineGame() {
   const [dogHavePowerUp, setDogHavePowerUp] = useState();
   const [dogHaveDoubleHit, setDogHaveDoubleHit] = useState();
   const [dogHaveHeal, setDogHaveHeal] = useState();
+  const [dogQuantityOfPower, setDogQuantityOfPower] = useState<number>();
   // cat useState
   const [catTurnTimeSpent, setCatTurnTimeSpent] = useState<number | undefined>(undefined);
   const [catUid, setCatUid] = useState();
@@ -399,7 +400,7 @@ function OnlineGame() {
       const randomNumber = Math.floor(Math.random() * 5);
       const randomWindSpeed = isPositive ? 0.5 * randomNumber : -0.5 * randomNumber;
       await firestore.setNewRound(roomID, roundCount.current, randomWindSpeed);
-      roundCount.current += 1;
+      // roundCount.current += 1;
     }
     if (roomState === 'dogTurn') {
       setNewRound();
@@ -411,8 +412,8 @@ function OnlineGame() {
       const roundRef = doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount.current}`);
       const roundSubscriber = onSnapshot(roundRef, (docs) => {
         const data = docs.data();
-        console.log(data);
         setWindSpeed(data?.windSpeed);
+        setDogQuantityOfPower(data?.quantityOfPower);
       });
       return () => {
         roundSubscriber();
@@ -422,48 +423,35 @@ function OnlineGame() {
       subscribeRound();
     }
   }, [roomState]);
-  // handle game
+  // handle game operate
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
     // setDogTurn
     function setDogTurn() {
-      // let dogX = 100;
-      // let dogY = 540;
-      // let dogRadius = 20;
-      // let startTime: number;
-      // let timeHandler: NodeJS.Timeout;
-      // let startAnimation: NodeJS.Timeout;
-      // let dogEnergyInnerHandler: NodeJS.Timeout;
-      // let isMouseDown = false;
-      // let time = 1;
-      // let energy = 0;
-      // let hitPointsAvailable = 15;
-      // function drawDog() {
-      //   ctx?.beginPath();
-      //   ctx?.arc(dogX, dogY, dogRadius, 0, Math.PI * 2, false);
-      //   ctx?.fill();
-      //   ctx?.closePath();
-      // }
-      //     function increaseEnergy() {
-      //       energy += 1;
-      //       if (energy >= 100) {
-      //         clearInterval(dogEnergyInnerHandler);
-      //       }
-      //       dogEnergyInnerRef?.current?.setAttribute('style', `width:${energy}%`);
-      //     }
-      //     function mouseDownHandler() {
-      //       isMouseDown = true;
-      //       setIsDisplayArrow(false);
-      //       setDogTurnTimeSpent(undefined);
-      //       clearInterval(countTimer);
-      //       dogEnergyBarRef?.current?.setAttribute('style', 'display:block');
-      //       dogEnergyInnerHandler = setInterval(increaseEnergy, 20);
-      //       startTime = Number(new Date());
-      //     }
-      //     function getQuantityOfPower(endTime: number) {
-      //       const timeLong = endTime - startTime;
-      //       return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
-      //     }
+      let startTime: number;
+      let dogEnergyInnerHandler: NodeJS.Timeout;
+      let isMouseDown = false;
+      let energy = 0;
+      function increaseEnergy() {
+        energy += 1;
+        if (energy >= 100) {
+          clearInterval(dogEnergyInnerHandler);
+        }
+        dogEnergyInnerRef?.current?.setAttribute('style', `width:${energy}%`);
+      }
+      function mouseDownHandler() {
+        isMouseDown = true;
+        setIsDisplayArrow(false);
+        setDogTurnTimeSpent(undefined);
+        clearInterval(countTimer);
+        dogEnergyBarRef?.current?.setAttribute('style', 'display:block');
+        dogEnergyInnerHandler = setInterval(increaseEnergy, 20);
+        startTime = Number(new Date());
+      }
+      function getQuantityOfPower(endTime: number) {
+        const timeLong = endTime - startTime;
+        return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
+      }
       //     function stopAnimation() {
       //       clearInterval(timeHandler);
       //       clearInterval(startAnimation);
@@ -520,29 +508,30 @@ function OnlineGame() {
       //       gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
       //       gameDogHealRef.current?.removeEventListener('click', healHandler);
       //     }
-      //     function mouseUpHandler() {
-      //       if (isMouseDown) {
-      //         const endTime = Number(new Date());
-      //         const quantityOfPower = getQuantityOfPower(endTime);
-      //         console.log(quantityOfPower);
-      //         clearInterval(dogEnergyInnerHandler);
-      //         timeHandler = setInterval(() => {
-      //           time += 0.06;
-      //         }, 10);
-      //         startAnimation = setInterval(() => {
-      //           startAnimationHandler(quantityOfPower);
-      //         }, 15);
-      //         removeAllListener();
-      //       }
-      //     }
+      function mouseUpHandler() {
+        if (isMouseDown) {
+          const endTime = Number(new Date());
+          const quantityOfPower = getQuantityOfPower(endTime);
+          console.log(quantityOfPower);
+          firestore.updateHostQuantityOfPower(roomID, roundCount.current, quantityOfPower);
+          clearInterval(dogEnergyInnerHandler);
+          //   timeHandler = setInterval(() => {
+          //     time += 0.06;
+          //   }, 10);
+          //   startAnimation = setInterval(() => {
+          //     startAnimationHandler(quantityOfPower);
+          //   }, 15);
+          //   removeAllListener();
+        }
+      }
       function removeAllListener() {
-        //       gameDogHealRef.current?.removeEventListener('click', healHandler);
-        //       gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
-        //       gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
-        //       gameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
-        //       window.removeEventListener('mouseup', mouseUpHandler);
+        // gameDogHealRef.current?.removeEventListener('click', healHandler);
+        // gameDogDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+        // gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+        gameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
+        window.removeEventListener('mouseup', mouseUpHandler);
         clearInterval(countTimer);
-        //       setDogTurnTimeSpent(undefined);
+        setDogTurnTimeSpent(undefined);
       }
       let turnTimeSpent = 10;
       function startCountTimer() {
@@ -557,13 +546,12 @@ function OnlineGame() {
         }
       }
       const countTimer = setInterval(startCountTimer, 1000);
-      // windSpeedHandler();
       setIsDisplayArrow(true);
       //     gameDogHealRef.current?.addEventListener('click', healHandler);
       //     gameDogDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
-      //     gameDogPowerUpRef.current?.addEventListener('click', PowerUpHandler);
-      //     gameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
-      //     window.addEventListener('mouseup', mouseUpHandler);
+      // gameDogPowerUpRef.current?.addEventListener('click', PowerUpHandler);
+      gameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
+      window.addEventListener('mouseup', mouseUpHandler);
     }
     // setCatTurn
     function setCatTurn() {
@@ -584,17 +572,6 @@ function OnlineGame() {
       //       ctx?.arc(catX, catY, catRadius, 0, Math.PI * 2, false);
       //       ctx?.fill();
       //       ctx?.closePath();
-      //     }
-      //     function windSpeedHandler() {
-      //       const isPositive = Math.floor(Math.random() * 2);
-      //       const randomNumber = Math.floor(Math.random() * 5);
-      //       if (isPositive) {
-      //         windSpeed = 0.5 * randomNumber;
-      //         setWindSpeed(0.5 * randomNumber);
-      //       } else {
-      //         windSpeed = -0.5 * randomNumber;
-      //         setWindSpeed(-0.5 * randomNumber);
-      //       }
       //     }
       //     function increaseEnergy() {
       //       energy += 1;
@@ -709,7 +686,6 @@ function OnlineGame() {
         }
       }
       const countTimer = setInterval(startCountTimer, 1000);
-      //     windSpeedHandler();
       setIsDisplayArrow(true);
       //     gameCatHealRef.current?.addEventListener('click', healHandler);
       //     gameCatDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
@@ -726,6 +702,28 @@ function OnlineGame() {
       alert(roomState);
     }
   }, [roomState]);
+  // dog animation handler
+  // useEffect(() => {
+  //   async function startAnimation() {
+  //     const ctx = canvas.current?.getContext('2d');
+  //     let dogX = 100;
+  //     let dogY = 540;
+  //     let dogRadius = 20;
+  //     let timeHandler: NodeJS.Timeout;
+  //     let startAnimation: NodeJS.Timeout;
+  //     let time = 1;
+  //     let hitPointsAvailable = 15;
+  //     function drawDog() {
+  //       ctx?.beginPath();
+  //       ctx?.arc(dogX, dogY, dogRadius, 0, Math.PI * 2, false);
+  //       ctx?.fill();
+  //       ctx?.closePath();
+  //     }
+  //   }
+  //   if (dogQuantityOfPower) {
+  //     startAnimation();
+  //   }
+  // }, [dogQuantityOfPower]);
 
   return (
     <div>

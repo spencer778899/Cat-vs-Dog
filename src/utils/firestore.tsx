@@ -48,9 +48,14 @@ const firestore = {
       },
     });
   },
-  async setNewRound(roomID: string | undefined, round: number, windSpeed: number) {
-    await setDoc(doc(db, 'games', `${roomID}`, 'scoreboard', `round${round}`), {
+  async setNewRound(roomID: string | undefined, roundCount: number, windSpeed: number) {
+    await setDoc(doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount}`), {
       windSpeed: `${windSpeed}`,
+    });
+  },
+  async updateHostQuantityOfPower(roomID: string | undefined, roundCount: number, power: number) {
+    await updateDoc(doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount}`), {
+      host: { quantityOfPower: power },
     });
   },
 };
