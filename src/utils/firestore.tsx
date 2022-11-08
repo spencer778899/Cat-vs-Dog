@@ -42,9 +42,12 @@ const firestore = {
       'host.hitPoints': increment(hitPoints),
     });
   },
-  async updateHostHavePowerUp(roomID: string | undefined) {
+  async updateHostHavePowerUp(roomID: string | undefined, roundCount: number) {
     await updateDoc(doc(db, 'games', `${roomID}`), {
       'host.havePowerUp': false,
+    });
+    await updateDoc(doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount}`), {
+      'host.radius': 40,
     });
   },
   async updateHostHaveHeal(roomID: string | undefined) {
@@ -52,9 +55,12 @@ const firestore = {
       'host.haveHeal': false,
     });
   },
-  async updateHostHaveDoubleHit(roomID: string | undefined) {
+  async updateHostHaveDoubleHit(roomID: string | undefined, roundCount: number) {
     await updateDoc(doc(db, 'games', `${roomID}`), {
       'host.haveDoubleHit': false,
+    });
+    await updateDoc(doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount}`), {
+      'host.hitPointsAvailable': 30,
     });
   },
   async updateHostQuantityOfPower(roomID: string | undefined, roundCount: number, power: number) {
@@ -86,6 +92,14 @@ const firestore = {
   async setNewRound(roomID: string | undefined, roundCount: number, windSpeed: number) {
     await setDoc(doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount}`), {
       windSpeed: `${windSpeed}`,
+      host: {
+        radius: 20,
+        hitPointsAvailable: 15,
+      },
+      guest: {
+        radius: 20,
+        hitPointsAvailable: 15,
+      },
     });
   },
 };

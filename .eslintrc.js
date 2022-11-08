@@ -32,6 +32,7 @@ module.exports = {
         tsx: 'never',
       },
     ],
+    'operator-linebreak': [2, 'after', { overrides: { '?': 'after' } }],
   },
   settings: {
     'import/resolver': {

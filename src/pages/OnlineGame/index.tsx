@@ -313,6 +313,8 @@ function OnlineGame() {
   const [dogHaveDoubleHit, setDogHaveDoubleHit] = useState();
   const [dogHaveHeal, setDogHaveHeal] = useState();
   const [dogQuantityOfPower, setDogQuantityOfPower] = useState<number>();
+  const [dogRadius, setDogRadius] = useState<number>();
+  const [dogHitPointsAvailable, setDogHitPointsAvailable] = useState<number>();
   // cat useState
   const [catTurnTimeSpent, setCatTurnTimeSpent] = useState<number | undefined>(undefined);
   const [catUid, setCatUid] = useState();
@@ -320,6 +322,8 @@ function OnlineGame() {
   const [catHavePowerUp, setCatHavePowerUp] = useState();
   const [catHaveDoubleHit, setCatHaveDoubleHit] = useState();
   const [catHaveHeal, setCatHaveHeal] = useState();
+  const [catRadius, setCatRadius] = useState<number>();
+  const [catHitPointsAvailable, setCatHitPointsAvailable] = useState<number>();
   // roomRef
   const roundCount = useRef(0);
   // dog useRef
@@ -420,6 +424,8 @@ function OnlineGame() {
         const data = docs.data();
         setWindSpeed(data?.windSpeed);
         setDogQuantityOfPower(data?.host?.quantityOfPower);
+        setDogRadius(data?.host?.radius);
+        setDogHitPointsAvailable(data?.host?.hitPointsAvailable);
       });
       return () => {
         roundSubscriber();
@@ -467,7 +473,7 @@ function OnlineGame() {
         removeAllListener();
       }
       function doubleHitHandler() {
-        firestore.updateHostHaveDoubleHit(roomID);
+        firestore.updateHostHaveDoubleHit(roomID, roundCount.current);
         gameDogHealRef.current?.removeEventListener('click', healHandler);
         // gameDogPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
       }
@@ -670,13 +676,11 @@ function OnlineGame() {
     const ctx = canvas.current?.getContext('2d');
     let dogX = 100;
     let dogY = 540;
-    const dogRadius = 20;
     let time = 1;
-    const hitPointsAvailable = 15;
 
     function drawDog() {
       ctx?.beginPath();
-      ctx?.arc(dogX, dogY, dogRadius, 0, Math.PI * 2, false);
+      ctx?.arc(dogX, dogY, dogRadius!, 0, Math.PI * 2, false);
       ctx?.fill();
       ctx?.closePath();
     }
@@ -687,7 +691,7 @@ function OnlineGame() {
         clearInterval(startAnimation);
       }
       function testGameState() {
-        const currentCatHitPoints = catHitPoints! - hitPointsAvailable;
+        const currentCatHitPoints = catHitPoints! - dogHitPointsAvailable!;
         if (currentCatHitPoints <= 0) {
           firestore.updateRoomState(roomID, 'dogWin');
         } else {
@@ -701,16 +705,20 @@ function OnlineGame() {
         dogX += 10 + dogQuantityOfPower! + windSpeed! * time;
         dogY -= 10 + dogQuantityOfPower! - time ** 2;
         // Is dog hit the cat?
-        if (dogX >= 820 - dogRadius && dogX <= 870 + dogRadius && dogY >= 490 - dogRadius) {
+        if (dogX >= 820 - dogRadius! && dogX <= 870 + dogRadius! && dogY >= 490 - dogRadius!) {
           console.log('hit!');
           stopAnimation();
-          firestore.updateGuestHitPoints(roomID, -1 * hitPointsAvailable);
+          firestore.updateGuestHitPoints(roomID, -1 * dogHitPointsAvailable!);
           console.log(roundCount.current);
-          firestore.updateHostGetPoints(roomID, roundCount.current, hitPointsAvailable);
+          firestore.updateHostGetPoints(roomID, roundCount.current, dogHitPointsAvailable!);
           ctx?.clearRect(0, 0, 940, 560);
           testGameState();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
-        } else if (dogX >= 450 - dogRadius && dogX <= 490 + dogRadius && dogY >= 400 - dogRadius) {
+        } else if (
+          dogX >= 450 - dogRadius! &&
+          dogX <= 490 + dogRadius! &&
+          dogY >= 400 - dogRadius!
+        ) {
           console.log('miss!');
           stopAnimation();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
@@ -746,11 +754,15 @@ function OnlineGame() {
         dogX += 10 + dogQuantityOfPower! + windSpeed! * time;
         dogY -= 10 + dogQuantityOfPower! - time ** 2;
         // Is dog hit the cat?
-        if (dogX >= 820 - dogRadius && dogX <= 870 + dogRadius && dogY >= 490 - dogRadius) {
+        if (dogX >= 820 - dogRadius! && dogX <= 870 + dogRadius! && dogY >= 490 - dogRadius!) {
           console.log('hit!');
           stopAnimation();
           ctx?.clearRect(0, 0, 940, 560);
-        } else if (dogX >= 450 - dogRadius && dogX <= 490 + dogRadius && dogY >= 400 - dogRadius) {
+        } else if (
+          dogX >= 450 - dogRadius! &&
+          dogX <= 490 + dogRadius! &&
+          dogY >= 400 - dogRadius!
+        ) {
           console.log('miss!');
           stopAnimation();
           ctx?.clearRect(0, 0, 940, 560);
@@ -778,12 +790,11 @@ function OnlineGame() {
     <div>
       {
         // prettier-ignore
-        roomState === 'wait' || roomState === undefined
-          ? ReactDOM.createPortal(
+        roomState === 'wait' || roomState === undefined ?
+          ReactDOM.createPortal(
             <WaitOpponentModal />,
             document?.getElementById('modal-root') as HTMLElement,
-          )
-          : ''
+          ) : ''
       }
       <GameScreen>
         <GameCanvasSection>
