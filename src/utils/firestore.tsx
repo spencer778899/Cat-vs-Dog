@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, setDoc, collection, updateDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, collection, updateDoc, increment } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_firebaseConfig_apiKey,
@@ -46,6 +46,11 @@ const firestore = {
         haveHeal: true,
         haveDoubleHit: true,
       },
+    });
+  },
+  async decreaseGuestHitPoints(roomID: string | undefined, hitPoints: number) {
+    await updateDoc(doc(db, 'games', `${roomID}`), {
+      'guest.hitPoints': increment(-1 * hitPoints),
     });
   },
   async setNewRound(roomID: string | undefined, roundCount: number, windSpeed: number) {

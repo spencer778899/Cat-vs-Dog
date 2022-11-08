@@ -330,10 +330,6 @@ function OnlineGame() {
   const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameCatHealRef = useRef<HTMLDivElement>(null);
 
-  console.log('roomState', roomState);
-  console.log('windSpeed', windSpeed);
-  console.log('----------------------------------------------');
-
   // If room isn't exist,create a new one
   useEffect(() => {
     async function createNewRoom() {
@@ -400,7 +396,6 @@ function OnlineGame() {
       const randomNumber = Math.floor(Math.random() * 5);
       const randomWindSpeed = isPositive ? 0.5 * randomNumber : -0.5 * randomNumber;
       await firestore.setNewRound(roomID, roundCount.current, randomWindSpeed);
-      // roundCount.current += 1;
     }
     if (roomState === 'dogTurn') {
       setNewRound();
@@ -413,7 +408,7 @@ function OnlineGame() {
       const roundSubscriber = onSnapshot(roundRef, (docs) => {
         const data = docs.data();
         setWindSpeed(data?.windSpeed);
-        setDogQuantityOfPower(data?.quantityOfPower);
+        setDogQuantityOfPower(data?.host?.quantityOfPower);
       });
       return () => {
         roundSubscriber();
@@ -423,9 +418,11 @@ function OnlineGame() {
       subscribeRound();
     }
   }, [roomState]);
+
   // handle game operate
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
+
     // setDogTurn
     function setDogTurn() {
       let startTime: number;
@@ -452,44 +449,6 @@ function OnlineGame() {
         const timeLong = endTime - startTime;
         return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
       }
-      //     function stopAnimation() {
-      //       clearInterval(timeHandler);
-      //       clearInterval(startAnimation);
-      //     }
-      //     function testGameState() {
-      //       const currentCatHitPoints = catHitPoints - hitPointsAvailable;
-      //       if (currentCatHitPoints <= 0) {
-      //         setRoomState('dogWin');
-      //       } else {
-      //         setRoomState('catTurn');
-      //       }
-      //     }
-      //     function startAnimationHandler(quantityOfPower: number) {
-      //       ctx?.clearRect(0, 0, 940, 560);
-      //       drawDog();
-      //       // up data dog coordinate
-      //       dogX += 10 + quantityOfPower + windSpeed * time;
-      //       dogY -= 10 + quantityOfPower - time ** 2;
-      //       // Is dog hit the cat?
-      //    if (dogX >= 820 - dogRadius && dogX <= 870 + dogRadius && dogY >= 490 - dogRadius) {
-      //         console.log('hit!');
-      //         stopAnimation();
-      //         setCatHitPoints((prev) => prev - hitPointsAvailable);
-      //         testGameState();
-      //         dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
-      // } else if (dogX >= 450 - dogRadius &&
-      // dogX <= 490 + dogRadius && dogY >= 400 - dogRadius) {
-      //         console.log('miss!');
-      //         stopAnimation();
-      //         dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
-      //         setRoomState('catTurn');
-      //       } else if (dogY > 580 || dogY < 0) {
-      //         console.log('miss!');
-      //         stopAnimation();
-      //         dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
-      //         setRoomState('catTurn');
-      //       }
-      //     }
       //     function healHandler() {
       //       setDogHaveHeal(false);
       //       setDogHitPoints((prev) => prev + 20);
@@ -514,14 +473,7 @@ function OnlineGame() {
           const quantityOfPower = getQuantityOfPower(endTime);
           console.log(quantityOfPower);
           firestore.updateHostQuantityOfPower(roomID, roundCount.current, quantityOfPower);
-          clearInterval(dogEnergyInnerHandler);
-          //   timeHandler = setInterval(() => {
-          //     time += 0.06;
-          //   }, 10);
-          //   startAnimation = setInterval(() => {
-          //     startAnimationHandler(quantityOfPower);
-          //   }, 15);
-          //   removeAllListener();
+          removeAllListener();
         }
       }
       function removeAllListener() {
@@ -531,6 +483,7 @@ function OnlineGame() {
         gameDogRef.current?.removeEventListener('mousedown', mouseDownHandler);
         window.removeEventListener('mouseup', mouseUpHandler);
         clearInterval(countTimer);
+        clearInterval(dogEnergyInnerHandler);
         setDogTurnTimeSpent(undefined);
       }
       let turnTimeSpent = 10;
@@ -540,19 +493,18 @@ function OnlineGame() {
           setDogTurnTimeSpent(undefined);
           firestore.updateRoomState(roomID, 'catTurn');
           removeAllListener();
-          clearInterval(countTimer);
         } else if (turnTimeSpent <= 5) {
           setDogTurnTimeSpent(turnTimeSpent);
         }
       }
       const countTimer = setInterval(startCountTimer, 1000);
-      setIsDisplayArrow(true);
-      //     gameDogHealRef.current?.addEventListener('click', healHandler);
-      //     gameDogDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
+      // gameDogHealRef.current?.addEventListener('click', healHandler);
+      // gameDogDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
       // gameDogPowerUpRef.current?.addEventListener('click', PowerUpHandler);
       gameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
       window.addEventListener('mouseup', mouseUpHandler);
     }
+
     // setCatTurn
     function setCatTurn() {
       //     let catX = 840;
@@ -681,19 +633,19 @@ function OnlineGame() {
           firestore.updateRoomState(roomID, 'dogTurn');
           removeAllListener();
           clearInterval(countTimer);
+          roundCount.current += 1;
         } else if (turnTimeSpent <= 5) {
           setCatTurnTimeSpent(turnTimeSpent);
         }
       }
       const countTimer = setInterval(startCountTimer, 1000);
-      setIsDisplayArrow(true);
       //     gameCatHealRef.current?.addEventListener('click', healHandler);
       //     gameCatDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
       //     gameCatPowerUpRef.current?.addEventListener('click', PowerUpHandler);
       //     gameCatRef.current?.addEventListener('mousedown', mouseDownHandler);
       //     window.addEventListener('mouseup', mouseUpHandler);
     }
-    ctx?.clearRect(0, 0, 940, 560);
+    setIsDisplayArrow(true);
     if (roomState === 'dogTurn' && identity === 'host') {
       setDogTurn();
     } else if (roomState === 'catTurn' && identity === 'guest') {
@@ -702,28 +654,111 @@ function OnlineGame() {
       alert(roomState);
     }
   }, [roomState]);
+
   // dog animation handler
-  // useEffect(() => {
-  //   async function startAnimation() {
-  //     const ctx = canvas.current?.getContext('2d');
-  //     let dogX = 100;
-  //     let dogY = 540;
-  //     let dogRadius = 20;
-  //     let timeHandler: NodeJS.Timeout;
-  //     let startAnimation: NodeJS.Timeout;
-  //     let time = 1;
-  //     let hitPointsAvailable = 15;
-  //     function drawDog() {
-  //       ctx?.beginPath();
-  //       ctx?.arc(dogX, dogY, dogRadius, 0, Math.PI * 2, false);
-  //       ctx?.fill();
-  //       ctx?.closePath();
-  //     }
-  //   }
-  //   if (dogQuantityOfPower) {
-  //     startAnimation();
-  //   }
-  // }, [dogQuantityOfPower]);
+  useEffect(() => {
+    const ctx = canvas.current?.getContext('2d');
+    let dogX = 100;
+    let dogY = 540;
+    const dogRadius = 20;
+    let time = 1;
+    const hitPointsAvailable = 15;
+
+    function drawDog() {
+      ctx?.beginPath();
+      ctx?.arc(dogX, dogY, dogRadius, 0, Math.PI * 2, false);
+      ctx?.fill();
+      ctx?.closePath();
+    }
+
+    async function HostDogAnimationHandler() {
+      function stopAnimation() {
+        clearInterval(timeHandler);
+        clearInterval(startAnimation);
+      }
+      function testGameState() {
+        const currentCatHitPoints = catHitPoints! - hitPointsAvailable;
+        if (currentCatHitPoints <= 0) {
+          firestore.updateRoomState(roomID, 'dogWin');
+        } else {
+          firestore.updateRoomState(roomID, 'catTurn');
+        }
+      }
+      function startAnimationHandler() {
+        ctx?.clearRect(0, 0, 940, 560);
+        drawDog();
+        // up data dog coordinate
+        dogX += 10 + dogQuantityOfPower! + windSpeed! * time;
+        dogY -= 10 + dogQuantityOfPower! - time ** 2;
+        // Is dog hit the cat?
+        if (dogX >= 820 - dogRadius && dogX <= 870 + dogRadius && dogY >= 490 - dogRadius) {
+          console.log('hit!');
+          stopAnimation();
+          firestore.decreaseGuestHitPoints(roomID, hitPointsAvailable);
+          ctx?.clearRect(0, 0, 940, 560);
+          testGameState();
+          dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
+        } else if (dogX >= 450 - dogRadius && dogX <= 490 + dogRadius && dogY >= 400 - dogRadius) {
+          console.log('miss!');
+          stopAnimation();
+          dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
+          firestore.updateRoomState(roomID, 'catTurn');
+          ctx?.clearRect(0, 0, 940, 560);
+        } else if (dogY > 580 || dogY < 0) {
+          console.log('miss!');
+          stopAnimation();
+          dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
+          firestore.updateRoomState(roomID, 'catTurn');
+          ctx?.clearRect(0, 0, 940, 560);
+        }
+      }
+      const timeHandler = setInterval(() => {
+        time += 0.06;
+      }, 10);
+      const startAnimation = setInterval(() => {
+        startAnimationHandler();
+      }, 15);
+    }
+
+    async function guestDogAnimationHandler() {
+      function stopAnimation() {
+        clearInterval(timeHandler);
+        clearInterval(startAnimation);
+      }
+      function startAnimationHandler() {
+        ctx?.clearRect(0, 0, 940, 560);
+        drawDog();
+        // up data dog coordinate
+        dogX += 10 + dogQuantityOfPower! + windSpeed! * time;
+        dogY -= 10 + dogQuantityOfPower! - time ** 2;
+        // Is dog hit the cat?
+        if (dogX >= 820 - dogRadius && dogX <= 870 + dogRadius && dogY >= 490 - dogRadius) {
+          console.log('hit!');
+          stopAnimation();
+          ctx?.clearRect(0, 0, 940, 560);
+        } else if (dogX >= 450 - dogRadius && dogX <= 490 + dogRadius && dogY >= 400 - dogRadius) {
+          console.log('miss!');
+          stopAnimation();
+          ctx?.clearRect(0, 0, 940, 560);
+        } else if (dogY > 580 || dogY < 0) {
+          console.log('miss!');
+          stopAnimation();
+          ctx?.clearRect(0, 0, 940, 560);
+        }
+      }
+      const timeHandler = setInterval(() => {
+        time += 0.06;
+      }, 10);
+      const startAnimation = setInterval(() => {
+        startAnimationHandler();
+      }, 15);
+    }
+    if (dogQuantityOfPower && roomState === 'dogTurn' && identity === 'host') {
+      HostDogAnimationHandler();
+    } else if (dogQuantityOfPower && roomState === 'dogTurn' && identity === 'guest') {
+      guestDogAnimationHandler();
+    }
+  }, [dogQuantityOfPower]);
 
   return (
     <div>
