@@ -11,11 +11,15 @@ module.exports = {
     jest: true,
   },
   plugins: ['@typescript-eslint'],
-  extends: ['airbnb', 'airbnb/hooks', 'plugin:react/recommended', 'plugin:@typescript-eslint/recommended'],
+  extends: [
+    'airbnb',
+    'airbnb/hooks',
+    'plugin:react/recommended',
+    'plugin:@typescript-eslint/recommended',
+  ],
   rules: {
     'react/jsx-filename-extension': [1, { extensions: ['.jsx', '.tsx'] }],
     'react-hooks/exhaustive-deps': 'warn',
-    '@typescript-eslint/indent': ['error', 2],
     'linebreak-style': ['error', 'windows'],
     'object-curly-newline': 'off',
     'import/extensions': [
@@ -28,6 +32,7 @@ module.exports = {
         tsx: 'never',
       },
     ],
+    'operator-linebreak': [2, 'after', { overrides: { '?': 'after' } }],
   },
   settings: {
     'import/resolver': {
