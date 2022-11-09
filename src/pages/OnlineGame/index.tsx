@@ -322,6 +322,7 @@ function OnlineGame() {
   const [catHavePowerUp, setCatHavePowerUp] = useState();
   const [catHaveDoubleHit, setCatHaveDoubleHit] = useState();
   const [catHaveHeal, setCatHaveHeal] = useState();
+  const [catQuantityOfPower, setCatQuantityOfPower] = useState<number>();
   const [catRadius, setCatRadius] = useState<number>();
   const [catHitPointsAvailable, setCatHitPointsAvailable] = useState<number>();
   // roomRef
@@ -340,6 +341,9 @@ function OnlineGame() {
   const gameCatPowerUpRef = useRef<HTMLDivElement>(null);
   const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameCatHealRef = useRef<HTMLDivElement>(null);
+
+  console.log('----------------------------------------');
+  // console.log('dogQuantityOfPower', dogQuantityOfPower);
 
   // If room isn't exist,create a new one
   useEffect(() => {
@@ -406,12 +410,12 @@ function OnlineGame() {
       const isPositive = Math.floor(Math.random() * 2);
       const randomNumber = Math.floor(Math.random() * 5);
       const randomWindSpeed = isPositive ? 0.5 * randomNumber : -0.5 * randomNumber;
-      console.log(roundCount.current);
       await firestore.setNewRound(roomID, roundCount.current, randomWindSpeed);
     }
     if (roomState === 'dogTurn' && identity === 'host') {
       roundCount.current += 1;
       setNewRound();
+      console.log('undCount.current + 1');
     } else if (roomState === 'dogTurn' && identity === 'guest') {
       roundCount.current += 1;
     }
@@ -422,16 +426,22 @@ function OnlineGame() {
       const roundRef = doc(db, 'games', `${roomID}`, 'scoreboard', `round${roundCount.current}`);
       const roundSubscriber = onSnapshot(roundRef, (docs) => {
         const data = docs.data();
+        console.log('roundCount', roundCount.current);
+        console.log(data);
         setWindSpeed(data?.windSpeed);
         setDogQuantityOfPower(data?.host?.quantityOfPower);
         setDogRadius(data?.host?.radius);
         setDogHitPointsAvailable(data?.host?.hitPointsAvailable);
+        setCatQuantityOfPower(data?.guest?.quantityOfPower);
+        setCatRadius(data?.guest?.radius);
+        setCatHitPointsAvailable(data?.guest?.hitPointsAvailable);
       });
       return () => {
         roundSubscriber();
       };
     }
     if (roomState === 'dogTurn') {
+      console.log('subscribe round doc');
       subscribeRound();
     }
   }, [roomState]);
@@ -487,7 +497,6 @@ function OnlineGame() {
           const endTime = Number(new Date());
           const quantityOfPower = getQuantityOfPower(endTime);
           console.log(quantityOfPower);
-          console.log(roundCount.current);
           firestore.updateHostQuantityOfPower(roomID, roundCount.current, quantityOfPower);
           removeAllListener();
         }
@@ -520,126 +529,65 @@ function OnlineGame() {
       gameDogRef.current?.addEventListener('mousedown', mouseDownHandler);
       window.addEventListener('mouseup', mouseUpHandler);
     }
-
-    // setCatTurn
     function setCatTurn() {
-      //     let catX = 840;
-      //     let catY = 540;
-      //     let catRadius = 20;
-      //     let startTime: number;
-      //     let timeHandler: NodeJS.Timeout;
-      //     let startAnimation: NodeJS.Timeout;
-      //     let CatEnergyInnerHandler: NodeJS.Timeout;
-      //     let isMouseDown = false;
-      //     let time = 1;
-      //     let energy = 0;
-      //     let hitPointsAvailable = 15;
-      //     let windSpeed: number; // -2 ~ 2
-      //     function drawCat() {
-      //       ctx?.beginPath();
-      //       ctx?.arc(catX, catY, catRadius, 0, Math.PI * 2, false);
-      //       ctx?.fill();
-      //       ctx?.closePath();
-      //     }
-      //     function increaseEnergy() {
-      //       energy += 1;
-      //       if (energy >= 100) {
-      //         clearInterval(CatEnergyInnerHandler);
-      //       }
-      //       catEnergyInnerRef?.current?.setAttribute('style', `width:${energy}%`);
-      //     }
-      //     function mouseDownHandler() {
-      //       isMouseDown = true;
-      //       setIsDisplayArrow(false);
-      //       clearInterval(countTimer);
-      //       setCatTurnTimeSpent(undefined);
-      //       catEnergyBarRef?.current?.setAttribute('style', 'display:block');
-      //       CatEnergyInnerHandler = setInterval(increaseEnergy, 20);
-      //       startTime = Number(new Date());
-      //     }
-      //     function getQuantityOfPower(endTime: number) {
-      //       const timeLong = endTime - startTime;
-      //       return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
-      //     }
-      //     function stopAnimation() {
-      //       clearInterval(timeHandler);
-      //       clearInterval(startAnimation);
-      //     }
-      //     function testGameState() {
-      //       const currentDogHitPoints = dogHitPoints - hitPointsAvailable;
-      //       if (currentDogHitPoints <= 0) {
-      //         setRoomState('catWin');
-      //       } else {
-      //         setRoomState('dogTurn');
-      //       }
-      //     }
-      //     function startAnimationHandler(quantityOfPower: number) {
-      //       ctx?.clearRect(0, 0, 940, 560);
-      //       drawCat();
-      //       // up data cat coordinate
-      //       catX -= 10 + quantityOfPower - windSpeed * time;
-      //       catY -= 10 + quantityOfPower - time ** 2;
-      //       // Is dog cat the cat?
-      //       if (catX >= 80 - catRadius && catX <= 130 + catRadius && catY >= 490 - catRadius) {
-      //         console.log('hit!');
-      //         stopAnimation();
-      //         setDogHitPoints((prev) => prev - hitPointsAvailable);
-      //         testGameState();
-      //         catEnergyBarRef?.current?.setAttribute('style', 'display:none');
-      // } else if (catX >= 450 - catRadius && catX <= 490 + catRadius
-      // && catY >= 400 - catRadius) {
-      //         console.log('miss!');
-      //         stopAnimation();
-      //         catEnergyBarRef?.current?.setAttribute('style', 'display:none');
-      //         setRoomState('dogTurn');
-      //       } else if (catY > 580 || catY < 0) {
-      //         console.log('miss!');
-      //         stopAnimation();
-      //         catEnergyBarRef?.current?.setAttribute('style', 'display:none');
-      //         setRoomState('dogTurn');
-      //       }
-      //     }
-      //     function healHandler() {
-      //       setCatHaveHeal(false);
-      //       setCatHitPoints((prev) => prev + 20);
-      //       removeAllListener();
-      //       setRoomState('dogTurn');
-      //     }
-      //     function doubleHitHandler() {
-      //       setCatHaveDoubleHit(false);
-      //       hitPointsAvailable = 30;
-      //       gameCatHealRef.current?.removeEventListener('click', healHandler);
-      //       gameCatPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
-      //     }
-      //     function PowerUpHandler() {
-      //       setCatHavePowerUp(false);
-      //       catRadius = 40;
-      //       gameCatDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
-      //       gameCatHealRef.current?.removeEventListener('click', healHandler);
-      //     }
-      //     function mouseUpHandler() {
-      //       if (isMouseDown) {
-      //         const endTime = Number(new Date());
-      //         const quantityOfPower = getQuantityOfPower(endTime);
-      //         console.log(quantityOfPower);
-      //         clearInterval(CatEnergyInnerHandler);
-      //         timeHandler = setInterval(() => {
-      //           time += 0.06;
-      //         }, 10);
-      //         startAnimation = setInterval(() => {
-      //           startAnimationHandler(quantityOfPower);
-      //         }, 15);
-      //         removeAllListener();
-      //       }
-      //     }
-      function removeAllListener() {
-        //       gameCatHealRef.current?.removeEventListener('click', healHandler);
-        //       gameCatDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
-        //       gameCatPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
-        //       gameCatRef.current?.removeEventListener('mousedown', mouseDownHandler);
-        //       window.removeEventListener('mouseup', mouseUpHandler);
+      let startTime: number;
+      let catEnergyInnerHandler: NodeJS.Timeout;
+      let isMouseDown = false;
+      let energy = 0;
+      function increaseEnergy() {
+        energy += 1;
+        if (energy >= 100) {
+          clearInterval(catEnergyInnerHandler);
+        }
+        catEnergyInnerRef?.current?.setAttribute('style', `width:${energy}%`);
+      }
+      function mouseDownHandler() {
+        isMouseDown = true;
+        setIsDisplayArrow(false);
+        setCatTurnTimeSpent(undefined);
         clearInterval(countTimer);
-        //       setCatTurnTimeSpent(undefined);
+        catEnergyBarRef?.current?.setAttribute('style', 'display:block');
+        catEnergyInnerHandler = setInterval(increaseEnergy, 20);
+        startTime = Number(new Date());
+      }
+      function getQuantityOfPower(endTime: number) {
+        const timeLong = endTime - startTime;
+        return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
+      }
+      function healHandler() {
+        firestore.updateGuestHaveHeal(roomID);
+        firestore.updateGuestHitPoints(roomID, 20);
+        firestore.updateRoomState(roomID, 'dogTurn');
+        removeAllListener();
+      }
+      function doubleHitHandler() {
+        firestore.updateGuestHaveDoubleHit(roomID, roundCount.current);
+        gameCatHealRef.current?.removeEventListener('click', healHandler);
+        gameCatPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+      }
+      function PowerUpHandler() {
+        firestore.updateGuestHavePowerUp(roomID, roundCount.current);
+        gameCatDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+        gameCatHealRef.current?.removeEventListener('click', healHandler);
+      }
+      function mouseUpHandler() {
+        if (isMouseDown) {
+          const endTime = Number(new Date());
+          const quantityOfPower = getQuantityOfPower(endTime);
+          console.log(quantityOfPower);
+          firestore.updateGuestQuantityOfPower(roomID, roundCount.current, quantityOfPower);
+          removeAllListener();
+        }
+      }
+      function removeAllListener() {
+        gameCatHealRef.current?.removeEventListener('click', healHandler);
+        gameCatDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+        gameCatPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+        gameCatRef.current?.removeEventListener('mousedown', mouseDownHandler);
+        window.removeEventListener('mouseup', mouseUpHandler);
+        clearInterval(countTimer);
+        clearInterval(catEnergyInnerHandler);
+        setCatTurnTimeSpent(undefined);
       }
       let turnTimeSpent = 10;
       function startCountTimer() {
@@ -648,18 +596,157 @@ function OnlineGame() {
           setCatTurnTimeSpent(undefined);
           firestore.updateRoomState(roomID, 'dogTurn');
           removeAllListener();
-          clearInterval(countTimer);
         } else if (turnTimeSpent <= 5) {
           setCatTurnTimeSpent(turnTimeSpent);
         }
       }
       const countTimer = setInterval(startCountTimer, 1000);
-      //     gameCatHealRef.current?.addEventListener('click', healHandler);
-      //     gameCatDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
-      //     gameCatPowerUpRef.current?.addEventListener('click', PowerUpHandler);
-      //     gameCatRef.current?.addEventListener('mousedown', mouseDownHandler);
-      //     window.addEventListener('mouseup', mouseUpHandler);
+      gameCatHealRef.current?.addEventListener('click', healHandler);
+      gameCatDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
+      gameCatPowerUpRef.current?.addEventListener('click', PowerUpHandler);
+      gameCatRef.current?.addEventListener('mousedown', mouseDownHandler);
+      window.addEventListener('mouseup', mouseUpHandler);
     }
+
+    // setCatTurn
+    // function setCatTurn() {
+    //     let catX = 840;
+    //     let catY = 540;
+    //     let catRadius = 20;
+    //     let startTime: number;
+    //     let timeHandler: NodeJS.Timeout;
+    //     let startAnimation: NodeJS.Timeout;
+    //     let CatEnergyInnerHandler: NodeJS.Timeout;
+    //     let isMouseDown = false;
+    //     let time = 1;
+    //     let energy = 0;
+    //     let hitPointsAvailable = 15;
+    //     let windSpeed: number; // -2 ~ 2
+    //     function drawCat() {
+    //       ctx?.beginPath();
+    //       ctx?.arc(catX, catY, catRadius, 0, Math.PI * 2, false);
+    //       ctx?.fill();
+    //       ctx?.closePath();
+    //     }
+    //     function increaseEnergy() {
+    //       energy += 1;
+    //       if (energy >= 100) {
+    //         clearInterval(CatEnergyInnerHandler);
+    //       }
+    //       catEnergyInnerRef?.current?.setAttribute('style', `width:${energy}%`);
+    //     }
+    //     function mouseDownHandler() {
+    //       isMouseDown = true;
+    //       setIsDisplayArrow(false);
+    //       clearInterval(countTimer);
+    //       setCatTurnTimeSpent(undefined);
+    //       catEnergyBarRef?.current?.setAttribute('style', 'display:block');
+    //       CatEnergyInnerHandler = setInterval(increaseEnergy, 20);
+    //       startTime = Number(new Date());
+    //     }
+    //     function getQuantityOfPower(endTime: number) {
+    //       const timeLong = endTime - startTime;
+    //       return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
+    //     }
+    //     function stopAnimation() {
+    //       clearInterval(timeHandler);
+    //       clearInterval(startAnimation);
+    //     }
+    //     function testGameState() {
+    //       const currentDogHitPoints = dogHitPoints - hitPointsAvailable;
+    //       if (currentDogHitPoints <= 0) {
+    //         setRoomState('catWin');
+    //       } else {
+    //         setRoomState('dogTurn');
+    //       }
+    //     }
+    //     function startAnimationHandler(quantityOfPower: number) {
+    //       ctx?.clearRect(0, 0, 940, 560);
+    //       drawCat();
+    //       // up data cat coordinate
+    //       catX -= 10 + quantityOfPower - windSpeed * time;
+    //       catY -= 10 + quantityOfPower - time ** 2;
+    //       // Is dog cat the cat?
+    //       if (catX >= 80 - catRadius && catX <= 130 + catRadius && catY >= 490 - catRadius) {
+    //         console.log('hit!');
+    //         stopAnimation();
+    //         setDogHitPoints((prev) => prev - hitPointsAvailable);
+    //         testGameState();
+    //         catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+    // } else if (catX >= 450 - catRadius && catX <= 490 + catRadius
+    // && catY >= 400 - catRadius) {
+    //         console.log('miss!');
+    //         stopAnimation();
+    //         catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+    //         setRoomState('dogTurn');
+    //       } else if (catY > 580 || catY < 0) {
+    //         console.log('miss!');
+    //         stopAnimation();
+    //         catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+    //         setRoomState('dogTurn');
+    //       }
+    //     }
+    //     function healHandler() {
+    //       setCatHaveHeal(false);
+    //       setCatHitPoints((prev) => prev + 20);
+    //       removeAllListener();
+    //       setRoomState('dogTurn');
+    //     }
+    //     function doubleHitHandler() {
+    //       setCatHaveDoubleHit(false);
+    //       hitPointsAvailable = 30;
+    //       gameCatHealRef.current?.removeEventListener('click', healHandler);
+    //       gameCatPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+    //     }
+    //     function PowerUpHandler() {
+    //       setCatHavePowerUp(false);
+    //       catRadius = 40;
+    //       gameCatDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+    //       gameCatHealRef.current?.removeEventListener('click', healHandler);
+    //     }
+    //     function mouseUpHandler() {
+    //       if (isMouseDown) {
+    //         const endTime = Number(new Date());
+    //         const quantityOfPower = getQuantityOfPower(endTime);
+    //         console.log(quantityOfPower);
+    //         clearInterval(CatEnergyInnerHandler);
+    //         timeHandler = setInterval(() => {
+    //           time += 0.06;
+    //         }, 10);
+    //         startAnimation = setInterval(() => {
+    //           startAnimationHandler(quantityOfPower);
+    //         }, 15);
+    //         removeAllListener();
+    //       }
+    //     }
+    // function removeAllListener() {
+    //       gameCatHealRef.current?.removeEventListener('click', healHandler);
+    //       gameCatDoubleHitRef.current?.removeEventListener('click', doubleHitHandler);
+    //       gameCatPowerUpRef.current?.removeEventListener('click', PowerUpHandler);
+    //       gameCatRef.current?.removeEventListener('mousedown', mouseDownHandler);
+    //       window.removeEventListener('mouseup', mouseUpHandler);
+    // clearInterval(countTimer);
+    //       setCatTurnTimeSpent(undefined);
+    // }
+    // let turnTimeSpent = 10;
+    // function startCountTimer() {
+    //   turnTimeSpent -= 1;
+    //   if (turnTimeSpent === 0) {
+    //     setCatTurnTimeSpent(undefined);
+    //     firestore.updateRoomState(roomID, 'dogTurn');
+    //     removeAllListener();
+    //     clearInterval(countTimer);
+    //   } else if (turnTimeSpent <= 5) {
+    //     setCatTurnTimeSpent(turnTimeSpent);
+    //   }
+    // }
+    // const countTimer = setInterval(startCountTimer, 1000);
+    //     gameCatHealRef.current?.addEventListener('click', healHandler);
+    //     gameCatDoubleHitRef.current?.addEventListener('click', doubleHitHandler);
+    //     gameCatPowerUpRef.current?.addEventListener('click', PowerUpHandler);
+    //     gameCatRef.current?.addEventListener('mousedown', mouseDownHandler);
+    //     window.addEventListener('mouseup', mouseUpHandler);
+    // }
     setIsDisplayArrow(true);
     if (roomState === 'dogTurn' && identity === 'host') {
       setDogTurn();
@@ -684,7 +771,7 @@ function OnlineGame() {
       ctx?.closePath();
     }
 
-    function HostDogAnimationHandler() {
+    function hostDogAnimationHandler() {
       function stopAnimation() {
         clearInterval(timeHandler);
         clearInterval(startAnimation);
@@ -708,7 +795,6 @@ function OnlineGame() {
           console.log('hit!');
           stopAnimation();
           firestore.updateGuestHitPoints(roomID, -1 * dogHitPointsAvailable!);
-          console.log(roundCount.current);
           firestore.updateHostGetPoints(roomID, roundCount.current, dogHitPointsAvailable!);
           ctx?.clearRect(0, 0, 940, 560);
           testGameState();
@@ -779,11 +865,125 @@ function OnlineGame() {
       }, 15);
     }
     if (dogQuantityOfPower && roomState === 'dogTurn' && identity === 'host') {
-      HostDogAnimationHandler();
+      console.log('hostDogAnimationHandler');
+      console.log(roundCount.current);
+      console.log(dogQuantityOfPower);
+      hostDogAnimationHandler();
     } else if (dogQuantityOfPower && roomState === 'dogTurn' && identity === 'guest') {
       guestDogAnimationHandler();
     }
   }, [dogQuantityOfPower]);
+
+  // cat animation handler
+  useEffect(() => {
+    const ctx = canvas.current?.getContext('2d');
+    let catX = 840;
+    let catY = 540;
+    let time = 1;
+
+    function drawCat() {
+      ctx?.beginPath();
+      ctx?.arc(catX, catY, catRadius!, 0, Math.PI * 2, false);
+      ctx?.fill();
+      ctx?.closePath();
+    }
+
+    function guestCatAnimationHandler() {
+      function stopAnimation() {
+        clearInterval(timeHandler);
+        clearInterval(startAnimation);
+      }
+      function testGameState() {
+        const currentDogHitPoints = dogHitPoints! - catHitPointsAvailable!;
+        if (currentDogHitPoints <= 0) {
+          firestore.updateRoomState(roomID, 'catWin');
+        } else {
+          firestore.updateRoomState(roomID, 'dogTurn');
+        }
+      }
+      function startAnimationHandler() {
+        ctx?.clearRect(0, 0, 940, 560);
+        drawCat();
+        catX -= 10 + catQuantityOfPower! - windSpeed! * time;
+        catY -= 10 + catQuantityOfPower! - time ** 2;
+        if (catX >= 80 - catRadius! && catX <= 130 + catRadius! && catY >= 490 - catRadius!) {
+          console.log('hit!');
+          stopAnimation();
+          firestore.updateHostHitPoints(roomID, -1 * catHitPointsAvailable!);
+          firestore.updateGuestGetPoints(roomID, roundCount.current, catHitPointsAvailable!);
+          ctx?.clearRect(0, 0, 940, 560);
+          testGameState();
+          catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+        } else if (
+          catX >= 450 - catRadius! &&
+          catX <= 490 + catRadius! &&
+          catY >= 400 - catRadius!
+        ) {
+          console.log('miss!');
+          stopAnimation();
+          catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+          firestore.updateRoomState(roomID, 'dogTurn');
+          firestore.updateGuestGetPoints(roomID, roundCount.current, 0);
+          ctx?.clearRect(0, 0, 940, 560);
+        } else if (catY > 580 || catY < 0) {
+          console.log('miss!');
+          stopAnimation();
+          catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+          firestore.updateRoomState(roomID, 'dogTurn');
+          firestore.updateGuestGetPoints(roomID, roundCount.current, 0);
+          ctx?.clearRect(0, 0, 940, 560);
+        }
+      }
+      const timeHandler = setInterval(() => {
+        time += 0.06;
+      }, 10);
+      const startAnimation = setInterval(() => {
+        startAnimationHandler();
+      }, 15);
+    }
+
+    function hostCatAnimationHandler() {
+      function stopAnimation() {
+        clearInterval(timeHandler);
+        clearInterval(startAnimation);
+      }
+      function startAnimationHandler() {
+        ctx?.clearRect(0, 0, 940, 560);
+        drawCat();
+        catX -= 10 + catQuantityOfPower! - windSpeed! * time;
+        catY -= 10 + catQuantityOfPower! - time ** 2;
+        if (catX >= 80 - catRadius! && catX <= 130 + catRadius! && catY >= 490 - catRadius!) {
+          console.log('hit!');
+          stopAnimation();
+          ctx?.clearRect(0, 0, 940, 560);
+        } else if (
+          catX >= 450 - catRadius! &&
+          catX <= 490 + catRadius! &&
+          catY >= 400 - catRadius!
+        ) {
+          console.log('miss!');
+          stopAnimation();
+          ctx?.clearRect(0, 0, 940, 560);
+        } else if (catY > 580 || catY < 0) {
+          console.log('miss!');
+          stopAnimation();
+          ctx?.clearRect(0, 0, 940, 560);
+        }
+      }
+      const timeHandler = setInterval(() => {
+        time += 0.06;
+      }, 10);
+      const startAnimation = setInterval(() => {
+        startAnimationHandler();
+      }, 15);
+    }
+
+    if (catQuantityOfPower && roomState === 'catTurn' && identity === 'guest') {
+      guestCatAnimationHandler();
+    } else if (catQuantityOfPower && roomState === 'catTurn' && identity === 'host') {
+      hostCatAnimationHandler();
+    }
+  }, [catQuantityOfPower]);
 
   return (
     <div>
