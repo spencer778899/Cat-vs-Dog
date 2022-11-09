@@ -529,12 +529,10 @@ function AIGame() {
       <GameScreen>
         {
           // prettier-ignore
-          AILevel
-            ? ''
-            : ReactDOM.createPortal(
-              <SelectLevelModel getAILevel={getAILevel} />,
-              document?.getElementById('modal-root') as HTMLElement,
-            )
+          AILevel ? '' : ReactDOM.createPortal(
+            <SelectLevelModel getAILevel={getAILevel} />,
+            document?.getElementById('modal-root') as HTMLElement,
+          )
         }
         <GameCanvasSection>
           <GameWindSpeedBar>
