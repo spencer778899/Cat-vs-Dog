@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import Arrow from './arrow.png';
+import Arrow from '../../img/arrow.png';
 
 const GameScreen = styled.div`
   position: absolute;

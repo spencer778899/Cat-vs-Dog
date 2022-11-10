@@ -1,19 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import img from '../img/globalBackground.jpg';
-import memberImg from './member.png';
+import LoginModal from './loginModal';
+import memberImg from '../../img/member.png';
+import RegisterModal from './register';
+import InviteModal from './inviteModal';
 
-const Background = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-image: url(${img});
-  opacity: 45%;
-  z-index: -99;
-`;
 const HomeMain = styled.div`
   display: flex;
   justify-content: center;
@@ -30,7 +23,8 @@ const HomeMain = styled.div`
   padding: 10px;
   border-radius: 10px;
   background-color: #ffffff;
-  box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%); ;
+  box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
+  z-index: -1;
 `;
 const HomeMemberBox = styled.div`
   display: flex;
@@ -65,6 +59,9 @@ const HomeLogin = styled.div`
   border: 2px solid #000000;
   border-radius: 15px;
   cursor: pointer;
+  &:hover {
+    box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
+  }
 `;
 const HomeLogo = styled.div`
   display: flex;
@@ -93,6 +90,9 @@ const HomeLocalGameLink = styled(Link)`
   border-radius: 20px;
   color: #000000;
   text-decoration: none;
+  &:hover {
+    box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
+  }
 `;
 const HomeAIGameLink = styled(Link)`
   display: flex;
@@ -105,6 +105,9 @@ const HomeAIGameLink = styled(Link)`
   border-radius: 20px;
   color: #000000;
   text-decoration: none;
+  &:hover {
+    box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
+  }
 `;
 const HomeOnlineGameLink = styled.div`
   display: flex;
@@ -116,22 +119,86 @@ const HomeOnlineGameLink = styled.div`
   border: 1px solid #000000;
   border-radius: 20px;
   cursor: pointer;
+  &:hover {
+    box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
+  }
 `;
 function Home() {
+  const [displayLoginModal, setDisplayLoginModal] = useState(false);
+  const [displayRegisterModal, setDisplayRegisterModal] = useState(false);
+  const [displayInviteModal, setDisplayInviteModal] = useState(false);
+
+  const displayLoginModalHandler = (display: boolean) => {
+    setDisplayLoginModal(display);
+  };
+
+  const displayRegisterModalHandler = (display: boolean) => {
+    setDisplayRegisterModal(display);
+  };
+
+  const displayInviteModalHandler = (display: boolean) => {
+    setDisplayInviteModal(display);
+  };
   return (
     <div>
-      <Background />
+      {
+        // prettier-ignore
+        displayLoginModal ?
+          ReactDOM.createPortal(
+            <LoginModal
+              displayLoginModalHandler={displayLoginModalHandler}
+              displayRegisterModalHandler={displayRegisterModalHandler}
+            />,
+            document?.getElementById('modal-root') as HTMLElement,
+          ) :
+          ''
+      }
+      {
+        // prettier-ignore
+        displayRegisterModal ?
+          ReactDOM.createPortal(
+            <RegisterModal
+              displayLoginModalHandler={displayLoginModalHandler}
+              displayRegisterModalHandler={displayRegisterModalHandler}
+            />,
+            document?.getElementById('modal-root') as HTMLElement,
+          ) :
+          ''
+      }
+      {
+        // prettier-ignore
+        displayInviteModal ?
+          ReactDOM.createPortal(
+            <InviteModal
+              displayInviteModalHandler={displayInviteModalHandler}
+            />,
+            document?.getElementById('modal-root') as HTMLElement,
+          ) :
+          ''
+      }
       <HomeMain>
         <HomeMemberBox>
           <HomeMemberName>spencer</HomeMemberName>
           <HomeMemberIcon />
         </HomeMemberBox>
-        <HomeLogin>登入</HomeLogin>
+        <HomeLogin
+          onClick={() => {
+            setDisplayLoginModal(true);
+          }}
+        >
+          登入
+        </HomeLogin>
         <HomeLogo>貓狗大戰</HomeLogo>
         <HomeLinkBox>
           <HomeLocalGameLink to="game">本地對戰</HomeLocalGameLink>
           <HomeAIGameLink to="AIgame">對戰AI</HomeAIGameLink>
-          <HomeOnlineGameLink>好友對戰</HomeOnlineGameLink>
+          <HomeOnlineGameLink
+            onClick={() => {
+              setDisplayInviteModal(true);
+            }}
+          >
+            好友對戰
+          </HomeOnlineGameLink>
         </HomeLinkBox>
       </HomeMain>
     </div>

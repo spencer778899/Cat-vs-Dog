@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { doc, onSnapshot } from 'firebase/firestore';
 import firestore, { db } from '../../utils/firestore';
-import Arrow from './arrow.png';
+import Arrow from '../../img/arrow.png';
 import WaitOpponentModal from './waitOpponentModal';
 
 const GameScreen = styled.div`

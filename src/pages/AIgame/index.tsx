@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import Arrow from './arrow.png';
+import Arrow from '../../img/arrow.png';
 import SelectLevelModel from './selectLevelModal';
 
 const GameScreen = styled.div`
