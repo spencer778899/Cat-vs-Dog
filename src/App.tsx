@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import styled, { createGlobalStyle } from 'styled-components';
+import { onSnapshot, doc } from 'firebase/firestore';
 import { AuthContext } from './context/authContext';
-import firestore from './utils/firestore';
+import firestore, { db } from './utils/firestore';
 import img from './img/globalBackground.jpg';
 
 const GlobalStyle = createGlobalStyle`
@@ -29,19 +30,23 @@ function App() {
     uid: string | undefined;
     nickname: string | undefined;
     email: string | undefined;
+    photoURL: string | undefined;
     friends: [] | undefined;
   }>({
     uid: undefined,
     nickname: undefined,
     email: undefined,
+    photoURL: undefined,
     friends: undefined,
   });
+
   useEffect(() => {
     const userHandler = async (auth: { uid: string } | null) => {
       setUser({
         uid: undefined,
         nickname: undefined,
         email: undefined,
+        photoURL: undefined,
         friends: undefined,
       });
       if (auth) {
@@ -50,6 +55,7 @@ function App() {
           uid: userData?.uid,
           nickname: userData?.nickname,
           email: userData?.email,
+          photoURL: userData?.photoURL,
           friends: userData?.friends,
         });
         setIsLogin(true);
@@ -62,6 +68,24 @@ function App() {
       onAuthStateChanged(getAuth(), userHandler);
     };
   }, [isLogin]);
+
+  useEffect(() => {
+    if (isLogin === false) return;
+    const userSubscriber = onSnapshot(doc(db, 'users', `${user.uid}`), (docs) => {
+      const userData = docs.data();
+      setUser({
+        uid: userData?.uid,
+        nickname: userData?.nickname,
+        email: userData?.email,
+        photoURL: userData?.photoURL,
+        friends: userData?.friends,
+      });
+    });
+    return () => {
+      userSubscriber();
+    };
+  }, [isLogin]);
+
   const foo = useMemo(() => ({ isLogin, user }), [isLogin, user]);
   return (
     <>

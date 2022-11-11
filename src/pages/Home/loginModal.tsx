@@ -1,11 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { Navigate } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
-import memberImg from '../../img/member.png';
 import emailImg from '../../img/email.png';
 import lockImg from '../../img/lock.png';
 import nicknameImg from '../../img/nickname.png';
-import { authentication } from '../../utils/firestore';
+import memberImg from '../../img/member.png';
+import firestore, { authentication, firestorage } from '../../utils/firestore';
 
 interface HomeProps {
   displayLoginModalHandler: (display: boolean) => void;
@@ -42,13 +43,21 @@ const LoginModalMain = styled.div`
   background-color: #ffffff;
   z-index: 99;
 `;
-const LoginModalImg = styled.div`
+const LoginModalImg = styled.div<{ background: string | undefined }>`
   width: 130px;
   height: 130px;
   margin-bottom: 20px;
-  background-image: url(${memberImg});
+  background-image: url(${(p) => p.background || memberImg});
   background-size: cover;
 `;
+const LoginModalHeadBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+const LoginModalHeadInput = styled.input``;
+const LoginModalHeadButton = styled.button``;
 const LoginModalMailbox = styled.div`
   display: flex;
   justify-content: center;
@@ -147,9 +156,18 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
   const regexp = /^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
   const { isLogin, user } = useGlobalContext();
   const [isLoading, setIsLoading] = useState(false);
+  const [newPhoto, setNewPhoto] = useState<File>();
   const email = useRef<HTMLInputElement>(null);
   const password = useRef<HTMLInputElement>(null);
 
+  async function updateHeadImg() {
+    setIsLoading(true);
+    if (newPhoto === undefined || user.uid === undefined || user.uid === undefined) return;
+    const photoURL = await firestorage.uploadPhotoURL(newPhoto, user.uid);
+    if (photoURL === undefined) return;
+    await firestore.updatePhotoURL(user.uid, photoURL);
+    setIsLoading(false);
+  }
   async function submit() {
     setIsLoading(true);
     if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
@@ -176,7 +194,29 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
           >
             ✖
           </LoginModalBack>
-          <LoginModalImg />
+          <LoginModalImg background={user.photoURL} />
+          {isLogin ? (
+            <LoginModalHeadBox>
+              <LoginModalHeadInput
+                type="file"
+                onChange={(e) => {
+                  if (e.target.files === null) return;
+                  setNewPhoto(e.target.files[0]);
+                }}
+              />
+              <LoginModalHeadButton
+                onClick={() => {
+                  if (isLoading === false) {
+                    updateHeadImg();
+                  }
+                }}
+              >
+                更新頭貼
+              </LoginModalHeadButton>
+            </LoginModalHeadBox>
+          ) : (
+            ''
+          )}
           <LoginModalMailbox>
             <LoginModalMailImg />
             <LoginModalMailText>電子郵件:</LoginModalMailText>
@@ -199,6 +239,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
             <LoginModalButtonBox>
               <LoginModalLogout
                 onClick={() => {
+                  if (isLoading === true) return;
                   authentication.signOut();
                 }}
               >

@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import LoginModal from './loginModal';
-import memberImg from '../../img/member.png';
 import RegisterModal from './registerModal';
 import InviteModal from './inviteModal';
 import { useGlobalContext } from '../../context/authContext';
@@ -31,19 +30,19 @@ const HomeMemberBox = styled.div`
   display: flex;
   align-items: center;
   position: absolute;
-  top: 20px;
-  right: 30px;
+  top: 10px;
+  right: 20px;
   width: auto;
   height: 40px;
   padding: 5px;
   border-radius: 10px;
   background-color: #ffffff;
 `;
-const HomeMemberIcon = styled.div`
+const HomeMemberIcon = styled.div<{ background: string | undefined }>`
   float: right;
   width: 35px;
   height: 35px;
-  background-image: url(${memberImg});
+  background-image: url(${(p) => p.background});
   background-size: cover;
 `;
 const HomeMemberName = styled.div`
@@ -185,7 +184,7 @@ function Home() {
       {isLogin ? (
         <HomeMemberBox>
           <HomeMemberName>{user.nickname}</HomeMemberName>
-          <HomeMemberIcon />
+          <HomeMemberIcon background={user.photoURL} />
         </HomeMemberBox>
       ) : (
         ''

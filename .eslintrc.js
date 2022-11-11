@@ -34,6 +34,8 @@ module.exports = {
     ],
     'operator-linebreak': [2, 'after', { overrides: { '?': 'after' } }],
     'consistent-return': 'off',
+    'no-empty-function': 'off',
+    '@typescript-eslint/no-empty-function': 'allow',
   },
   settings: {
     'import/resolver': {
