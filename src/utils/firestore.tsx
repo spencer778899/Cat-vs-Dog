@@ -1,5 +1,20 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, setDoc, collection, updateDoc, increment } from 'firebase/firestore';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  updateDoc,
+  increment,
+} from 'firebase/firestore';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signOut,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_firebaseConfig_apiKey,
@@ -13,7 +28,88 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const storage = getStorage(app);
+
+export const firestorage = {
+  async uploadPhotoURL(photo: File, id: string) {
+    try {
+      const photoRef = ref(storage, `photos/${id}`);
+      await uploadBytes(photoRef, photo);
+      const photoURL = await getDownloadURL(photoRef);
+      return photoURL;
+    } catch (e) {
+      console.log(e);
+      alert('上傳失敗~');
+    }
+  },
+};
+
+export const authentication = {
+  async register(email: string, password: string) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      return userCredential;
+    } catch (e) {
+      console.log(e);
+      alert('註冊失敗!');
+    }
+  },
+  async signIn(mail: string, password: string) {
+    try {
+      await signInWithEmailAndPassword(auth, mail, password);
+      alert('登入成功!');
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  async signOut() {
+    try {
+      await signOut(auth);
+      alert('帳號已經登出~');
+    } catch (e) {
+      console.log(e);
+    }
+  },
+};
+
 const firestore = {
+  // user collection
+  async addUser(id: string | undefined, name: string, mail: string) {
+    try {
+      await setDoc(doc(db, 'users', `${id}`), {
+        uid: id,
+        nickname: name,
+        email: mail,
+        photoURL:
+          'https://firebasestorage.googleapis.com/v0/b/cat-vs-dog-738e6.appspot.com/o/photos%2F9v2is0Mb9HS0r8kRiVRqPZKwawI2?alt=media&token=0f033cb8-b8d5-4c9e-94e5-3a57bf7fc72a',
+        friends: [],
+      });
+      alert('註冊成功!');
+    } catch (e) {
+      console.log(e);
+      alert('註冊失敗!');
+    }
+  },
+  async getUser(id: string) {
+    try {
+      const user = await getDoc(doc(db, 'users', `${id}`));
+      return user.data();
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  async updatePhotoURL(id: string, URL: string) {
+    try {
+      await updateDoc(doc(db, 'users', `${id}`), {
+        photoURL: URL,
+      });
+      alert('頭貼上傳成功!');
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  // game collection
   async setDocRoomID() {
     const roomID = doc(collection(db, 'games'));
     await setDoc(roomID, {

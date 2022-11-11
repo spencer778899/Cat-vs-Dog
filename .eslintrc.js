@@ -33,6 +33,7 @@ module.exports = {
       },
     ],
     'operator-linebreak': [2, 'after', { overrides: { '?': 'after' } }],
+    'consistent-return': 'off',
   },
   settings: {
     'import/resolver': {

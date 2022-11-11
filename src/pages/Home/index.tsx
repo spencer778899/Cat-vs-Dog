@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import LoginModal from './loginModal';
-import memberImg from '../../img/member.png';
-import RegisterModal from './register';
+import RegisterModal from './registerModal';
 import InviteModal from './inviteModal';
+import { useGlobalContext } from '../../context/authContext';
 
 const HomeMain = styled.div`
   display: flex;
@@ -30,21 +30,25 @@ const HomeMemberBox = styled.div`
   display: flex;
   align-items: center;
   position: absolute;
-  top: 20px;
-  right: 30px;
+  top: 10px;
+  right: 20px;
   width: auto;
   height: 40px;
+  padding: 5px;
+  border-radius: 10px;
+  background-color: #ffffff;
 `;
-const HomeMemberIcon = styled.div`
+const HomeMemberIcon = styled.div<{ background: string | undefined }>`
   float: right;
-  width: 40px;
-  height: 40px;
-  background-image: url(${memberImg});
+  width: 35px;
+  height: 35px;
+  background-image: url(${(p) => p.background});
   background-size: cover;
 `;
 const HomeMemberName = styled.div`
   float: right;
   margin-right: 10px;
+
   font-size: 24px;
 `;
 const HomeLogin = styled.div`
@@ -127,6 +131,7 @@ function Home() {
   const [displayLoginModal, setDisplayLoginModal] = useState(false);
   const [displayRegisterModal, setDisplayRegisterModal] = useState(false);
   const [displayInviteModal, setDisplayInviteModal] = useState(false);
+  const { user, isLogin } = useGlobalContext();
 
   const displayLoginModalHandler = (display: boolean) => {
     setDisplayLoginModal(display);
@@ -176,11 +181,16 @@ function Home() {
           ) :
           ''
       }
-      <HomeMain>
+      {isLogin ? (
         <HomeMemberBox>
-          <HomeMemberName>spencer</HomeMemberName>
-          <HomeMemberIcon />
+          <HomeMemberName>{user.nickname}</HomeMemberName>
+          <HomeMemberIcon background={user.photoURL} />
         </HomeMemberBox>
+      ) : (
+        ''
+      )}
+
+      <HomeMain>
         <HomeLogin
           onClick={() => {
             setDisplayLoginModal(true);

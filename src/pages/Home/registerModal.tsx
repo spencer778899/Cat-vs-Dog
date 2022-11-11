@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import nickname from '../../img/nickname.png';
-import email from '../../img/email.png';
-import lock from '../../img/lock.png';
-import star from '../../img/star.png';
-import friends from '../../img/friends.png';
+import firestore, { authentication } from '../../utils/firestore';
+import nicknameImg from '../../img/nickname.png';
+import emailImg from '../../img/email.png';
+import lockImg from '../../img/lock.png';
+import starImg from '../../img/star.png';
+import friendsImg from '../../img/friends.png';
 
 interface HomeProps {
   displayLoginModalHandler: (display: boolean) => void;
@@ -56,7 +57,7 @@ const RegisterModalImgBox = styled.div`
 const RegisterModalStar = styled.div`
   width: 40px;
   height: 40px;
-  background-image: url(${star});
+  background-image: url(${starImg});
   background-size: cover;
   margin-bottom: 10px;
 `;
@@ -64,7 +65,7 @@ const RegisterModalStarText = styled.div``;
 const RegisterModalFriends = styled.div`
   width: 40px;
   height: 40px;
-  background-image: url(${friends});
+  background-image: url(${friendsImg});
   background-size: cover;
   margin-bottom: 10px;
 `;
@@ -86,21 +87,21 @@ const RegisterModalPasswordImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${lock});
+  background-image: url(${lockImg});
   background-size: cover;
 `;
 const RegisterModalNicknameImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${nickname});
+  background-image: url(${nicknameImg});
   background-size: cover;
 `;
 const RegisterModalMailImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${email});
+  background-image: url(${emailImg});
   background-size: cover;
 `;
 const RegisterModalPasswordText = styled.div`
@@ -121,6 +122,38 @@ const RegisterModalRegister = styled.button`
   cursor: pointer;
 `;
 function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }: HomeProps) {
+  const regexp = /^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+  const [loading, setLoading] = useState(false);
+  const nickname = useRef<HTMLInputElement>(null);
+  const email = useRef<HTMLInputElement>(null);
+  const password = useRef<HTMLInputElement>(null);
+
+  async function register() {
+    setLoading(true);
+    if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
+      alert('請輸入合格的email!');
+    } else if (!password.current?.value.trim() || password.current?.value.trim().length < 6) {
+      alert('請輸入至少六位數密碼!(不能輸入空白)');
+    } else if (!nickname.current?.value.trim()) {
+      alert('請輸入暱稱!');
+    } else {
+      const userCredential = await authentication.register(
+        email.current?.value,
+        password.current?.value,
+      );
+      await firestore.addUser(
+        userCredential?.user.uid,
+        nickname.current.value,
+        email.current.value,
+      );
+      nickname.current.value = '';
+      email.current.value = '';
+      password.current.value = '';
+      displayRegisterModalHandler(false);
+    }
+    setLoading(false);
+  }
+
   return (
     <div>
       <RegisterModalBody>
@@ -147,19 +180,27 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
           <RegisterModalPasswordBox>
             <RegisterModalNicknameImg />
             <RegisterModalPasswordText>暱稱:</RegisterModalPasswordText>
-            <RegisterModalPasswordInput />
+            <RegisterModalPasswordInput ref={nickname} />
           </RegisterModalPasswordBox>
           <RegisterModalPasswordBox>
             <RegisterModalMailImg />
             <RegisterModalPasswordText>電子郵件:</RegisterModalPasswordText>
-            <RegisterModalPasswordInput />
+            <RegisterModalPasswordInput ref={email} placeholder="合格的email" />
           </RegisterModalPasswordBox>
           <RegisterModalPasswordBox>
             <RegisterModalPasswordImg />
             <RegisterModalPasswordText>密碼:</RegisterModalPasswordText>
-            <RegisterModalPasswordInput />
+            <RegisterModalPasswordInput type="password" ref={password} placeholder="至少六位密碼" />
           </RegisterModalPasswordBox>
-          <RegisterModalRegister>註冊</RegisterModalRegister>
+          <RegisterModalRegister
+            onClick={() => {
+              if (loading === false) {
+                register();
+              }
+            }}
+          >
+            註冊
+          </RegisterModalRegister>
         </RegisterModalMain>
       </RegisterModalBody>
     </div>
