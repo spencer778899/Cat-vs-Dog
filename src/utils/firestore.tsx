@@ -1,5 +1,19 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, setDoc, collection, updateDoc, increment } from 'firebase/firestore';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  updateDoc,
+  increment,
+} from 'firebase/firestore';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signOut,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_firebaseConfig_apiKey,
@@ -13,7 +27,61 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
+
+export const authentication = {
+  async register(email: string, password: string) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      return userCredential;
+    } catch (e) {
+      console.log(e);
+      alert('註冊失敗!');
+    }
+  },
+  async signIn(mail: string, password: string) {
+    try {
+      await signInWithEmailAndPassword(auth, mail, password);
+      alert('登入成功!');
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  async signOut() {
+    try {
+      await signOut(auth);
+      alert('帳號已經登出~');
+    } catch (e) {
+      console.log(e);
+    }
+  },
+};
+
 const firestore = {
+  // user collection
+  async addUser(id: string | undefined, name: string, mail: string) {
+    try {
+      await setDoc(doc(db, 'users', `${id}`), {
+        uid: id,
+        nickname: name,
+        email: mail,
+        friends: [],
+      });
+      alert('註冊成功!');
+    } catch (e) {
+      console.log(e);
+      alert('註冊失敗!');
+    }
+  },
+  async getUser(id: string) {
+    try {
+      const user = await getDoc(doc(db, 'users', `${id}`));
+      return user.data();
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  // game collection
   async setDocRoomID() {
     const roomID = doc(collection(db, 'games'));
     await setDoc(roomID, {

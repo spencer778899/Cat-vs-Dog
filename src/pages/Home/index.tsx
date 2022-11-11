@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import LoginModal from './loginModal';
 import memberImg from '../../img/member.png';
-import RegisterModal from './register';
+import RegisterModal from './registerModal';
 import InviteModal from './inviteModal';
+import { useGlobalContext } from '../../context/authContext';
 
 const HomeMain = styled.div`
   display: flex;
@@ -34,17 +35,21 @@ const HomeMemberBox = styled.div`
   right: 30px;
   width: auto;
   height: 40px;
+  padding: 5px;
+  border-radius: 10px;
+  background-color: #ffffff;
 `;
 const HomeMemberIcon = styled.div`
   float: right;
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   background-image: url(${memberImg});
   background-size: cover;
 `;
 const HomeMemberName = styled.div`
   float: right;
   margin-right: 10px;
+
   font-size: 24px;
 `;
 const HomeLogin = styled.div`
@@ -127,6 +132,7 @@ function Home() {
   const [displayLoginModal, setDisplayLoginModal] = useState(false);
   const [displayRegisterModal, setDisplayRegisterModal] = useState(false);
   const [displayInviteModal, setDisplayInviteModal] = useState(false);
+  const { user, isLogin } = useGlobalContext();
 
   const displayLoginModalHandler = (display: boolean) => {
     setDisplayLoginModal(display);
@@ -176,11 +182,16 @@ function Home() {
           ) :
           ''
       }
-      <HomeMain>
+      {isLogin ? (
         <HomeMemberBox>
-          <HomeMemberName>spencer</HomeMemberName>
+          <HomeMemberName>{user.nickname}</HomeMemberName>
           <HomeMemberIcon />
         </HomeMemberBox>
+      ) : (
+        ''
+      )}
+
+      <HomeMain>
         <HomeLogin
           onClick={() => {
             setDisplayLoginModal(true);
