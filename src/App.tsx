@@ -41,7 +41,7 @@ function App() {
   });
 
   useEffect(() => {
-    const userHandler = async (auth: { uid: string } | null) => {
+    async function userHandler(auth: { uid: string } | null) {
       setUser({
         uid: undefined,
         nickname: undefined,
@@ -62,7 +62,7 @@ function App() {
       } else {
         setIsLogin(false);
       }
-    };
+    }
     onAuthStateChanged(getAuth(), userHandler);
     return () => {
       onAuthStateChanged(getAuth(), userHandler);

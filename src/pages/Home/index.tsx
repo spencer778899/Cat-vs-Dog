@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { doc, onSnapshot } from 'firebase/firestore';
+import Friends from './frineds';
+import firestore, { db } from '../../utils/firestore';
 import LoginModal from './loginModal';
 import RegisterModal from './registerModal';
 import InviteModal from './inviteModal';
@@ -131,8 +134,10 @@ function Home() {
   const [displayLoginModal, setDisplayLoginModal] = useState(false);
   const [displayRegisterModal, setDisplayRegisterModal] = useState(false);
   const [displayInviteModal, setDisplayInviteModal] = useState(false);
+  const [invitationList, setInvitationList] = useState<
+    { uid: string; nickname: string; photoURL: string }[]
+  >([]);
   const { user, isLogin } = useGlobalContext();
-
   const displayLoginModalHandler = (display: boolean) => {
     setDisplayLoginModal(display);
   };
@@ -144,6 +149,20 @@ function Home() {
   const displayInviteModalHandler = (display: boolean) => {
     setDisplayInviteModal(display);
   };
+
+  // useEffect(() => {
+  //   const friendRequestSubscribe = onSnapshot(
+  //     doc(db, 'friendRequest', `${user?.email}`, 'invitation'),
+  //     (docs) => {
+  //       const data = docs.data();
+  //       console.log(data);
+  //     },
+  //   );
+  //   return () => {
+  //     friendRequestSubscribe();
+  //   };
+  // }, []);
+
   return (
     <div>
       {
@@ -189,7 +208,7 @@ function Home() {
       ) : (
         ''
       )}
-
+      <Friends />
       <HomeMain>
         <HomeLogin
           onClick={() => {

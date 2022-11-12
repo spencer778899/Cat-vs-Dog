@@ -74,6 +74,14 @@ export const authentication = {
 };
 
 const firestore = {
+  // friendRequest collection
+  async setNewInvitation(email: string, uid: string, nickname: string, photoURL: string) {
+    await setDoc(doc(db, 'friendRequest', `${email}`, 'invitation', `${uid}`), {
+      uid: `${uid}`,
+      nickname: `${nickname}`,
+      photoURL: `${photoURL}`,
+    });
+  },
   // user collection
   async addUser(id: string | undefined, name: string, mail: string) {
     try {
