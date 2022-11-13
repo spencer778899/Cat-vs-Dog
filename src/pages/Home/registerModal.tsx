@@ -112,7 +112,7 @@ const RegisterModalPasswordText = styled.div`
 `;
 const RegisterModalPasswordInput = styled.input`
   height: 30px;
-  border: 1px solid #79797979;
+  border: 1px solid #797979;
   border-radius: 5px;
 `;
 const RegisterModalRegister = styled.button`

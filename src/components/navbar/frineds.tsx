@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { StyledInterface } from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import member from '../../img/member.png';
 import { GlobalContent, useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
@@ -11,12 +12,12 @@ interface homeProps {
 const FriendsMain = styled.div`
   display: flex;
   flex-direction: column;
-  position: absolute;
   width: 250px;
-  height: 560px;
-  top: 80px;
-  left: 30px;
-  padding: 10px 0 0 0;
+  height: auto;
+  min-height: 250px;
+  margin-left: 50px;
+  margin-top: -10px;
+  padding-bottom: 50px;
   border-radius: 10px;
   box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
   background-color: #ffffff;
@@ -31,7 +32,6 @@ const FriendsMine = styled.div<{ display: string }>`
   justify-content: center;
   align-items: center;
   width: 125px;
-  margin-top: -10px;
   border-top-left-radius: 10px;
   background-color: ${(p) => (p.display === 'friends' ? '#ffffff' : '#e0e0e0')};
 `;
@@ -40,7 +40,6 @@ const FriendsInvite = styled.div<{ display: string }>`
   justify-content: center;
   align-items: center;
   width: 125px;
-  margin-top: -10px;
   border-top-right-radius: 10px;
   background-color: ${(p) => (p.display === 'friends' ? '#e0e0e0' : '##ffffff')};
 `;
@@ -104,10 +103,12 @@ const FriendIDInput = styled.input`
 const FriendIDSubmit = styled.button``;
 
 function Friends({ invitationList }: homeProps) {
+  const navigate = useNavigate();
   const { isLogin, user } = useGlobalContext();
   const [showColumn, setShowColumn] = useState('friends');
   const [friends, setFriends] = useState<
     {
+      uid: string;
       nickname: string;
       email: string;
       photoURL: string;
@@ -119,12 +120,14 @@ function Friends({ invitationList }: homeProps) {
       setFriends([]);
       const result = user.friends?.map(async (uid) => {
         const res = (await firestore.getUser(uid)) as {
+          uid: string;
           nickname: string;
           email: string;
           photoURL: string;
         };
         console.log(res);
         return {
+          uid: res?.uid,
           nickname: res?.nickname,
           email: res?.email,
           photoURL: res?.photoURL,
@@ -136,7 +139,6 @@ function Friends({ invitationList }: homeProps) {
     }
     getFriendsData();
   }, [user.friends]);
-  console.log(invitationList);
   async function sendFriendInvitation() {
     if (invitationEmail?.current?.value.trim() && user.uid && user.nickname && user.photoURL) {
       await firestore.setNewInvitation(
@@ -165,6 +167,12 @@ function Friends({ invitationList }: homeProps) {
     }
   }
 
+  async function sendGameInvitation(id: string) {
+    const newRoomID = await firestore.setDocRoomID();
+    await firestore.updateInviting(id, `/onlinegame/${newRoomID}/guest`);
+    navigate(`/onlinegame/${newRoomID}/host`);
+    alert('邀請已送出!');
+  }
   return (
     <FriendsMain>
       <FriendsButtonBox>
@@ -195,7 +203,13 @@ function Friends({ invitationList }: homeProps) {
                   <FriendName>{friend.nickname}</FriendName>
                   <FriendEmail>{friend.email}</FriendEmail>
                 </FriendTextBox>
-                <FriendsBattleButton>邀請</FriendsBattleButton>
+                <FriendsBattleButton
+                  onClick={() => {
+                    sendGameInvitation(friend.uid);
+                  }}
+                >
+                  邀請
+                </FriendsBattleButton>
               </FriendBox>
             ))}
         </div>

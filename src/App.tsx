@@ -5,7 +5,8 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { onSnapshot, doc } from 'firebase/firestore';
 import { AuthContext } from './context/authContext';
 import firestore, { db } from './utils/firestore';
-import img from './img/globalBackground.jpg';
+import Background from './components/background';
+import Navbar from './components/navbar';
 
 const GlobalStyle = createGlobalStyle`
   *{
@@ -13,16 +14,6 @@ const GlobalStyle = createGlobalStyle`
     padding: 0;
     box-sizing: border-box;
   }
-`;
-const Background = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-image: url(${img});
-  opacity: 45%;
-  z-index: -99;
 `;
 function App() {
   const [isLogin, setIsLogin] = useState(false);
@@ -32,12 +23,14 @@ function App() {
     email: string | undefined;
     photoURL: string | undefined;
     friends: [] | undefined;
+    inviting: string | undefined;
   }>({
     uid: undefined,
     nickname: undefined,
     email: undefined,
     photoURL: undefined,
     friends: undefined,
+    inviting: undefined,
   });
 
   useEffect(() => {
@@ -48,6 +41,7 @@ function App() {
         email: undefined,
         photoURL: undefined,
         friends: undefined,
+        inviting: undefined,
       });
       if (auth) {
         const userData = await firestore.getUser(auth.uid);
@@ -57,6 +51,7 @@ function App() {
           email: userData?.email,
           photoURL: userData?.photoURL,
           friends: userData?.friends,
+          inviting: userData?.inviting,
         });
         setIsLogin(true);
       } else {
@@ -79,6 +74,7 @@ function App() {
         email: userData?.email,
         photoURL: userData?.photoURL,
         friends: userData?.friends,
+        inviting: userData?.inviting,
       });
     });
     return () => {
@@ -92,6 +88,7 @@ function App() {
       <GlobalStyle />
       <AuthContext.Provider value={foo}>
         <Background />
+        <Navbar />
         <Outlet />
       </AuthContext.Provider>
     </>

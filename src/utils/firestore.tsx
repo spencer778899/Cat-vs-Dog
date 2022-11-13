@@ -96,6 +96,7 @@ const firestore = {
         photoURL:
           'https://firebasestorage.googleapis.com/v0/b/cat-vs-dog-738e6.appspot.com/o/photos%2F9v2is0Mb9HS0r8kRiVRqPZKwawI2?alt=media&token=0f033cb8-b8d5-4c9e-94e5-3a57bf7fc72a',
         friends: [],
+        inviting: '',
       });
       alert('註冊成功!');
     } catch (e) {
@@ -124,6 +125,11 @@ const firestore = {
   async updateFriends(id: string, newList: [string]) {
     await updateDoc(doc(db, 'users', `${id}`), {
       friends: newList,
+    });
+  },
+  async updateInviting(id: string, roomID: string) {
+    await updateDoc(doc(db, 'users', `${id}`), {
+      inviting: roomID,
     });
   },
   // game collection

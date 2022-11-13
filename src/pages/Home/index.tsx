@@ -1,14 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { collection, doc, onSnapshot, query } from 'firebase/firestore';
-import Friends from './frineds';
-import firestore, { db } from '../../utils/firestore';
 import LoginModal from './loginModal';
 import RegisterModal from './registerModal';
 import InviteModal from './inviteModal';
-import { useGlobalContext } from '../../context/authContext';
 
 const HomeMain = styled.div`
   display: flex;
@@ -28,31 +24,6 @@ const HomeMain = styled.div`
   background-color: #ffffff;
   box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
   z-index: -1;
-`;
-const HomeMemberBox = styled.div`
-  display: flex;
-  align-items: center;
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  width: auto;
-  height: 40px;
-  padding: 5px;
-  border-radius: 10px;
-  background-color: #ffffff;
-`;
-const HomeMemberIcon = styled.div<{ background: string | undefined }>`
-  float: right;
-  width: 35px;
-  height: 35px;
-  background-image: url(${(p) => p.background});
-  background-size: cover;
-`;
-const HomeMemberName = styled.div`
-  float: right;
-  margin-right: 10px;
-
-  font-size: 24px;
 `;
 const HomeLogin = styled.div`
   display: flex;
@@ -136,10 +107,6 @@ function Home() {
   const [displayLoginModal, setDisplayLoginModal] = useState(false);
   const [displayRegisterModal, setDisplayRegisterModal] = useState(false);
   const [displayInviteModal, setDisplayInviteModal] = useState(false);
-  const [invitationList, setInvitationList] = useState<
-    { uid: string; nickname: string; photoURL: string }[]
-  >([]);
-  const { user, isLogin } = useGlobalContext();
   const displayLoginModalHandler = (display: boolean) => {
     setDisplayLoginModal(display);
   };
@@ -151,29 +118,6 @@ function Home() {
   const displayInviteModalHandler = (display: boolean) => {
     setDisplayInviteModal(display);
   };
-
-  useEffect(() => {
-    setInvitationList([]);
-    if (isLogin === false) return;
-    const friendRequestSubscribe = onSnapshot(
-      collection(db, 'friendRequest', `${user?.email}`, 'invitation'),
-      (res) => {
-        const newList: { uid: string; nickname: string; photoURL: string }[] = [];
-        res.forEach((docs) => {
-          const data = docs.data();
-          newList.push({
-            uid: data.uid,
-            nickname: data.nickname,
-            photoURL: data.photoURL,
-          });
-        });
-        setInvitationList(newList);
-      },
-    );
-    return () => {
-      friendRequestSubscribe();
-    };
-  }, [isLogin]);
 
   return (
     <div>
@@ -212,15 +156,6 @@ function Home() {
           ) :
           ''
       }
-      {isLogin ? (
-        <HomeMemberBox>
-          <HomeMemberName>{user.nickname}</HomeMemberName>
-          <HomeMemberIcon background={user.photoURL} />
-        </HomeMemberBox>
-      ) : (
-        ''
-      )}
-      <Friends invitationList={invitationList} />
       <HomeMain>
         <HomeLogin
           onClick={() => {
