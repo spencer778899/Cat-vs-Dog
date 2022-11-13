@@ -8,6 +8,7 @@ import {
   collection,
   updateDoc,
   increment,
+  deleteDoc,
 } from 'firebase/firestore';
 import {
   getAuth,
@@ -82,6 +83,9 @@ const firestore = {
       photoURL: `${photoURL}`,
     });
   },
+  async deleteInvitation(email: string, uid: string) {
+    await deleteDoc(doc(db, 'friendRequest', `${email}`, 'invitation', `${uid}`));
+  },
   // user collection
   async addUser(id: string | undefined, name: string, mail: string) {
     try {
@@ -116,6 +120,11 @@ const firestore = {
     } catch (e) {
       console.log(e);
     }
+  },
+  async updateFriends(id: string, newList: [string]) {
+    await updateDoc(doc(db, 'users', `${id}`), {
+      friends: newList,
+    });
   },
   // game collection
   async setDocRoomID() {

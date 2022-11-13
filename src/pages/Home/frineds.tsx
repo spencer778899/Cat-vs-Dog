@@ -4,6 +4,10 @@ import member from '../../img/member.png';
 import { GlobalContent, useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
 
+interface homeProps {
+  invitationList: { uid: string; nickname: string; photoURL: string }[];
+}
+
 const FriendsMain = styled.div`
   display: flex;
   flex-direction: column;
@@ -54,11 +58,11 @@ const FriendImg = styled.div<{ img: string }>`
   background-image: url(${(p) => p.img});
   background-size: cover;
 `;
-const FriendInviteImg = styled.div`
+const FriendInviteImg = styled.div<{ img: string }>`
   width: 50px;
   height: 50px;
   margin-right: 17px;
-  background-image: url(${member});
+  background-image: url(${(p) => p.img});
   background-size: cover;
 `;
 const FriendTextBox = styled.div`
@@ -99,7 +103,7 @@ const FriendIDInput = styled.input`
 `;
 const FriendIDSubmit = styled.button``;
 
-function Friends() {
+function Friends({ invitationList }: homeProps) {
   const { isLogin, user } = useGlobalContext();
   const [showColumn, setShowColumn] = useState('friends');
   const [friends, setFriends] = useState<
@@ -110,7 +114,6 @@ function Friends() {
     }[]
   >([]);
   const invitationEmail = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
     async function getFriendsData() {
       setFriends([]);
@@ -120,6 +123,7 @@ function Friends() {
           email: string;
           photoURL: string;
         };
+        console.log(res);
         return {
           nickname: res?.nickname,
           email: res?.email,
@@ -132,8 +136,8 @@ function Friends() {
     }
     getFriendsData();
   }, [user.friends]);
-
-  async function sendFriendIvbitation() {
+  console.log(invitationList);
+  async function sendFriendInvitation() {
     if (invitationEmail?.current?.value.trim() && user.uid && user.nickname && user.photoURL) {
       await firestore.setNewInvitation(
         invitationEmail?.current?.value,
@@ -143,6 +147,21 @@ function Friends() {
       );
       alert('已送出邀請!');
       invitationEmail.current.value = '';
+    }
+  }
+
+  async function acceptFriendInvitation(id: string) {
+    if (user?.friends?.some((uid) => uid === id) && user.email) {
+      alert('你們已經是好友了!');
+      await firestore.deleteInvitation(user.email, id);
+    } else if (user.uid && user.friends && user.email) {
+      await firestore.updateFriends(user?.uid, [...user.friends, id]);
+      await firestore.deleteInvitation(user.email, id);
+      alert('你們成為好友了!');
+      const anotherUser = (await firestore.getUser(id)) as { friends: [string] };
+      const anotherFriends: [string] = anotherUser.friends;
+      anotherFriends.push(user.uid);
+      await firestore.updateFriends(id, anotherFriends);
     }
   }
 
@@ -181,20 +200,30 @@ function Friends() {
             ))}
         </div>
       ) : (
-        <FriendBox>
-          <FriendInviteImg />
-          <FriendTextBox>
-            <FriendName>Nike</FriendName>
-            <FriendEmail>nike@gmail.com</FriendEmail>
-          </FriendTextBox>
-          <FriendsInviteButton>接受</FriendsInviteButton>
-        </FriendBox>
+        <div>
+          {invitationList &&
+            invitationList.map((invitation) => (
+              <FriendBox key={invitation.uid}>
+                <FriendInviteImg img={invitation.photoURL} />
+                <FriendTextBox>
+                  <FriendName>{invitation.nickname}</FriendName>
+                </FriendTextBox>
+                <FriendsInviteButton
+                  onClick={() => {
+                    acceptFriendInvitation(invitation.uid);
+                  }}
+                >
+                  接受
+                </FriendsInviteButton>
+              </FriendBox>
+            ))}
+        </div>
       )}
       <FriendInviteBox>
         <FriendIDInput ref={invitationEmail} placeholder="email" />
         <FriendIDSubmit
           onClick={() => {
-            sendFriendIvbitation();
+            sendFriendInvitation();
           }}
         >
           交朋友

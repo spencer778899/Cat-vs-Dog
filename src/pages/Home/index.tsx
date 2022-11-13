@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query } from 'firebase/firestore';
 import Friends from './frineds';
 import firestore, { db } from '../../utils/firestore';
 import LoginModal from './loginModal';
@@ -116,7 +116,7 @@ const HomeAIGameLink = styled(Link)`
     box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
   }
 `;
-const HomeOnlineGameLink = styled.div`
+const HomeOnlineGameLink = styled(Link)`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -125,6 +125,8 @@ const HomeOnlineGameLink = styled.div`
   margin: 20px;
   border: 1px solid #000000;
   border-radius: 20px;
+  color: #000000;
+  text-decoration: none;
   cursor: pointer;
   &:hover {
     box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
@@ -150,18 +152,28 @@ function Home() {
     setDisplayInviteModal(display);
   };
 
-  // useEffect(() => {
-  //   const friendRequestSubscribe = onSnapshot(
-  //     doc(db, 'friendRequest', `${user?.email}`, 'invitation'),
-  //     (docs) => {
-  //       const data = docs.data();
-  //       console.log(data);
-  //     },
-  //   );
-  //   return () => {
-  //     friendRequestSubscribe();
-  //   };
-  // }, []);
+  useEffect(() => {
+    setInvitationList([]);
+    if (isLogin === false) return;
+    const friendRequestSubscribe = onSnapshot(
+      collection(db, 'friendRequest', `${user?.email}`, 'invitation'),
+      (res) => {
+        const newList: { uid: string; nickname: string; photoURL: string }[] = [];
+        res.forEach((docs) => {
+          const data = docs.data();
+          newList.push({
+            uid: data.uid,
+            nickname: data.nickname,
+            photoURL: data.photoURL,
+          });
+        });
+        setInvitationList(newList);
+      },
+    );
+    return () => {
+      friendRequestSubscribe();
+    };
+  }, [isLogin]);
 
   return (
     <div>
@@ -208,7 +220,7 @@ function Home() {
       ) : (
         ''
       )}
-      <Friends />
+      <Friends invitationList={invitationList} />
       <HomeMain>
         <HomeLogin
           onClick={() => {
@@ -221,13 +233,7 @@ function Home() {
         <HomeLinkBox>
           <HomeLocalGameLink to="game">本地對戰</HomeLocalGameLink>
           <HomeAIGameLink to="AIgame">對戰AI</HomeAIGameLink>
-          <HomeOnlineGameLink
-            onClick={() => {
-              setDisplayInviteModal(true);
-            }}
-          >
-            好友對戰
-          </HomeOnlineGameLink>
+          <HomeOnlineGameLink to="onlinegame">好友對戰</HomeOnlineGameLink>
         </HomeLinkBox>
       </HomeMain>
     </div>
