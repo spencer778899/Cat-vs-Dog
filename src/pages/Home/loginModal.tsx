@@ -232,7 +232,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
             <LoginModalPasswordBox>
               <LoginModalPasswordImg />
               <LoginModalPasswordText>密碼:</LoginModalPasswordText>
-              <LoginModalPasswordInput ref={password} />
+              <LoginModalPasswordInput type="password" ref={password} />
             </LoginModalPasswordBox>
           )}
           {isLogin ? (

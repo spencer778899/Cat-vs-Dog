@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import LoginModal from './loginModal';
 import RegisterModal from './registerModal';
 import InviteModal from './inviteModal';
-import { useGlobalContext } from '../../context/authContext';
 
 const HomeMain = styled.div`
   display: flex;
@@ -25,31 +24,6 @@ const HomeMain = styled.div`
   background-color: #ffffff;
   box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
   z-index: -1;
-`;
-const HomeMemberBox = styled.div`
-  display: flex;
-  align-items: center;
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  width: auto;
-  height: 40px;
-  padding: 5px;
-  border-radius: 10px;
-  background-color: #ffffff;
-`;
-const HomeMemberIcon = styled.div<{ background: string | undefined }>`
-  float: right;
-  width: 35px;
-  height: 35px;
-  background-image: url(${(p) => p.background});
-  background-size: cover;
-`;
-const HomeMemberName = styled.div`
-  float: right;
-  margin-right: 10px;
-
-  font-size: 24px;
 `;
 const HomeLogin = styled.div`
   display: flex;
@@ -113,7 +87,7 @@ const HomeAIGameLink = styled(Link)`
     box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
   }
 `;
-const HomeOnlineGameLink = styled.div`
+const HomeOnlineGameLink = styled(Link)`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -122,6 +96,8 @@ const HomeOnlineGameLink = styled.div`
   margin: 20px;
   border: 1px solid #000000;
   border-radius: 20px;
+  color: #000000;
+  text-decoration: none;
   cursor: pointer;
   &:hover {
     box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
@@ -131,8 +107,6 @@ function Home() {
   const [displayLoginModal, setDisplayLoginModal] = useState(false);
   const [displayRegisterModal, setDisplayRegisterModal] = useState(false);
   const [displayInviteModal, setDisplayInviteModal] = useState(false);
-  const { user, isLogin } = useGlobalContext();
-
   const displayLoginModalHandler = (display: boolean) => {
     setDisplayLoginModal(display);
   };
@@ -144,6 +118,7 @@ function Home() {
   const displayInviteModalHandler = (display: boolean) => {
     setDisplayInviteModal(display);
   };
+
   return (
     <div>
       {
@@ -181,15 +156,6 @@ function Home() {
           ) :
           ''
       }
-      {isLogin ? (
-        <HomeMemberBox>
-          <HomeMemberName>{user.nickname}</HomeMemberName>
-          <HomeMemberIcon background={user.photoURL} />
-        </HomeMemberBox>
-      ) : (
-        ''
-      )}
-
       <HomeMain>
         <HomeLogin
           onClick={() => {
@@ -202,13 +168,7 @@ function Home() {
         <HomeLinkBox>
           <HomeLocalGameLink to="game">本地對戰</HomeLocalGameLink>
           <HomeAIGameLink to="AIgame">對戰AI</HomeAIGameLink>
-          <HomeOnlineGameLink
-            onClick={() => {
-              setDisplayInviteModal(true);
-            }}
-          >
-            好友對戰
-          </HomeOnlineGameLink>
+          <HomeOnlineGameLink to="onlinegame">好友對戰</HomeOnlineGameLink>
         </HomeLinkBox>
       </HomeMain>
     </div>

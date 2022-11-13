@@ -8,6 +8,7 @@ export type GlobalContent = {
     email: string | undefined;
     photoURL: string | undefined;
     friends: [] | undefined;
+    inviting: string | undefined;
   };
 };
 
@@ -19,6 +20,7 @@ export const AuthContext = createContext<GlobalContent>({
     email: undefined,
     photoURL: undefined,
     friends: undefined,
+    inviting: undefined,
   },
 });
 
