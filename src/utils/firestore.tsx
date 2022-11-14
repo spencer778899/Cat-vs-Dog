@@ -75,6 +75,19 @@ export const authentication = {
 };
 
 const firestore = {
+  // accomplishments collection
+  async setNewAccomplishment(id: string) {
+    await setDoc(doc(db, 'accomplistments', `${id}`, 'goals', 'goal1'), {
+      goalName: '結交兩個好友',
+      achieved: 'false',
+      progressRate: 0,
+    });
+    await setDoc(doc(db, 'accomplistments', `${id}`, 'goals', 'goal2'), {
+      goalName: '在「對戰AI中」擊敗Level3',
+      achieved: 'false',
+      progressRate: 0,
+    });
+  },
   // friendRequest collection
   async setNewInvitation(email: string, uid: string, nickname: string, photoURL: string) {
     await setDoc(doc(db, 'friendRequest', `${email}`, 'invitation', `${uid}`), {
@@ -96,6 +109,7 @@ const firestore = {
         photoURL:
           'https://firebasestorage.googleapis.com/v0/b/cat-vs-dog-738e6.appspot.com/o/photos%2F9v2is0Mb9HS0r8kRiVRqPZKwawI2?alt=media&token=0f033cb8-b8d5-4c9e-94e5-3a57bf7fc72a',
         friends: [],
+        changePhotoRight: false,
         inviting: '',
       });
       alert('註冊成功!');

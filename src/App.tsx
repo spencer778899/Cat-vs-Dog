@@ -23,6 +23,7 @@ function App() {
     email: string | undefined;
     photoURL: string | undefined;
     friends: [] | undefined;
+    changePhotoRight: boolean | undefined;
     inviting: string | undefined;
   }>({
     uid: undefined,
@@ -30,6 +31,7 @@ function App() {
     email: undefined,
     photoURL: undefined,
     friends: undefined,
+    changePhotoRight: undefined,
     inviting: undefined,
   });
 
@@ -41,6 +43,7 @@ function App() {
         email: undefined,
         photoURL: undefined,
         friends: undefined,
+        changePhotoRight: undefined,
         inviting: undefined,
       });
       if (auth) {
@@ -51,6 +54,7 @@ function App() {
           email: userData?.email,
           photoURL: userData?.photoURL,
           friends: userData?.friends,
+          changePhotoRight: userData?.changePhotoRight,
           inviting: userData?.inviting,
         });
         setIsLogin(true);
@@ -74,6 +78,7 @@ function App() {
         email: userData?.email,
         photoURL: userData?.photoURL,
         friends: userData?.friends,
+        changePhotoRight: userData?.changePhotoRight,
         inviting: userData?.inviting,
       });
     });

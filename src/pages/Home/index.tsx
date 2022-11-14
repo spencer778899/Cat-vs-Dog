@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import LoginModal from './loginModal';
 import RegisterModal from './registerModal';
 import InviteModal from './inviteModal';
+import AccomplishmentModal from './accomplishmentModal';
 
 const HomeMain = styled.div`
   display: flex;
@@ -63,7 +64,7 @@ const HomeLocalGameLink = styled(Link)`
   align-items: center;
   width: 150px;
   height: 40px;
-  margin: 20px 0;
+  margin: 10px 0;
   border: 1px solid #000000;
   border-radius: 20px;
   color: #000000;
@@ -78,7 +79,7 @@ const HomeAIGameLink = styled(Link)`
   align-items: center;
   width: 150px;
   height: 40px;
-  margin: 20px 0;
+  margin: 10px 0;
   border: 1px solid #000000;
   border-radius: 20px;
   color: #000000;
@@ -93,7 +94,23 @@ const HomeOnlineGameLink = styled(Link)`
   align-items: center;
   width: 150px;
   height: 40px;
-  margin: 20px;
+  margin: 10px;
+  border: 1px solid #000000;
+  border-radius: 20px;
+  color: #000000;
+  text-decoration: none;
+  cursor: pointer;
+  &:hover {
+    box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
+  }
+`;
+const HomeAccomplishmentLink = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 40px;
+  margin: 10px;
   border: 1px solid #000000;
   border-radius: 20px;
   color: #000000;
@@ -107,6 +124,7 @@ function Home() {
   const [displayLoginModal, setDisplayLoginModal] = useState(false);
   const [displayRegisterModal, setDisplayRegisterModal] = useState(false);
   const [displayInviteModal, setDisplayInviteModal] = useState(false);
+  const [displayAccomplishmentModal, setDisplayAccomplishmentModal] = useState(false);
   const displayLoginModalHandler = (display: boolean) => {
     setDisplayLoginModal(display);
   };
@@ -117,6 +135,10 @@ function Home() {
 
   const displayInviteModalHandler = (display: boolean) => {
     setDisplayInviteModal(display);
+  };
+
+  const displayAccomplishmentModalHandler = (display: boolean) => {
+    setDisplayAccomplishmentModal(display);
   };
 
   return (
@@ -156,6 +178,18 @@ function Home() {
           ) :
           ''
       }
+      {
+        // prettier-ignore
+        displayAccomplishmentModal ?
+          ReactDOM.createPortal(
+            <AccomplishmentModal
+              displayAccomplishmentModalHandler={displayAccomplishmentModalHandler}
+              displayLoginModalHandler={displayLoginModalHandler}
+            />,
+            document?.getElementById('modal-root') as HTMLElement,
+          ) :
+          ''
+      }
       <HomeMain>
         <HomeLogin
           onClick={() => {
@@ -169,6 +203,13 @@ function Home() {
           <HomeLocalGameLink to="game">本地對戰</HomeLocalGameLink>
           <HomeAIGameLink to="AIgame">對戰AI</HomeAIGameLink>
           <HomeOnlineGameLink to="onlinegame">好友對戰</HomeOnlineGameLink>
+          <HomeAccomplishmentLink
+            onClick={() => {
+              displayAccomplishmentModalHandler(true);
+            }}
+          >
+            成就系統
+          </HomeAccomplishmentLink>
         </HomeLinkBox>
       </HomeMain>
     </div>

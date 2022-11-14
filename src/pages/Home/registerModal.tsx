@@ -141,14 +141,13 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
         email.current?.value,
         password.current?.value,
       );
+      if (userCredential?.user.uid === undefined) return;
       await firestore.addUser(
         userCredential?.user.uid,
         nickname.current.value,
         email.current.value,
       );
-      nickname.current.value = '';
-      email.current.value = '';
-      password.current.value = '';
+      await firestore.setNewAccomplishment(userCredential?.user.uid);
       displayRegisterModalHandler(false);
     }
     setLoading(false);
