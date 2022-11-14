@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import getFriend0Img from '../../img/getFriend0.png';
 import getFriend1Img from '../../img/getFriend1.png';
-import hacker0 from '../../img/hacker0.png';
-import hacker1 from '../../img/hacker1.png';
+import hacker0Img from '../../img/hacker0.png';
+import hacker1Img from '../../img/hacker1.png';
 import championImg from '../../img/champion.png';
 import { useGlobalContext } from '../../context/authContext';
+import firestore from '../../utils/firestore';
 
 interface HomeProps {
   displayAccomplishmentModalHandler: (display: boolean) => void;
@@ -72,21 +73,21 @@ const AccomplishmentModalGoal2 = styled.div`
   border-radius: 15px;
   background-color: #ffffff;
 `;
-const AccomplishmentModalGoal1Img = styled.div`
+const AccomplishmentModalGoal1Img = styled.div<{ achieved: boolean | undefined }>`
   width: 50px;
   height: 50px;
   margin-bottom: 20px;
-  background-image: url(${getFriend1Img});
+  background-image: url(${(p) => (p.achieved ? getFriend1Img : getFriend0Img)});
   background-size: cover;
   border-radius: 50%;
   border: 2px #012442 solid;
   box-shadow: 0 0 0 3px #fff, 0 0 0 5px #9fbdc9;
 `;
-const AccomplishmentModalGoal2Img = styled.div`
+const AccomplishmentModalGoal2Img = styled.div<{ achieved: boolean | undefined }>`
   width: 50px;
   height: 50px;
   margin-bottom: 20px;
-  background-image: url(${hacker1});
+  background-image: url(${(p) => (p.achieved ? hacker1Img : hacker0Img)});
   background-size: cover;
   border-radius: 50%;
   border: 2px #012442 solid;
@@ -123,7 +124,18 @@ function AccomplishmentModal({
   displayLoginModalHandler,
 }: HomeProps) {
   const { isLogin, user } = useGlobalContext();
+  const [accomplishments, setAccomplishments] =
+    useState<{ goalName: string; achieved: boolean; progressRate: number }[]>();
+  console.log(accomplishments);
 
+  useEffect(() => {
+    async function getAccomplishments() {
+      if (user.uid === undefined) return;
+      const result = await firestore.getAccomplishments(user.uid);
+      setAccomplishments(result);
+    }
+    getAccomplishments();
+  }, [user]);
   return (
     <div>
       <AccomplishmentModalBody>
@@ -138,18 +150,22 @@ function AccomplishmentModal({
           {isLogin ? (
             <AccomplishmentModalBoard>
               <AccomplishmentModalGoal1>
-                <AccomplishmentModalGoal1Img />
-                <AccomplishmentModalGoal1Text>結交兩個好友</AccomplishmentModalGoal1Text>
+                <AccomplishmentModalGoal1Img achieved={accomplishments?.[0].achieved} />
+                <AccomplishmentModalGoal1Text>
+                  {accomplishments?.[0].goalName}
+                </AccomplishmentModalGoal1Text>
                 <AccomplishmentModalIcon />
-                <AccomplishmentModalGoal1Rate>0/2</AccomplishmentModalGoal1Rate>
+                <AccomplishmentModalGoal1Rate>
+                  {`${accomplishments?.[0].progressRate}/2`}
+                </AccomplishmentModalGoal1Rate>
               </AccomplishmentModalGoal1>
               <AccomplishmentModalGoal2>
-                <AccomplishmentModalGoal2Img />
+                <AccomplishmentModalGoal2Img achieved={accomplishments?.[1].achieved} />
                 <AccomplishmentModalGoal2Text>
-                  在「對戰AI中」擊敗Level3
+                  {accomplishments?.[1].goalName}
                 </AccomplishmentModalGoal2Text>
                 <AccomplishmentModalIcon />
-                <AccomplishmentModalGoal2Rate>0/1</AccomplishmentModalGoal2Rate>
+                <AccomplishmentModalGoal2Rate>{`${accomplishments?.[1].progressRate}/1`}</AccomplishmentModalGoal2Rate>
               </AccomplishmentModalGoal2>
             </AccomplishmentModalBoard>
           ) : (

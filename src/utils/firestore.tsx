@@ -9,6 +9,7 @@ import {
   updateDoc,
   increment,
   deleteDoc,
+  getDocs,
 } from 'firebase/firestore';
 import {
   getAuth,
@@ -77,16 +78,25 @@ export const authentication = {
 const firestore = {
   // accomplishments collection
   async setNewAccomplishment(id: string) {
-    await setDoc(doc(db, 'accomplistments', `${id}`, 'goals', 'goal1'), {
+    await setDoc(doc(db, 'accomplishments', `${id}`, 'goals', 'goal1'), {
       goalName: '結交兩個好友',
-      achieved: 'false',
+      achieved: false,
       progressRate: 0,
     });
-    await setDoc(doc(db, 'accomplistments', `${id}`, 'goals', 'goal2'), {
+    await setDoc(doc(db, 'accomplishments', `${id}`, 'goals', 'goal2'), {
       goalName: '在「對戰AI中」擊敗Level3',
-      achieved: 'false',
+      achieved: false,
       progressRate: 0,
     });
+  },
+  async getAccomplishments(id: string) {
+    const goalsList: { goalName: string; achieved: boolean; progressRate: number }[] = [];
+    const docs = await getDocs(collection(db, 'accomplishments', `${id}`, 'goals'));
+    docs.forEach((Doc) => {
+      const data = Doc.data() as { goalName: string; achieved: boolean; progressRate: number };
+      goalsList.push(data);
+    });
+    return goalsList;
   },
   // friendRequest collection
   async setNewInvitation(email: string, uid: string, nickname: string, photoURL: string) {
