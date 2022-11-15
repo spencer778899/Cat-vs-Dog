@@ -5,15 +5,22 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import GameoverModal from '../../components/gameoverModal';
 import Arrow from '../../img/arrow.png';
+import screenImg from '../../img/gamepage/game_screen.png';
+import powerUpImg from '../../img/gamepage/game_powerUp.png';
+import X2Img from '../../img/gamepage/game_X2.png';
+import healImg from '../../img/gamepage/game_heal.png';
 
 const GameScreen = styled.div`
   position: absolute;
+  top: 0;
+  bottom: 0;
   right: 0;
   left: 0;
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
   width: 940px;
+  height: 560px;
   margin: auto;
 `;
 const GameWindSpeedBar = styled.div`
@@ -41,38 +48,44 @@ const GameDogSkillBox = styled.div`
   justify-content: space-between;
   position: absolute;
   top: 50px;
-  left: 80px;
-  width: 150px;
+  left: 65px;
+  width: 180px;
   height: 30px;
 `;
 const GameDogPowerUp = styled.div<{ dogHavePowerUp: boolean }>`
   display: ${(p) => (p.dogHavePowerUp ? 'flex' : 'none')};
   justify-content: center;
   align-items: center;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border: 1px solid #000000;
   border-radius: 50%;
+  background-image: url(${powerUpImg});
+  background-size: cover;
   cursor: pointer;
 `;
 const GameDogDoubleHit = styled.div<{ dogHaveDoubleHit: boolean }>`
   display: ${(p) => (p.dogHaveDoubleHit ? 'flex' : 'none')};
   justify-content: center;
   align-items: center;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border: 1px solid #000000;
   border-radius: 50%;
+  background-image: url(${X2Img});
+  background-size: cover;
   cursor: pointer;
 `;
 const GameDogHeal = styled.div<{ dogHaveHeal: boolean }>`
   display: ${(p) => (p.dogHaveHeal ? 'flex' : 'none')};
   justify-content: center;
   align-items: center;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border: 1px solid #000000;
   border-radius: 50%;
+  background-image: url(${healImg});
+  background-size: cover;
   color: red;
   font-size: 24px;
   cursor: pointer;
@@ -124,7 +137,8 @@ const GameCanvasSection = styled.div`
   height: 560px;
 `;
 const GameCanvas = styled.canvas`
-  background: #eee;
+  background: url(${screenImg});
+  background-size: cover;
   display: block;
   margin: 0 auto;
 `;
@@ -319,6 +333,7 @@ function Game() {
   const gameCatHealRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
+
     // setDogTurn
     function setDogTurn() {
       let dogX = 100;
@@ -665,15 +680,9 @@ function Game() {
             <GameDogHitPointsInner width={dogHitPoints} />
           </GameDogHitPointsBar>
           <GameDogSkillBox>
-            <GameDogPowerUp ref={gameDogPowerUpRef} dogHavePowerUp={dogHavePowerUp}>
-              ⚡
-            </GameDogPowerUp>
-            <GameDogDoubleHit ref={gameDogDoubleHitRef} dogHaveDoubleHit={dogHaveDoubleHit}>
-              X2
-            </GameDogDoubleHit>
-            <GameDogHeal ref={gameDogHealRef} dogHaveHeal={dogHaveHeal}>
-              ✚
-            </GameDogHeal>
+            <GameDogPowerUp ref={gameDogPowerUpRef} dogHavePowerUp={dogHavePowerUp} />
+            <GameDogDoubleHit ref={gameDogDoubleHitRef} dogHaveDoubleHit={dogHaveDoubleHit} />
+            <GameDogHeal ref={gameDogHealRef} dogHaveHeal={dogHaveHeal} />
           </GameDogSkillBox>
           <GameCatHitPointsBar>
             <GameCatHitPointsInner width={catHitPoints} />
@@ -702,7 +711,6 @@ function Game() {
         <GameDog ref={gameDogRef}>dog</GameDog>
         <GameCatTimer>{catTurnTimeSpent}</GameCatTimer>
         <GameCat ref={gameCatRef}>cat</GameCat>
-        <GameWall />
       </GameScreen>
     </div>
   );
