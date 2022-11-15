@@ -144,16 +144,19 @@ function Home() {
     setDisplayAccomplishmentModal(display);
   };
 
-  // subscribe user's amount of friends to update accomplishment(goal1)
   useEffect(() => {
-    async function achieveGoal2Handler() {
+    async function achieveGoal1Handler() {
       if (user.uid === undefined) return;
-      await firestore.achieveGoal1(user?.uid);
-      await firestore.updatechangePhotoRight(user?.uid);
+      if (user.friends?.length === 1) {
+        await firestore.updateGoal1ProgressRate(user.uid, 1);
+      } else if (user.friends?.length === 2) {
+        await firestore.achieveGoal1(user?.uid);
+        await firestore.updatechangePhotoRight(user?.uid);
+      }
     }
     if (user?.friends === undefined) return;
-    if (user.friends.length === 2) {
-      achieveGoal2Handler();
+    if (user.friends.length <= 2) {
+      achieveGoal1Handler();
     }
   }, [isLogin, user]);
 

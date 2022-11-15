@@ -98,6 +98,11 @@ const firestore = {
     });
     return goalsList;
   },
+  async updateGoal1ProgressRate(id: string, rate: number) {
+    await updateDoc(doc(db, 'accomplishments', `${id}`, 'goals', 'goal1'), {
+      progressRate: rate,
+    });
+  },
   async achieveGoal1(id: string) {
     await updateDoc(doc(db, 'accomplishments', `${id}`, 'goals', 'goal1'), {
       goalName: '解鎖「更換頭貼」',
