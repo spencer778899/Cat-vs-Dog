@@ -139,7 +139,7 @@ const firestore = {
           'https://firebasestorage.googleapis.com/v0/b/cat-vs-dog-738e6.appspot.com/o/photos%2F9v2is0Mb9HS0r8kRiVRqPZKwawI2?alt=media&token=0f033cb8-b8d5-4c9e-94e5-3a57bf7fc72a',
         friends: [],
         changePhotoRight: false,
-        inviting: '',
+        inviting: {},
       });
       alert('註冊成功!');
     } catch (e) {
@@ -175,9 +175,12 @@ const firestore = {
       changePhotoRight: true,
     });
   },
-  async updateInviting(id: string, roomID: string) {
+  async updateInviting(
+    id: string,
+    invitation: { nickname: string; URL: string; photoURL: string } | Record<string, never>,
+  ) {
     await updateDoc(doc(db, 'users', `${id}`), {
-      inviting: roomID,
+      inviting: invitation,
     });
   },
   // game collection

@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import LoginModal from './loginModal';
 import RegisterModal from './registerModal';
-import InviteModal from './inviteModal';
 import AccomplishmentModal from './accomplishmentModal';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
@@ -126,7 +125,6 @@ function Home() {
   const { isLogin, user } = useGlobalContext();
   const [displayLoginModal, setDisplayLoginModal] = useState(false);
   const [displayRegisterModal, setDisplayRegisterModal] = useState(false);
-  const [displayInviteModal, setDisplayInviteModal] = useState(false);
   const [displayAccomplishmentModal, setDisplayAccomplishmentModal] = useState(false);
   const displayLoginModalHandler = (display: boolean) => {
     setDisplayLoginModal(display);
@@ -134,10 +132,6 @@ function Home() {
 
   const displayRegisterModalHandler = (display: boolean) => {
     setDisplayRegisterModal(display);
-  };
-
-  const displayInviteModalHandler = (display: boolean) => {
-    setDisplayInviteModal(display);
   };
 
   const displayAccomplishmentModalHandler = (display: boolean) => {
@@ -181,17 +175,6 @@ function Home() {
             <RegisterModal
               displayLoginModalHandler={displayLoginModalHandler}
               displayRegisterModalHandler={displayRegisterModalHandler}
-            />,
-            document?.getElementById('modal-root') as HTMLElement,
-          ) :
-          ''
-      }
-      {
-        // prettier-ignore
-        displayInviteModal ?
-          ReactDOM.createPortal(
-            <InviteModal
-              displayInviteModalHandler={displayInviteModalHandler}
             />,
             document?.getElementById('modal-root') as HTMLElement,
           ) :
