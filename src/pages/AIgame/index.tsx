@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
+import GameoverModal from '../../components/gameoverModal';
 import { useGlobalContext } from '../../context/authContext';
 import Arrow from '../../img/arrow.png';
 import firestore from '../../utils/firestore';
@@ -525,14 +526,19 @@ function AIGame() {
       setDogTurn();
     } else if (roomState === 'catTurn') {
       setCatTurn();
-    } else if (roomState === 'dogWin' || roomState === 'catWin') {
-      alert(roomState);
     }
   }, [roomState]);
 
   return (
     <div>
       <GameScreen>
+        {
+          // prettier-ignore
+          roomState === 'dogWin' || roomState === 'catWin' ? ReactDOM.createPortal(
+            <GameoverModal roomState={roomState} />,
+            document?.getElementById('modal-root') as HTMLElement,
+          ) : ''
+        }
         {
           // prettier-ignore
           AILevel ? '' : ReactDOM.createPortal(

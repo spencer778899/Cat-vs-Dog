@@ -1,7 +1,9 @@
 /* eslint-disable no-use-before-define */
 import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
+import GameoverModal from '../../components/gameoverModal';
 import Arrow from '../../img/arrow.png';
 
 const GameScreen = styled.div`
@@ -642,14 +644,19 @@ function Game() {
       setDogTurn();
     } else if (roomState === 'catTurn') {
       setCatTurn();
-    } else if (roomState === 'dogWin' || roomState === 'catWin') {
-      alert(roomState);
     }
   }, [roomState]);
 
   return (
     <div>
       <GameScreen>
+        {
+          // prettier-ignore
+          roomState === 'dogWin' || roomState === 'catWin' ? ReactDOM.createPortal(
+            <GameoverModal roomState={roomState} />,
+            document?.getElementById('modal-root') as HTMLElement,
+          ) : ''
+        }
         <GameCanvasSection>
           <GameWindSpeedBar>
             <GameWindSpeed windSpeed={windSpeedBar || 0} />
