@@ -7,6 +7,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import firestore, { db } from '../../utils/firestore';
 import Arrow from '../../img/arrow.png';
 import WaitOpponentModal from './waitOpponentModal';
+import GameoverModal from '../../components/gameoverModal';
 
 const GameScreen = styled.div`
   position: absolute;
@@ -587,8 +588,6 @@ function OnlineGame() {
       setDogTurn();
     } else if (roomState === 'catTurn' && identity === 'guest') {
       setCatTurn();
-    } else if (roomState === 'dogWin' || roomState === 'catWin') {
-      alert(roomState);
     }
   }, [roomState, roomID, identity]);
 
@@ -856,6 +855,13 @@ function OnlineGame() {
 
   return (
     <div>
+      {
+        // prettier-ignore
+        roomState === 'dogWin' || roomState === 'catWin' ? ReactDOM.createPortal(
+          <GameoverModal roomState={roomState} />,
+          document?.getElementById('modal-root') as HTMLElement,
+        ) : ''
+      }
       {
         // prettier-ignore
         roomState === 'wait' || roomState === undefined ?

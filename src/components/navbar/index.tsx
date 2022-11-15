@@ -55,15 +55,15 @@ const NavbarNotification = styled.div`
   background-image: url(${friendsImg});
   background-size: cover;
 `;
-const NavbarFriendsBox = styled.div<{ display: boolean }>`
-  display: ${(p) => (p.display ? 'block' : 'none')};
+const NavbarFriendsBox = styled.div<{ $display: boolean }>`
+  display: ${(p) => (p.$display ? 'block' : 'none')};
 `;
 const NavbarNotificationBox = styled.div`
   display: flex;
   align-items: center;
 `;
-const NavbarInvitationBox = styled.div<{ display: boolean; invitation: string | undefined }>`
-  display: ${(p) => (p.display && p.invitation ? 'flex' : 'none')};
+const NavbarInvitationBox = styled.div<{ $display: boolean; invitation: string | undefined }>`
+  display: ${(p) => (p.$display && p.invitation ? 'flex' : 'none')};
   align-items: center;
   height: 50px;
   padding: 10px;
@@ -143,7 +143,7 @@ function Navbar() {
             >
               <NavbarFriendsCol />
             </NavbarImgBox>
-            <NavbarInvitationBox display={displayInvitationCol} invitation={user?.inviting}>
+            <NavbarInvitationBox $display={displayInvitationCol} invitation={user?.inviting}>
               <NavbarInvitationImg />
               <NavbarInvitationName>{user?.inviting}</NavbarInvitationName>
               <NavbarAgreeInvitation
@@ -173,7 +173,7 @@ function Navbar() {
           >
             <NavbarNotification />
           </NavbarImgBox>
-          <NavbarFriendsBox display={displayFriendsCol}>
+          <NavbarFriendsBox $display={displayFriendsCol}>
             <Friends invitationList={invitationList} />
           </NavbarFriendsBox>
         </NavbarBody>
