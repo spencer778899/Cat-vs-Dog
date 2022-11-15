@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -6,6 +6,8 @@ import LoginModal from './loginModal';
 import RegisterModal from './registerModal';
 import InviteModal from './inviteModal';
 import AccomplishmentModal from './accomplishmentModal';
+import { useGlobalContext } from '../../context/authContext';
+import firestore from '../../utils/firestore';
 
 const HomeMain = styled.div`
   display: flex;
@@ -121,6 +123,7 @@ const HomeAccomplishmentLink = styled.div`
   }
 `;
 function Home() {
+  const { isLogin, user } = useGlobalContext();
   const [displayLoginModal, setDisplayLoginModal] = useState(false);
   const [displayRegisterModal, setDisplayRegisterModal] = useState(false);
   const [displayInviteModal, setDisplayInviteModal] = useState(false);
@@ -140,6 +143,19 @@ function Home() {
   const displayAccomplishmentModalHandler = (display: boolean) => {
     setDisplayAccomplishmentModal(display);
   };
+
+  // subscribe user's amount of friends to update accomplishment(goal1)
+  useEffect(() => {
+    async function achieveGoal2Handler() {
+      if (user.uid === undefined) return;
+      await firestore.achieveGoal1(user?.uid);
+      await firestore.updatechangePhotoRight(user?.uid);
+    }
+    if (user?.friends === undefined) return;
+    if (user.friends.length === 2) {
+      achieveGoal2Handler();
+    }
+  }, [isLogin, user]);
 
   return (
     <div>

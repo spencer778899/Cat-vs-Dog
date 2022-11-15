@@ -3,7 +3,9 @@ import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
+import { useGlobalContext } from '../../context/authContext';
 import Arrow from '../../img/arrow.png';
+import firestore from '../../utils/firestore';
 import SelectLevelModel from './selectLevelModal';
 
 const GameScreen = styled.div`
@@ -223,6 +225,7 @@ const GameWall = styled.div`
 `;
 
 function AIGame() {
+  const { isLogin, user } = useGlobalContext();
   const canvas = useRef<HTMLCanvasElement>(null);
   const [AILevel, setAIlevel] = useState<number | typeof NaN>(NaN);
   const [roomState, setRoomState] = useState<string | undefined>(undefined);
@@ -315,7 +318,10 @@ function AIGame() {
 
       function testGameState() {
         const currentCatHitPoints = catHitPoints - hitPointsAvailable;
-        if (currentCatHitPoints <= 0) {
+        if (currentCatHitPoints <= 0 && isLogin && user.uid && AILevel >= 0.9) {
+          setRoomState('dogWin');
+          firestore.achieveGoal2(user.uid);
+        } else if (currentCatHitPoints <= 0) {
           setRoomState('dogWin');
         } else {
           setRoomState('catTurn');

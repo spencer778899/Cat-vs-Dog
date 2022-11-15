@@ -98,6 +98,20 @@ const firestore = {
     });
     return goalsList;
   },
+  async achieveGoal1(id: string) {
+    await updateDoc(doc(db, 'accomplishments', `${id}`, 'goals', 'goal1'), {
+      goalName: '解鎖「更換頭貼」',
+      achieved: true,
+      progressRate: 2,
+    });
+  },
+  async achieveGoal2(id: string) {
+    await updateDoc(doc(db, 'accomplishments', `${id}`, 'goals', 'goal2'), {
+      goalName: '成就「駭客任務」',
+      achieved: true,
+      progressRate: 1,
+    });
+  },
   // friendRequest collection
   async setNewInvitation(email: string, uid: string, nickname: string, photoURL: string) {
     await setDoc(doc(db, 'friendRequest', `${email}`, 'invitation', `${uid}`), {
@@ -146,9 +160,14 @@ const firestore = {
       console.log(e);
     }
   },
-  async updateFriends(id: string, newList: [string]) {
+  async updateFriends(id: string, newList: string[]) {
     await updateDoc(doc(db, 'users', `${id}`), {
       friends: newList,
+    });
+  },
+  async updatechangePhotoRight(id: string) {
+    await updateDoc(doc(db, 'users', `${id}`), {
+      changePhotoRight: true,
     });
   },
   async updateInviting(id: string, roomID: string) {

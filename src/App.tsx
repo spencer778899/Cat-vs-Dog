@@ -22,7 +22,7 @@ function App() {
     nickname: string | undefined;
     email: string | undefined;
     photoURL: string | undefined;
-    friends: [] | undefined;
+    friends: string[] | undefined;
     changePhotoRight: boolean | undefined;
     inviting: string | undefined;
   }>({

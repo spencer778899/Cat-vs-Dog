@@ -195,7 +195,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
             ✖
           </LoginModalBack>
           <LoginModalImg background={user.photoURL} />
-          {isLogin ? (
+          {isLogin && user.changePhotoRight ? (
             <LoginModalHeadBox>
               <LoginModalHeadInput
                 type="file"
