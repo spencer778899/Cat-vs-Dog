@@ -9,7 +9,7 @@ export type GlobalContent = {
     photoURL: string | undefined;
     friends: string[] | undefined;
     changePhotoRight: boolean | undefined;
-    inviting: string | undefined;
+    inviting: { nickname: string; URL: string; photoURL: string } | undefined;
   };
 };
 

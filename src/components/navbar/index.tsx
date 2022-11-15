@@ -62,8 +62,8 @@ const NavbarNotificationBox = styled.div`
   display: flex;
   align-items: center;
 `;
-const NavbarInvitationBox = styled.div<{ $display: boolean; invitation: string | undefined }>`
-  display: ${(p) => (p.$display && p.invitation ? 'flex' : 'none')};
+const NavbarInvitationBox = styled.div<{ $display: boolean }>`
+  display: ${(p) => (p.$display ? 'flex' : 'none')};
   align-items: center;
   height: 50px;
   padding: 10px;
@@ -71,12 +71,12 @@ const NavbarInvitationBox = styled.div<{ $display: boolean; invitation: string |
   border: 1px solid #000000;
   border-radius: 15px;
 `;
-const NavbarInvitationImg = styled.div`
+const NavbarInvitationImg = styled.div<{ img: string }>`
   width: 40px;
   height: 40px;
   margin-right: 10px;
   border-radius: 50%;
-  background-image: url(${friendsImg});
+  background-image: url(${(p) => p.img});
   background-size: cover;
 `;
 const NavbarInvitationName = styled.div`
@@ -116,12 +116,12 @@ function Navbar() {
   }, [isLogin]);
   async function agreeGameInvitation() {
     if (isLogin === false || user.uid === undefined) return;
-    firestore.updateInviting(user.uid, '');
+    firestore.updateInviting(user.uid, {});
     navigate(`${user.inviting}`);
   }
   async function rejectGameInvitation() {
     if (isLogin === false || user.uid === undefined) return;
-    firestore.updateInviting(user.uid, '');
+    firestore.updateInviting(user.uid, {});
   }
   return (
     <div>
@@ -143,23 +143,29 @@ function Navbar() {
             >
               <NavbarFriendsCol />
             </NavbarImgBox>
-            <NavbarInvitationBox $display={displayInvitationCol} invitation={user?.inviting}>
-              <NavbarInvitationImg />
-              <NavbarInvitationName>{user?.inviting}</NavbarInvitationName>
-              <NavbarAgreeInvitation
-                onClick={() => {
-                  agreeGameInvitation();
-                }}
-              >
-                接受
-              </NavbarAgreeInvitation>
-              <NavbarAgreeInvitation
-                onClick={() => {
-                  rejectGameInvitation();
-                }}
-              >
-                拒絕
-              </NavbarAgreeInvitation>
+            <NavbarInvitationBox $display={displayInvitationCol}>
+              {user.inviting?.URL ? (
+                <>
+                  <NavbarInvitationImg img={user?.inviting.photoURL} />
+                  <NavbarInvitationName>{`${user?.inviting.nickname}邀請你進入遊戲~`}</NavbarInvitationName>
+                  <NavbarAgreeInvitation
+                    onClick={() => {
+                      agreeGameInvitation();
+                    }}
+                  >
+                    接受
+                  </NavbarAgreeInvitation>
+                  <NavbarAgreeInvitation
+                    onClick={() => {
+                      rejectGameInvitation();
+                    }}
+                  >
+                    拒絕
+                  </NavbarAgreeInvitation>
+                </>
+              ) : (
+                <NavbarInvitationName>暫無邀請~QQ</NavbarInvitationName>
+              )}
             </NavbarInvitationBox>
           </NavbarNotificationBox>
           <NavbarImgBox

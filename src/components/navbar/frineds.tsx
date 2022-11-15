@@ -168,8 +168,13 @@ function Friends({ invitationList }: homeProps) {
   }
 
   async function sendGameInvitation(id: string) {
+    if (user.nickname === undefined || user.photoURL === undefined) return;
     const newRoomID = await firestore.setDocRoomID();
-    await firestore.updateInviting(id, `/onlinegame/${newRoomID}/guest`);
+    await firestore.updateInviting(id, {
+      nickname: user?.nickname,
+      URL: `/onlinegame/${newRoomID}/guest`,
+      photoURL: user?.photoURL,
+    });
     navigate(`/onlinegame/${newRoomID}/host`);
     alert('邀請已送出!');
   }

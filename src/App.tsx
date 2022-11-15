@@ -24,7 +24,7 @@ function App() {
     photoURL: string | undefined;
     friends: string[] | undefined;
     changePhotoRight: boolean | undefined;
-    inviting: string | undefined;
+    inviting: { nickname: string; URL: string; photoURL: string } | undefined;
   }>({
     uid: undefined,
     nickname: undefined,
