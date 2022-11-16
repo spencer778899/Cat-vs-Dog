@@ -254,6 +254,7 @@ function AIGame() {
     setAIlevel(level);
     setRoomState('dogTurn');
   };
+  console.log('AILevel', AILevel);
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
     // setDogTurn
@@ -509,8 +510,10 @@ function AIGame() {
         const randomData = Math.random();
         const windSpeedStr = windSpeed;
         if (randomData < (AILevel || NaN)) {
+          console.log('will hit');
           AIHitHandler(AIData[windSpeedStr][0]);
         } else {
+          console.log('will mis');
           AIHitHandler(AIData[windSpeedStr][1]);
         }
       }
