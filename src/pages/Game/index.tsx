@@ -13,8 +13,12 @@ import hitPointsBarImg from '../../img/gamepage/game_hitPointsBar.png';
 import windBarImg from '../../img/gamepage/game_windBar.png';
 import dogImg from '../../img/gamepage/game_dog.png';
 import dogAttackImg from '../../img/gamepage/game_dogAttack.png';
+import dogInjuriedImg from '../../img/gamepage/game_dogInjuried.png';
 import catImg from '../../img/gamepage/game_cat.png';
 import catAttackImg from '../../img/gamepage/game_catAttack.png';
+import catInjuriedImg from '../../img/gamepage/game_catInjuried.png';
+import catMissImg from '../../img/gamepage/game_catMiss.png';
+import dogMissImg from '../../img/gamepage/game_dogMiss.png';
 
 const swing = keyframes`
   0%{background-position:center}
@@ -23,6 +27,16 @@ const swing = keyframes`
 `;
 const swingAnimation = css`
   animation: ${swing} 1s linear infinite;
+`;
+const GameBody = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 940px;
+  height: 610px;
+  margin: auto;
 `;
 const GameScreen = styled.div`
   position: absolute;
@@ -75,7 +89,7 @@ const GameWindSpeed = styled.div<{ windSpeed: number }>`
   top: 0;
   width: ${({ windSpeed }) => `${Math.abs(windSpeed) * 25}px`};
   height: 100%;
-  background-color: ${({ windSpeed }) => (windSpeed > 0 ? 'blue' : 'red')};
+  background-color: blue;
 `;
 const GameHitPointsImg = styled.img`
   position: absolute;
@@ -101,6 +115,7 @@ const GameDogHitPointsInner = styled.div<{ width: number }>`
   height: 100%;
   background-color: red;
   z-index: 9;
+  transition: linear 0.5s;
 `;
 const GameCatHitPointsBar = styled.div`
   position: absolute;
@@ -118,6 +133,7 @@ const GameCatHitPointsInner = styled.div<{ width: number }>`
   width: ${(p) => `${p.width}%`};
   height: 100%;
   background-color: red;
+  transition: linear 0.5s;
   z-index: 9;
 `;
 const GameDogSkillBox = styled.div`
@@ -260,9 +276,9 @@ const GameDog = styled.div<{ roomState: string }>`
   position: absolute;
   bottom: 0;
   right: 40px;
-  width: 110px;
+  width: 130px;
   height: 130px;
-  background-image: url(${dogImg});
+  background-image: url(${(p) => (p.roomState === 'dogTurn' ? dogAttackImg : dogImg)});
   background-size: cover;
   background-position: center;
   cursor: pointer;
@@ -283,9 +299,9 @@ const GameCat = styled.div<{ roomState: string }>`
   position: absolute;
   bottom: 0;
   left: 40px;
-  width: 110px;
+  width: 120px;
   height: 130px;
-  background-image: url(${catImg});
+  background-image: url(${(p) => (p.roomState === 'catTurn' ? catAttackImg : catImg)});
   background-size: cover;
   background-position: center;
   cursor: pointer;
@@ -362,6 +378,12 @@ function Game() {
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
 
+    function delay(sec: number) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, sec);
+      });
+    }
+
     // setDogTurn
     function setDogTurn() {
       let dogX = 840;
@@ -400,6 +422,8 @@ function Game() {
         energy += 1;
         if (energy >= 100) {
           clearInterval(dogEnergyInnerHandler);
+          window.removeEventListener('mouseup', mouseUpHandler);
+          mouseUpHandler();
         }
         dogEnergyInnerRef?.current?.setAttribute('style', `width:${energy}%`);
       }
@@ -432,7 +456,7 @@ function Game() {
         }
       }
 
-      function startAnimationHandler(quantityOfPower: number) {
+      async function startAnimationHandler(quantityOfPower: number) {
         ctx?.clearRect(0, 0, 940, 560);
         drawDog();
 
@@ -445,17 +469,24 @@ function Game() {
           console.log('hit!');
           stopAnimation();
           setCatHitPoints((prev) => prev - hitPointsAvailable);
+          ctx?.clearRect(0, 0, 940, 560);
+          gameCatRef?.current?.setAttribute('style', `background-image:url(${catInjuriedImg})`);
+          await delay(1000);
+          gameCatRef?.current?.setAttribute('style', '');
           testGameState();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
-        } else if (dogX >= 450 - dogRadius && dogX <= 490 + dogRadius && dogY >= 400 - dogRadius) {
+        } else if (
+          (dogX >= 450 - dogRadius && dogX <= 490 + dogRadius && dogY >= 400 - dogRadius) ||
+          dogY > 580 ||
+          dogY < 0
+        ) {
           console.log('miss!');
           stopAnimation();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
-          setRoomState('catTurn');
-        } else if (dogY > 580 || dogY < 0) {
-          console.log('miss!');
-          stopAnimation();
-          dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
+          ctx?.clearRect(0, 0, 940, 560);
+          gameCatRef?.current?.setAttribute('style', `background-image:url(${catMissImg})`);
+          await delay(1000);
+          gameCatRef?.current?.setAttribute('style', '');
           setRoomState('catTurn');
         }
       }
@@ -559,6 +590,8 @@ function Game() {
         energy += 1;
         if (energy >= 100) {
           clearInterval(CatEnergyInnerHandler);
+          window.removeEventListener('mouseup', mouseUpHandler);
+          mouseUpHandler();
         }
         catEnergyInnerRef?.current?.setAttribute('style', `width:${energy}%`);
       }
@@ -591,7 +624,7 @@ function Game() {
         }
       }
 
-      function startAnimationHandler(quantityOfPower: number) {
+      async function startAnimationHandler(quantityOfPower: number) {
         ctx?.clearRect(0, 0, 940, 560);
         drawCat();
 
@@ -604,17 +637,24 @@ function Game() {
           console.log('hit!');
           stopAnimation();
           setDogHitPoints((prev) => prev - hitPointsAvailable);
+          ctx?.clearRect(0, 0, 940, 560);
+          gameDogRef?.current?.setAttribute('style', `background-image:url(${dogInjuriedImg})`);
+          await delay(1000);
+          gameDogRef?.current?.setAttribute('style', '');
           testGameState();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
-        } else if (catX >= 450 - catRadius && catX <= 490 + catRadius && catY >= 400 - catRadius) {
+        } else if (
+          (catX >= 450 - catRadius && catX <= 490 + catRadius && catY >= 400 - catRadius) ||
+          catY > 580 ||
+          catY < 0
+        ) {
           console.log('miss!');
           stopAnimation();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
-          setRoomState('dogTurn');
-        } else if (catY > 580 || catY < 0) {
-          console.log('miss!');
-          stopAnimation();
-          catEnergyBarRef?.current?.setAttribute('style', 'display:none');
+          ctx?.clearRect(0, 0, 940, 560);
+          gameDogRef?.current?.setAttribute('style', `background-image:url(${dogMissImg})`);
+          await delay(1000);
+          gameDogRef?.current?.setAttribute('style', '');
           setRoomState('dogTurn');
         }
       }
@@ -691,7 +731,7 @@ function Game() {
   }, [roomState]);
 
   return (
-    <div>
+    <GameBody>
       <GameScreen>
         {
           // prettier-ignore
@@ -753,7 +793,7 @@ function Game() {
         <GameCatTimer>{catTurnTimeSpent}</GameCatTimer>
         <GameCat ref={gameCatRef} roomState={roomState} />
       </GameScreen>
-    </div>
+    </GameBody>
   );
 }
 
