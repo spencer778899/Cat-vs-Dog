@@ -3,8 +3,9 @@ import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import GameoverModal from '../../components/gameoverModal';
+import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
 import Arrow from '../../img/arrow.png';
 import screenImg from '../../img/gamepage/game_screen.png';
 import powerUpImg from '../../img/gamepage/game_powerUp.png';
@@ -15,11 +16,11 @@ import windBarImg from '../../img/gamepage/game_windBar.png';
 import dogImg from '../../img/gamepage/game_dog.png';
 import dogAttackImg from '../../img/gamepage/game_dogAttack.png';
 import dogInjuriedImg from '../../img/gamepage/game_dogInjuried.png';
+import dogMissImg from '../../img/gamepage/game_dogMiss.png';
 import catImg from '../../img/gamepage/game_cat.png';
 import catAttackImg from '../../img/gamepage/game_catAttack.png';
 import catInjuriedImg from '../../img/gamepage/game_catInjuried.png';
 import catMissImg from '../../img/gamepage/game_catMiss.png';
-import dogMissImg from '../../img/gamepage/game_dogMiss.png';
 import closeImg from '../../img/close.png';
 
 const swing = keyframes`
@@ -360,7 +361,6 @@ const GameCatEnergyInner = styled.div`
 
 function Game() {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const navigate = useNavigate();
   const [roomState, setRoomState] = useState('dogTurn');
   const [windSpeedBar, setWindSpeedBar] = useState<number | undefined>(undefined); // -2 ~ 2
   const [isDisplayArrow, setIsDisplayArrow] = useState(true);
@@ -747,6 +747,7 @@ function Game() {
 
   return (
     <GameBody>
+      <GamePreloadBackgroundImg />
       <GameBack to="/" />
       <GameScreen>
         {
