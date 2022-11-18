@@ -25,7 +25,7 @@ const ModalMain = styled.div`
   width: 480px;
   height: 480px;
   margin: auto;
-  padding: 80px 20px 20px 20px;
+  padding: 40px 20px 20px 20px;
   border: 1px solid #000000;
   border-radius: 20px;
   background-color: #ffffff;

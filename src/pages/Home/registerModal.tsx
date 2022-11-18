@@ -6,6 +6,7 @@ import emailImg from '../../img/email.png';
 import lockImg from '../../img/lock.png';
 import starImg from '../../img/star.png';
 import friendsImg from '../../img/friends.png';
+import Modal from '../../components/modal';
 
 interface HomeProps {
   displayLoginModalHandler: (display: boolean) => void;
@@ -155,53 +156,51 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
 
   return (
     <div>
-      <RegisterModalBody>
-        <RegisterModalMain>
-          <RegisterModalBack
-            onClick={() => {
-              displayLoginModalHandler(true);
-              displayRegisterModalHandler(false);
-            }}
-          >
-            ✖
-          </RegisterModalBack>
-          <RegisterModalAside>
-            <RegisterModalImgBox>
-              <RegisterModalStar />
-              <RegisterModalStarText>成就系統</RegisterModalStarText>
-            </RegisterModalImgBox>
-            <RegisterModalImgBox>
-              <RegisterModalFriends />
-              <RegisterModalFriendsText>好友系統</RegisterModalFriendsText>
-            </RegisterModalImgBox>
-          </RegisterModalAside>
-          <RegisterModalDivider />
-          <RegisterModalPasswordBox>
-            <RegisterModalNicknameImg />
-            <RegisterModalPasswordText>暱稱:</RegisterModalPasswordText>
-            <RegisterModalPasswordInput ref={nickname} />
-          </RegisterModalPasswordBox>
-          <RegisterModalPasswordBox>
-            <RegisterModalMailImg />
-            <RegisterModalPasswordText>電子郵件:</RegisterModalPasswordText>
-            <RegisterModalPasswordInput ref={email} placeholder="合格的email" />
-          </RegisterModalPasswordBox>
-          <RegisterModalPasswordBox>
-            <RegisterModalPasswordImg />
-            <RegisterModalPasswordText>密碼:</RegisterModalPasswordText>
-            <RegisterModalPasswordInput type="password" ref={password} placeholder="至少六位密碼" />
-          </RegisterModalPasswordBox>
-          <RegisterModalRegister
-            onClick={() => {
-              if (loading === false) {
-                register();
-              }
-            }}
-          >
-            註冊
-          </RegisterModalRegister>
-        </RegisterModalMain>
-      </RegisterModalBody>
+      <Modal title="註冊">
+        <RegisterModalBack
+          onClick={() => {
+            displayLoginModalHandler(true);
+            displayRegisterModalHandler(false);
+          }}
+        >
+          ✖
+        </RegisterModalBack>
+        <RegisterModalAside>
+          <RegisterModalImgBox>
+            <RegisterModalStar />
+            <RegisterModalStarText>成就系統</RegisterModalStarText>
+          </RegisterModalImgBox>
+          <RegisterModalImgBox>
+            <RegisterModalFriends />
+            <RegisterModalFriendsText>好友系統</RegisterModalFriendsText>
+          </RegisterModalImgBox>
+        </RegisterModalAside>
+        <RegisterModalDivider />
+        <RegisterModalPasswordBox>
+          <RegisterModalNicknameImg />
+          <RegisterModalPasswordText>暱稱:</RegisterModalPasswordText>
+          <RegisterModalPasswordInput ref={nickname} />
+        </RegisterModalPasswordBox>
+        <RegisterModalPasswordBox>
+          <RegisterModalMailImg />
+          <RegisterModalPasswordText>電子郵件:</RegisterModalPasswordText>
+          <RegisterModalPasswordInput ref={email} placeholder="合格的email" />
+        </RegisterModalPasswordBox>
+        <RegisterModalPasswordBox>
+          <RegisterModalPasswordImg />
+          <RegisterModalPasswordText>密碼:</RegisterModalPasswordText>
+          <RegisterModalPasswordInput type="password" ref={password} placeholder="至少六位密碼" />
+        </RegisterModalPasswordBox>
+        <RegisterModalRegister
+          onClick={() => {
+            if (loading === false) {
+              register();
+            }
+          }}
+        >
+          註冊
+        </RegisterModalRegister>
+      </Modal>
     </div>
   );
 }

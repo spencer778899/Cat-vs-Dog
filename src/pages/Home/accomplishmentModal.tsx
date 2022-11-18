@@ -8,6 +8,7 @@ import championImg from '../../img/champion.png';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
 import Modal from '../../components/modal';
+import BlueButton from '../../components/buttons/blueButton';
 
 interface HomeProps {
   displayAccomplishmentModalHandler: (display: boolean) => void;
@@ -16,8 +17,8 @@ interface HomeProps {
 
 const AccomplishmentModalBack = styled.div`
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 10px;
+  right: 15px;
   cursor: pointer;
 `;
 const AccomplishmentModalBoard = styled.div`
@@ -36,7 +37,7 @@ const AccomplishmentModalGoal1 = styled.div`
   align-items: center;
   width: calc(50% - 10px);
   height: calc(50% - 10px);
-  padding: 10px;
+  padding: 12px;
   border-radius: 15px;
   background-color: #ffffff;
 `;
@@ -46,14 +47,14 @@ const AccomplishmentModalGoal2 = styled.div`
   align-items: center;
   width: calc(50% - 10px);
   height: calc(50% - 10px);
-  padding: 10px;
+  padding: 12px;
   border-radius: 15px;
   background-color: #ffffff;
 `;
 const AccomplishmentModalGoal1Img = styled.div<{ achieved: boolean | undefined }>`
   width: 50px;
   height: 50px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   background-image: url(${(p) => (p.achieved ? getFriend1Img : getFriend0Img)});
   background-size: cover;
   border-radius: 50%;
@@ -63,7 +64,7 @@ const AccomplishmentModalGoal1Img = styled.div<{ achieved: boolean | undefined }
 const AccomplishmentModalGoal2Img = styled.div<{ achieved: boolean | undefined }>`
   width: 50px;
   height: 50px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   background-image: url(${(p) => (p.achieved ? hacker1Img : hacker0Img)});
   background-size: cover;
   border-radius: 50%;
@@ -71,13 +72,13 @@ const AccomplishmentModalGoal2Img = styled.div<{ achieved: boolean | undefined }
   box-shadow: 0 0 0 3px #fff, 0 0 0 5px #9fbdc9;
 `;
 const AccomplishmentModalGoal1Text = styled.div`
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   font-size: 14px;
   line-height: 24px;
   color: #797979;
 `;
 const AccomplishmentModalGoal2Text = styled.div`
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   font-size: 14px;
   line-height: 24px;
   color: #797979;
@@ -95,7 +96,12 @@ const AccomplishmentModalGoal1Rate = styled.div`
 const AccomplishmentModalGoal2Rate = styled.div`
   color: #797979;
 `;
-const AccomplishmentModalLogin = styled.button``;
+const AccomplishmentModalLoginBox = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+`;
 function AccomplishmentModal({
   displayAccomplishmentModalHandler,
   displayLoginModalHandler,
@@ -103,7 +109,6 @@ function AccomplishmentModal({
   const { isLogin, user } = useGlobalContext();
   const [accomplishments, setAccomplishments] =
     useState<{ goalName: string; achieved: boolean; progressRate: number }[]>();
-  console.log(accomplishments);
 
   useEffect(() => {
     async function getAccomplishments() {
@@ -145,17 +150,18 @@ function AccomplishmentModal({
             </AccomplishmentModalGoal2>
           </AccomplishmentModalBoard>
         ) : (
-          <div>
-            <div>會員專屬功能</div>
-            <AccomplishmentModalLogin
-              onClick={() => {
-                displayAccomplishmentModalHandler(false);
-                displayLoginModalHandler(true);
-              }}
-            >
-              登入
-            </AccomplishmentModalLogin>
-          </div>
+          <AccomplishmentModalBoard>
+            <AccomplishmentModalLoginBox>
+              <BlueButton
+                content="登入"
+                loading={false}
+                onClick={() => {
+                  displayAccomplishmentModalHandler(false);
+                  displayLoginModalHandler(true);
+                }}
+              />
+            </AccomplishmentModalLoginBox>
+          </AccomplishmentModalBoard>
         )}
       </Modal>
     </div>

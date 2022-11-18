@@ -7,6 +7,7 @@ import lockImg from '../../img/lock.png';
 import nicknameImg from '../../img/nickname.png';
 import memberImg from '../../img/member.png';
 import firestore, { authentication, firestorage } from '../../utils/firestore';
+import Modal from '../../components/modal';
 
 interface HomeProps {
   displayLoginModalHandler: (display: boolean) => void;
@@ -185,90 +186,88 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
 
   return (
     <div>
-      <LoginModalBody>
-        <LoginModalMain>
-          <LoginModalBack
-            onClick={() => {
-              displayLoginModalHandler(false);
-            }}
-          >
-            ✖
-          </LoginModalBack>
-          <LoginModalImg background={user.photoURL} />
-          {isLogin && user.changePhotoRight ? (
-            <LoginModalHeadBox>
-              <LoginModalHeadInput
-                type="file"
-                onChange={(e) => {
-                  if (e.target.files === null) return;
-                  setNewPhoto(e.target.files[0]);
-                }}
-              />
-              <LoginModalHeadButton
-                onClick={() => {
-                  if (isLoading === false) {
-                    updateHeadImg();
-                  }
-                }}
-              >
-                更新頭貼
-              </LoginModalHeadButton>
-            </LoginModalHeadBox>
-          ) : (
-            ''
-          )}
-          <LoginModalMailbox>
-            <LoginModalMailImg />
-            <LoginModalMailText>電子郵件:</LoginModalMailText>
-            {isLogin ? <p>{user.email}</p> : <LoginModalMailInput ref={email} />}
-          </LoginModalMailbox>
-          {isLogin ? (
-            <LoginModalNicknameBox>
-              <LoginModalNicknameImg />
-              <LoginModalNicknameText>暱稱:</LoginModalNicknameText>
-              <p>{user.nickname}</p>
-            </LoginModalNicknameBox>
-          ) : (
-            <LoginModalPasswordBox>
-              <LoginModalPasswordImg />
-              <LoginModalPasswordText>密碼:</LoginModalPasswordText>
-              <LoginModalPasswordInput type="password" ref={password} />
-            </LoginModalPasswordBox>
-          )}
-          {isLogin ? (
-            <LoginModalButtonBox>
-              <LoginModalLogout
-                onClick={() => {
-                  if (isLoading === true) return;
-                  authentication.signOut();
-                }}
-              >
-                登出
-              </LoginModalLogout>
-            </LoginModalButtonBox>
-          ) : (
-            <LoginModalButtonBox>
-              <LoginModalLogin
-                onClick={() => {
-                  if (isLoading === false) {
-                    submit();
-                  }
-                }}
-              >
-                登入
-              </LoginModalLogin>
-              <LoginModalRegister
-                onClick={() => {
-                  displayLoginModalHandler(false);
-                  displayRegisterModalHandler(true);
-                }}
-              >
-                註冊
-              </LoginModalRegister>
-            </LoginModalButtonBox>
-          )}
-        </LoginModalMain>
-      </LoginModalBody>
+      <Modal title="登入">
+        <LoginModalBack
+          onClick={() => {
+            displayLoginModalHandler(false);
+          }}
+        >
+          ✖
+        </LoginModalBack>
+        <LoginModalImg background={user.photoURL} />
+        {isLogin && user.changePhotoRight ? (
+          <LoginModalHeadBox>
+            <LoginModalHeadInput
+              type="file"
+              onChange={(e) => {
+                if (e.target.files === null) return;
+                setNewPhoto(e.target.files[0]);
+              }}
+            />
+            <LoginModalHeadButton
+              onClick={() => {
+                if (isLoading === false) {
+                  updateHeadImg();
+                }
+              }}
+            >
+              更新頭貼
+            </LoginModalHeadButton>
+          </LoginModalHeadBox>
+        ) : (
+          ''
+        )}
+        <LoginModalMailbox>
+          <LoginModalMailImg />
+          <LoginModalMailText>電子郵件:</LoginModalMailText>
+          {isLogin ? <p>{user.email}</p> : <LoginModalMailInput ref={email} />}
+        </LoginModalMailbox>
+        {isLogin ? (
+          <LoginModalNicknameBox>
+            <LoginModalNicknameImg />
+            <LoginModalNicknameText>暱稱:</LoginModalNicknameText>
+            <p>{user.nickname}</p>
+          </LoginModalNicknameBox>
+        ) : (
+          <LoginModalPasswordBox>
+            <LoginModalPasswordImg />
+            <LoginModalPasswordText>密碼:</LoginModalPasswordText>
+            <LoginModalPasswordInput type="password" ref={password} />
+          </LoginModalPasswordBox>
+        )}
+        {isLogin ? (
+          <LoginModalButtonBox>
+            <LoginModalLogout
+              onClick={() => {
+                if (isLoading === true) return;
+                authentication.signOut();
+              }}
+            >
+              登出
+            </LoginModalLogout>
+          </LoginModalButtonBox>
+        ) : (
+          <LoginModalButtonBox>
+            <LoginModalLogin
+              onClick={() => {
+                if (isLoading === false) {
+                  submit();
+                }
+              }}
+            >
+              登入
+            </LoginModalLogin>
+            <LoginModalRegister
+              onClick={() => {
+                displayLoginModalHandler(false);
+                displayRegisterModalHandler(true);
+              }}
+            >
+              註冊
+            </LoginModalRegister>
+          </LoginModalButtonBox>
+        )}
+      </Modal>
     </div>
   );
 }
