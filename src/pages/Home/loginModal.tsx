@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Navigate } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
 import emailImg from '../../img/email.png';
 import lockImg from '../../img/lock.png';
@@ -54,7 +53,6 @@ const LoginModalHeadBox = styled.label`
 const LoginModalHeadInput = styled.input`
   display: none;
 `;
-const LoginModalHeadButton = styled.button``;
 const LoginModalMailbox = styled.div`
   display: flex;
   justify-content: center;
@@ -146,21 +144,6 @@ const LoginModalButtonBox = styled.div`
   justify-content: center;
   align-items: center;
 `;
-const LoginModalLogin = styled.button`
-  margin: 0 10px;
-  width: 186px;
-  height: 40px;
-  border-radius: 24px;
-  cursor: pointer;
-`;
-const LoginModalRegister = styled.button`
-  margin: 0 10px;
-  width: 186px;
-  height: 40px;
-  border-radius: 24px;
-  cursor: pointer;
-`;
-const LoginModalLogout = styled(LoginModalRegister)``;
 
 function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: HomeProps) {
   const regexp = /^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
@@ -197,6 +180,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
       <Modal title={isLogin ? '會員' : '登入'}>
         <LoginModalBack
           onClick={() => {
+            if (loading === true) return;
             displayLoginModalHandler(false);
           }}
         >
@@ -256,9 +240,10 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
             <BlueButton content="登入" loading={loading} onClick={LoginHandler} />
 
             <YellowButton
-              content="註冊"
+              content="註冊帳號"
               loading={false}
               onClick={() => {
+                if (loading === true) return;
                 displayLoginModalHandler(false);
                 displayRegisterModalHandler(true);
               }}
