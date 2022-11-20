@@ -37,9 +37,12 @@ const WrapperText = styled.div`
 `;
 
 const Loading = styled(ReactLoading)`
+  width: 24px;
   position: absolute;
+  top: 0;
+  bottom: 0;
   right: 24px;
-  top: 18px;
+  margin: auto;
 `;
 
 function BlueButton({ content, loading, onClick }: Props) {
