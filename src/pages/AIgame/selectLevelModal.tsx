@@ -13,6 +13,7 @@ import hacker1Img from '../../img/hacker1.png';
 import hacker2Img from '../../img/hacker2.png';
 import YellowButton from '../../components/buttons/yellowButton';
 import Modal from '../../components/modal';
+import SelectLevelModalPreload from './selectLevelModalPreload';
 
 interface AIgameProps {
   getAILevel: (level: number) => void;
@@ -160,6 +161,7 @@ const SelectLevelModalLevel3Img = styled.div`
 function SelectLevelModal({ getAILevel }: AIgameProps) {
   return (
     <Modal title="難度選擇">
+      <SelectLevelModalPreload />
       <SelectLevelModalBack to="/" />
       <SelectLevelModalButtos>
         <SelectLevelModalButton1Box>
