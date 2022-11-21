@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import styled, { StyledInterface } from 'styled-components';
+import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import member from '../../img/member.png';
-import { GlobalContent, useGlobalContext } from '../../context/authContext';
+import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
 
 interface homeProps {
@@ -10,13 +9,14 @@ interface homeProps {
 }
 
 const FriendsMain = styled.div`
+  position: absolute;
+  top: 200px;
+  left: 30px;
   display: flex;
   flex-direction: column;
-  width: 250px;
+  width: 300px;
   height: auto;
   min-height: 250px;
-  margin-left: 50px;
-  margin-top: -10px;
   padding-bottom: 50px;
   border-radius: 10px;
   box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
@@ -24,14 +24,15 @@ const FriendsMain = styled.div`
 `;
 const FriendsButtonBox = styled.div`
   display: flex;
-  width: 250px;
+  width: 300px;
   height: 35px;
+  cursor: pointer;
 `;
 const FriendsMine = styled.div<{ display: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 125px;
+  width: 150px;
   border-top-left-radius: 10px;
   background-color: ${(p) => (p.display === 'friends' ? '#ffffff' : '#e0e0e0')};
 `;
@@ -39,12 +40,13 @@ const FriendsInvite = styled.div<{ display: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 125px;
+  width: 150px;
   border-top-right-radius: 10px;
   background-color: ${(p) => (p.display === 'friends' ? '#e0e0e0' : '##ffffff')};
 `;
 const FriendBox = styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   height: 75px;
@@ -53,18 +55,23 @@ const FriendBox = styled.div`
 const FriendImg = styled.div<{ img: string }>`
   width: 50px;
   height: 50px;
-  margin-right: 17px;
+  margin-right: 20px;
+  border: 0.5px solid #000;
+  border-radius: 50%;
   background-image: url(${(p) => p.img});
   background-size: cover;
 `;
 const FriendInviteImg = styled.div<{ img: string }>`
   width: 50px;
   height: 50px;
-  margin-right: 17px;
+  margin-right: 20px;
+  border: 0.5px solid #000;
+  border-radius: 50%;
   background-image: url(${(p) => p.img});
   background-size: cover;
 `;
 const FriendTextBox = styled.div`
+  width: 135px;
   margin-right: 15px;
 `;
 const FriendName = styled.div`
@@ -76,11 +83,36 @@ const FriendEmail = styled.div`
   font-size: 12px;
   color: #797979;
 `;
-const FriendsBattleButton = styled.button`
-  float: right;
+const FriendsBattleButton = styled.div`
+  width: 60px;
+  height: 24px;
+  border: 0.5px solid #acacac;
+  border-radius: 20px;
+  text-align: center;
+  font-weight: 500;
+  color: #acacac;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #acacac;
+    color: #000;
+  }
 `;
 const FriendsInviteButton = styled.button`
-  float: right;
+  width: 60px;
+  height: 24px;
+  border: 0.5px solid #acacac;
+  border-radius: 20px;
+  text-align: center;
+  background-color: #fff;
+  font-weight: 500;
+  color: #acacac;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #acacac;
+    color: #000;
+  }
 `;
 const FriendInviteBox = styled.div`
   position: absolute;
@@ -88,23 +120,38 @@ const FriendInviteBox = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 240px;
+  width: 300px;
   height: 30px;
   padding: 10px;
 `;
 const FriendIDInput = styled.input`
-  width: 160px;
+  width: 200px;
   height: 30px;
   padding: 5px;
   border: 1px solid #797979;
   border-radius: 5px;
   font-size: 18px;
 `;
-const FriendIDSubmit = styled.button``;
+const FriendIDSubmit = styled.button`
+  width: 60px;
+  height: 30px;
+  border: 0.5px solid #acacac;
+  border-radius: 20px;
+  text-align: center;
+  background-color: #fff;
+  font-weight: 500;
+  color: #acacac;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #acacac;
+    color: #000;
+  }
+`;
 
 function Friends({ invitationList }: homeProps) {
   const navigate = useNavigate();
-  const { isLogin, user } = useGlobalContext();
+  const { user } = useGlobalContext();
   const [showColumn, setShowColumn] = useState('friends');
   const [friends, setFriends] = useState<
     {
@@ -213,7 +260,7 @@ function Friends({ invitationList }: homeProps) {
                     sendGameInvitation(friend.uid);
                   }}
                 >
-                  邀請
+                  PK
                 </FriendsBattleButton>
               </FriendBox>
             ))}

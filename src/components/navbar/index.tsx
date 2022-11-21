@@ -1,32 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
-import { collection, doc, onSnapshot, query } from 'firebase/firestore';
-import firestore, { db } from '../../utils/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../../utils/firestore';
 import { useGlobalContext } from '../../context/authContext';
 import friendsImg from '../../img/friends.png';
 import notificationImg from '../../img/bell.png';
 import Friends from './frineds';
+import Invitation from './invitation';
 
 const NavbarBody = styled.div`
   display: flex;
   flex-direction: column;
   position: absolute;
-  top: 5px;
-  left: 10px;
+  top: 15px;
+  left: 20px;
 `;
 const NavbarPlayer = styled.div`
   display: flex;
   align-items: center;
-  width: 150px;
-  padding: 5px 10px;
+  width: auto;
+  height: 50px;
+  padding: 5px 20px;
   background-color: #ffffff;
+  border: 3px solid #acacac;
   border-radius: 15px;
 `;
 const NavbarPlayerImg = styled.div<{ img: string }>`
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   margin-right: 15px;
+  border-radius: 50%;
   background-image: url(${(p) => p.img});
   background-size: cover;
 `;
@@ -40,8 +43,22 @@ const NavbarImgBox = styled.div`
   width: 50px;
   height: 50px;
   margin: 10px 10px 5px 10px;
+  border: 2px solid #000;
   border-radius: 50%;
-  background-color: #ffffff;
+  background-color: #ffbf00;
+  border-top-color: #ffe100;
+  border-right-color: #ffe100;
+  border-left-color: #ffe100;
+  border-bottom-color: #ffe100;
+  box-shadow: 0 0 0 4px #002043, 0 0 0 5px #7c92b0;
+  cursor: pointer;
+
+  &:hover {
+    border-top-color: #f88700;
+    border-right-color: #f88700;
+    border-right-color: #f88700;
+    border-left-color: #f88700;
+  }
 `;
 const NavbarFriendsCol = styled.div`
   width: 35px;
@@ -64,28 +81,9 @@ const NavbarNotificationBox = styled.div`
 `;
 const NavbarInvitationBox = styled.div<{ $display: boolean }>`
   display: ${(p) => (p.$display ? 'flex' : 'none')};
-  align-items: center;
-  height: 50px;
-  padding: 10px;
-  background-color: #ffffff;
-  border: 1px solid #000000;
-  border-radius: 15px;
 `;
-const NavbarInvitationImg = styled.div<{ img: string }>`
-  width: 40px;
-  height: 40px;
-  margin-right: 10px;
-  border-radius: 50%;
-  background-image: url(${(p) => p.img});
-  background-size: cover;
-`;
-const NavbarInvitationName = styled.div`
-  margin-right: 10px;
-`;
-const NavbarAgreeInvitation = styled.button``;
 function Navbar() {
   const { isLogin, user } = useGlobalContext();
-  const navigate = useNavigate();
   const [invitationList, setInvitationList] = useState<
     { uid: string; nickname: string; photoURL: string }[]
   >([]);
@@ -114,75 +112,47 @@ function Navbar() {
       friendRequestSubscribe();
     };
   }, [isLogin]);
-  async function agreeGameInvitation() {
-    if (isLogin === false || user.uid === undefined) return;
-    firestore.updateInviting(user.uid, {});
-    navigate(`${user.inviting}`);
-  }
-  async function rejectGameInvitation() {
-    if (isLogin === false || user.uid === undefined) return;
-    firestore.updateInviting(user.uid, {});
-  }
   return (
     <div>
       {isLogin && user.photoURL && user.nickname ? (
-        <NavbarBody>
-          <NavbarPlayer>
-            <NavbarPlayerImg img={user?.photoURL} />
-            <NavbarPlayerName>{user.nickname}</NavbarPlayerName>
-          </NavbarPlayer>
-          <NavbarNotificationBox>
+        <>
+          <NavbarBody>
+            <NavbarPlayer>
+              <NavbarPlayerImg img={user?.photoURL} />
+              <NavbarPlayerName>{user.nickname}</NavbarPlayerName>
+            </NavbarPlayer>
+            <NavbarNotificationBox>
+              <NavbarImgBox
+                onClick={() => {
+                  if (displayInvitationCol) {
+                    setDisplayInvitationCol(false);
+                  } else if (!displayInvitationCol) {
+                    setDisplayInvitationCol(true);
+                  }
+                }}
+              >
+                <NavbarFriendsCol />
+              </NavbarImgBox>
+            </NavbarNotificationBox>
             <NavbarImgBox
               onClick={() => {
-                if (displayInvitationCol) {
-                  setDisplayInvitationCol(false);
-                } else if (!displayInvitationCol) {
-                  setDisplayInvitationCol(true);
+                if (displayFriendsCol) {
+                  setDisplayFriendsCol(false);
+                } else if (!displayFriendsCol) {
+                  setDisplayFriendsCol(true);
                 }
               }}
             >
-              <NavbarFriendsCol />
+              <NavbarNotification />
             </NavbarImgBox>
-            <NavbarInvitationBox $display={displayInvitationCol}>
-              {user.inviting?.URL ? (
-                <>
-                  <NavbarInvitationImg img={user?.inviting.photoURL} />
-                  <NavbarInvitationName>{`${user?.inviting.nickname}邀請你進入遊戲~`}</NavbarInvitationName>
-                  <NavbarAgreeInvitation
-                    onClick={() => {
-                      agreeGameInvitation();
-                    }}
-                  >
-                    接受
-                  </NavbarAgreeInvitation>
-                  <NavbarAgreeInvitation
-                    onClick={() => {
-                      rejectGameInvitation();
-                    }}
-                  >
-                    拒絕
-                  </NavbarAgreeInvitation>
-                </>
-              ) : (
-                <NavbarInvitationName>暫無邀請~QQ</NavbarInvitationName>
-              )}
-            </NavbarInvitationBox>
-          </NavbarNotificationBox>
-          <NavbarImgBox
-            onClick={() => {
-              if (displayFriendsCol) {
-                setDisplayFriendsCol(false);
-              } else if (!displayFriendsCol) {
-                setDisplayFriendsCol(true);
-              }
-            }}
-          >
-            <NavbarNotification />
-          </NavbarImgBox>
+          </NavbarBody>
+          <NavbarInvitationBox $display={displayInvitationCol}>
+            <Invitation />
+          </NavbarInvitationBox>
           <NavbarFriendsBox $display={displayFriendsCol}>
             <Friends invitationList={invitationList} />
           </NavbarFriendsBox>
-        </NavbarBody>
+        </>
       ) : (
         ''
       )}
