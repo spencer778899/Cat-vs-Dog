@@ -33,7 +33,7 @@ const Wrapper = styled.button`
 
 const WrapperText = styled.div`
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 500;
 `;
 
 const Loading = styled(ReactLoading)`
