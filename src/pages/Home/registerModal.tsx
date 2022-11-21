@@ -6,41 +6,20 @@ import emailImg from '../../img/email.png';
 import lockImg from '../../img/lock.png';
 import starImg from '../../img/star.png';
 import friendsImg from '../../img/friends.png';
+import Modal from '../../components/modal';
+import BlueButton from '../../components/buttons/blueButton';
+import YellowButton from '../../components/buttons/yellowButton';
 
 interface HomeProps {
   displayLoginModalHandler: (display: boolean) => void;
   displayRegisterModalHandler: (display: boolean) => void;
 }
 
-const RegisterModalBody = styled.div`
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(1, 22, 46, 0.68);
-  z-index: 98;
-`;
 const RegisterModalBack = styled.div`
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 10px;
+  right: 15px;
   cursor: pointer;
-`;
-const RegisterModalMain = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 480px;
-  height: 480px;
-  margin: auto;
-  padding: 70px 20px 20px 20px;
-  border: 1px solid #000000;
-  border-radius: 20px;
-  background-color: #ffffff;
-  z-index: 99;
 `;
 const RegisterModalAside = styled.div`
   display: flex;
@@ -48,6 +27,7 @@ const RegisterModalAside = styled.div`
   align-items: center;
   width: 200px;
   height: 100px;
+  margin-top: 20px;
 `;
 const RegisterModalImgBox = styled.div`
   display: flex;
@@ -61,7 +41,9 @@ const RegisterModalStar = styled.div`
   background-size: cover;
   margin-bottom: 10px;
 `;
-const RegisterModalStarText = styled.div``;
+const RegisterModalStarText = styled.div`
+  color: #797979;
+`;
 const RegisterModalFriends = styled.div`
   width: 40px;
   height: 40px;
@@ -69,11 +51,13 @@ const RegisterModalFriends = styled.div`
   background-size: cover;
   margin-bottom: 10px;
 `;
-const RegisterModalFriendsText = styled.div``;
+const RegisterModalFriendsText = styled.div`
+  color: #797979;
+`;
 const RegisterModalDivider = styled.div`
   width: 300px;
   border-top: 2px solid #c4c5c6;
-  margin: 30px 0;
+  margin: 15px 0 25px 0;
 `;
 const RegisterModalPasswordBox = styled.div`
   display: flex;
@@ -115,11 +99,12 @@ const RegisterModalPasswordInput = styled.input`
   border: 1px solid #797979;
   border-radius: 5px;
 `;
-const RegisterModalRegister = styled.button`
-  width: 186px;
-  height: 40px;
-  border-radius: 24px;
-  cursor: pointer;
+const RegisterModalButtonBox = styled.div`
+  position: absolute;
+  bottom: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }: HomeProps) {
   const regexp = /^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
@@ -128,7 +113,7 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
   const email = useRef<HTMLInputElement>(null);
   const password = useRef<HTMLInputElement>(null);
 
-  async function register() {
+  const register = async () => {
     setLoading(true);
     if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
       alert('請輸入合格的email!');
@@ -141,7 +126,10 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
         email.current?.value,
         password.current?.value,
       );
-      if (userCredential?.user.uid === undefined) return;
+      if (userCredential?.user.uid === undefined) {
+        setLoading(false);
+        return;
+      }
       await firestore.addUser(
         userCredential?.user.uid,
         nickname.current.value,
@@ -151,57 +139,58 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
       displayRegisterModalHandler(false);
     }
     setLoading(false);
-  }
+  };
 
   return (
     <div>
-      <RegisterModalBody>
-        <RegisterModalMain>
-          <RegisterModalBack
+      <Modal title="註冊">
+        <RegisterModalBack
+          onClick={() => {
+            if (loading === true) return;
+            displayRegisterModalHandler(false);
+          }}
+        >
+          ✖
+        </RegisterModalBack>
+        <RegisterModalAside>
+          <RegisterModalImgBox>
+            <RegisterModalStar />
+            <RegisterModalStarText>成就系統</RegisterModalStarText>
+          </RegisterModalImgBox>
+          <RegisterModalImgBox>
+            <RegisterModalFriends />
+            <RegisterModalFriendsText>好友系統</RegisterModalFriendsText>
+          </RegisterModalImgBox>
+        </RegisterModalAside>
+        <RegisterModalDivider />
+        <RegisterModalPasswordBox>
+          <RegisterModalNicknameImg />
+          <RegisterModalPasswordText>暱稱:</RegisterModalPasswordText>
+          <RegisterModalPasswordInput ref={nickname} />
+        </RegisterModalPasswordBox>
+        <RegisterModalPasswordBox>
+          <RegisterModalMailImg />
+          <RegisterModalPasswordText>電子郵件:</RegisterModalPasswordText>
+          <RegisterModalPasswordInput ref={email} placeholder="合格的email" />
+        </RegisterModalPasswordBox>
+        <RegisterModalPasswordBox>
+          <RegisterModalPasswordImg />
+          <RegisterModalPasswordText>密碼:</RegisterModalPasswordText>
+          <RegisterModalPasswordInput type="password" ref={password} placeholder="至少六位密碼" />
+        </RegisterModalPasswordBox>
+        <RegisterModalButtonBox>
+          <BlueButton content="註冊" loading={loading} onClick={register} />
+          <YellowButton
+            content="登入帳號"
+            loading={false}
             onClick={() => {
+              if (loading === true) return;
               displayLoginModalHandler(true);
               displayRegisterModalHandler(false);
             }}
-          >
-            ✖
-          </RegisterModalBack>
-          <RegisterModalAside>
-            <RegisterModalImgBox>
-              <RegisterModalStar />
-              <RegisterModalStarText>成就系統</RegisterModalStarText>
-            </RegisterModalImgBox>
-            <RegisterModalImgBox>
-              <RegisterModalFriends />
-              <RegisterModalFriendsText>好友系統</RegisterModalFriendsText>
-            </RegisterModalImgBox>
-          </RegisterModalAside>
-          <RegisterModalDivider />
-          <RegisterModalPasswordBox>
-            <RegisterModalNicknameImg />
-            <RegisterModalPasswordText>暱稱:</RegisterModalPasswordText>
-            <RegisterModalPasswordInput ref={nickname} />
-          </RegisterModalPasswordBox>
-          <RegisterModalPasswordBox>
-            <RegisterModalMailImg />
-            <RegisterModalPasswordText>電子郵件:</RegisterModalPasswordText>
-            <RegisterModalPasswordInput ref={email} placeholder="合格的email" />
-          </RegisterModalPasswordBox>
-          <RegisterModalPasswordBox>
-            <RegisterModalPasswordImg />
-            <RegisterModalPasswordText>密碼:</RegisterModalPasswordText>
-            <RegisterModalPasswordInput type="password" ref={password} placeholder="至少六位密碼" />
-          </RegisterModalPasswordBox>
-          <RegisterModalRegister
-            onClick={() => {
-              if (loading === false) {
-                register();
-              }
-            }}
-          >
-            註冊
-          </RegisterModalRegister>
-        </RegisterModalMain>
-      </RegisterModalBody>
+          />
+        </RegisterModalButtonBox>
+      </Modal>
     </div>
   );
 }
