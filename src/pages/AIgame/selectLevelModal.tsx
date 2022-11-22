@@ -19,7 +19,7 @@ interface AIgameProps {
   getAILevel: (level: number) => void;
 }
 
-const SelectLevelModalButtos = styled.div`
+const SelectLevelModalButtons = styled.div`
   margin-top: 80px;
 `;
 const SelectLevelModalBack = styled(Link)`
@@ -39,8 +39,8 @@ const SelectLevelModalBack = styled(Link)`
 
 const SelectLevelModalButton1Box = styled.div`
   position: relative;
-  flex-direction: row-reverse;
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
   width: 250px;
   margin-bottom: 70px;
@@ -52,7 +52,7 @@ const SelectLevelModalButton1Box = styled.div`
 
 const SelectLevelModalLevel1Img = styled.div`
   position: absolute;
-  left: 0px;
+  left: -10px;
   width: 90px;
   height: 90px;
   background-image: url(${puppy1Img});
@@ -98,7 +98,7 @@ const SelectLevelModalButton2Box = styled.div`
 
 const SelectLevelModalLevel2Img = styled.div`
   position: absolute;
-  left: 0px;
+  left: -10px;
   width: 90px;
   height: 90px;
   background-image: url(${github1Img});
@@ -135,7 +135,7 @@ const SelectLevelModalButton3Box = styled.div`
 
 const SelectLevelModalLevel3Img = styled.div`
   position: absolute;
-  left: 0px;
+  left: -10px;
   width: 90px;
   height: 90px;
   background-image: url(${hacker1Img});
@@ -163,11 +163,11 @@ function SelectLevelModal({ getAILevel }: AIgameProps) {
     <Modal title="難度選擇">
       <SelectLevelModalPreload />
       <SelectLevelModalBack to="/" />
-      <SelectLevelModalButtos>
+      <SelectLevelModalButtons>
         <SelectLevelModalButton1Box>
           <SelectLevelModalLevel1Img id="SelectLevelModalLevel1Img" />
           <YellowButton
-            content="Level 1"
+            content="Level 1(簡單)"
             loading={false}
             onClick={() => {
               getAILevel(0.3);
@@ -177,7 +177,7 @@ function SelectLevelModal({ getAILevel }: AIgameProps) {
         <SelectLevelModalButton2Box>
           <SelectLevelModalLevel2Img id="SelectLevelModalLevel2Img" />
           <YellowButton
-            content="Level 2"
+            content="Level 2(普通)"
             loading={false}
             onClick={() => {
               getAILevel(0.6);
@@ -187,14 +187,14 @@ function SelectLevelModal({ getAILevel }: AIgameProps) {
         <SelectLevelModalButton3Box>
           <SelectLevelModalLevel3Img id="SelectLevelModalLevel3Img" />
           <YellowButton
-            content="Level 3"
+            content="Level 3(困難)"
             loading={false}
             onClick={() => {
               getAILevel(0.9);
             }}
           />
         </SelectLevelModalButton3Box>
-      </SelectLevelModalButtos>
+      </SelectLevelModalButtons>
     </Modal>
   );
 }

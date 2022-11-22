@@ -231,6 +231,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
               onClick={() => {
                 setLoading(true);
                 authentication.signOut();
+                displayLoginModalHandler(false);
                 setLoading(false);
               }}
             />

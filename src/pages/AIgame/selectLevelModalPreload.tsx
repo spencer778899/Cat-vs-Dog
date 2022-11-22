@@ -5,25 +5,29 @@ import puppy2Img from '../../img/puppy2.png';
 import puppy3Img from '../../img/puppy3.png';
 import puppy4Img from '../../img/puppy4.png';
 import puppy5Img from '../../img/puppy5.png';
+import github1Img from '../../img/github1.png';
+import github2Img from '../../img/github2.png';
+import hacker1Img from '../../img/hacker1.png';
+import hacker2Img from '../../img/hacker2.png';
 
 const PreloadBackgroundImg = styled.div`
   display: none;
 `;
-const PreloadBackgroundImg1 = styled.img``;
-const PreloadBackgroundImg2 = styled.img``;
-const PreloadBackgroundImg3 = styled.img``;
-const PreloadBackgroundImg4 = styled.img``;
-const PreloadBackgroundImg5 = styled.img``;
+const Img = styled.img``;
 
 function SelectLevelModalPreload() {
   return (
     <div>
       <PreloadBackgroundImg>
-        <PreloadBackgroundImg1 src={puppy1Img} />
-        <PreloadBackgroundImg2 src={puppy2Img} />
-        <PreloadBackgroundImg3 src={puppy3Img} />
-        <PreloadBackgroundImg4 src={puppy4Img} />
-        <PreloadBackgroundImg5 src={puppy5Img} />
+        <Img src={puppy1Img} />
+        <Img src={puppy2Img} />
+        <Img src={puppy3Img} />
+        <Img src={puppy4Img} />
+        <Img src={puppy5Img} />
+        <Img src={github1Img} />
+        <Img src={github2Img} />
+        <Img src={hacker1Img} />
+        <Img src={hacker2Img} />
       </PreloadBackgroundImg>
     </div>
   );
