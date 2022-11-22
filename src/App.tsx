@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import styled, { createGlobalStyle } from 'styled-components';
+import { ToastContainer, Flip } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { onSnapshot, doc } from 'firebase/firestore';
 import { AuthContext } from './context/authContext';
 import firestore, { db } from './utils/firestore';
@@ -93,6 +95,20 @@ function App() {
     <>
       <GlobalStyle />
       <AuthContext.Provider value={foo}>
+        <ToastContainer
+          position="top-center"
+          autoClose={3000}
+          limit={2}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss={false}
+          draggable
+          pauseOnHover
+          theme="dark"
+          transition={Flip}
+        />
         <Background />
         <Navbar />
         <Outlet />

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
@@ -72,16 +73,21 @@ const FriendInviteImg = styled.div<{ img: string }>`
 `;
 const FriendTextBox = styled.div`
   width: 135px;
+  height: 58px;
   margin-right: 15px;
 `;
 const FriendName = styled.div`
+  height: 36px;
   font-size: 24px;
   color: #797979;
+  overflow: hidden;
 `;
 const FriendEmail = styled.div`
+  height: 17px;
   margin-top: 5px;
   font-size: 12px;
   color: #797979;
+  overflow: hidden;
 `;
 const FriendsBattleButton = styled.div`
   width: 60px;
@@ -194,19 +200,19 @@ function Friends({ invitationList }: homeProps) {
         user.nickname,
         user.photoURL,
       );
-      alert('已送出邀請!');
+      toast.success('已送出邀請!');
       invitationEmail.current.value = '';
     }
   }
 
   async function acceptFriendInvitation(id: string) {
     if (user?.friends?.some((uid) => uid === id) && user.email) {
-      alert('你們已經是好友了!');
+      toast.info('你們已經是好友了!');
       await firestore.deleteInvitation(user.email, id);
     } else if (user.uid && user.friends && user.email) {
       await firestore.updateFriends(user?.uid, [...user.friends, id]);
       await firestore.deleteInvitation(user.email, id);
-      alert('你們成為好友了!');
+      toast.success('你們成為好友了!');
       const anotherUser = (await firestore.getUser(id)) as { friends: [string] };
       const anotherFriends: [string] = anotherUser.friends;
       anotherFriends.push(user.uid);
@@ -223,7 +229,7 @@ function Friends({ invitationList }: homeProps) {
       photoURL: user?.photoURL,
     });
     navigate(`/onlinegame/${newRoomID}/host`);
-    alert('邀請已送出!');
+    toast.success('邀請已送出!');
   }
   return (
     <FriendsMain>
