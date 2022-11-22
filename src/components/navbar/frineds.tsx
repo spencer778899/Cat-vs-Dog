@@ -248,7 +248,7 @@ function Friends({ invitationList }: homeProps) {
             setShowColumn('invitation');
           }}
         >
-          邀請
+          好友邀請
         </FriendsInvite>
       </FriendsButtonBox>
       {showColumn === 'friends' ? (

@@ -518,7 +518,7 @@ function Game() {
       }
       function healHandler() {
         setDogHaveHeal(false);
-        setDogHitPoints((prev) => prev + 20);
+        setDogHitPoints((prev) => (prev >= 80 ? 100 : prev + 20));
         removeAllListener();
         setRoomState('catTurn');
       }
@@ -683,7 +683,7 @@ function Game() {
       }
       function healHandler() {
         setCatHaveHeal(false);
-        setCatHitPoints((prev) => prev + 20);
+        setCatHitPoints((prev) => (prev >= 80 ? 100 : prev + 20));
         removeAllListener();
         setRoomState('dogTurn');
       }

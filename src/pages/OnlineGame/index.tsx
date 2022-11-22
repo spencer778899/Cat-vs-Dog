@@ -526,8 +526,10 @@ function OnlineGame() {
         return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
       }
       function healHandler() {
+        if (!dogHitPoints) return;
+        const amountOfIncrease: number = dogHitPoints >= 80 ? 100 - dogHitPoints : 20;
         firestore.updateHostHaveHeal(roomID);
-        firestore.updateHostHitPoints(roomID, 20);
+        firestore.updateHostHitPoints(roomID, amountOfIncrease);
         firestore.updateRoomState(roomID, 'catTurn');
         removeAllListener();
       }

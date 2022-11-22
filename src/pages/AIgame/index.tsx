@@ -528,7 +528,7 @@ function AIGame() {
       }
       function healHandler() {
         setDogHaveHeal(false);
-        setDogHitPoints((prev) => prev + 20);
+        setDogHitPoints((prev) => (prev >= 80 ? 100 : prev + 20));
         removeAllListener();
         setRoomState('catTurn');
       }
