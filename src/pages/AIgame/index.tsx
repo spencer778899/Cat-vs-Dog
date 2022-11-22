@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import GameoverModal from '../../components/gameoverModal';
 import { useGlobalContext } from '../../context/authContext';
 import Arrow from '../../img/arrow.png';
+import windArrow from '../../img/windArrow.png';
 import firestore from '../../utils/firestore';
 import SelectLevelModel from './selectLevelModal';
 import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
@@ -86,6 +87,18 @@ const GameWindSpeedBox = styled.div`
   width: 157px;
   height: 50px;
 `;
+const GameWindDirectionArrow = styled.div<{ windSpeed: number }>`
+  display: ${(p) => (p.windSpeed ? 'relative' : 'none')};
+  position: absolute;
+  top: 8px;
+  right: ${(p) => (p.windSpeed > 0 ? '10px' : '115px')}; // 10、115
+  width: 30px;
+  height: 10px;
+  background-image: url(${windArrow});
+  background-size: cover;
+  transform: ${(p) => (p.windSpeed > 0 ? 'none' : 'rotate(180deg)')};
+  z-index: 1;
+`;
 const GameWindSpeedImg = styled.img`
   position: relative;
   width: 100%;
@@ -97,7 +110,7 @@ const GameWindSpeedBar = styled.div`
   right: 0;
   left: 0;
   width: 100px;
-  height: 12px;
+  height: 12.5px;
   margin: auto;
 `;
 const GameWindSpeed = styled.div<{ windSpeed: number }>`
@@ -709,6 +722,7 @@ function AIGame() {
         <GameCanvasSection>
           <GameControlPanel>
             <GameWindSpeedBox>
+              <GameWindDirectionArrow windSpeed={windSpeedBar || 0} />
               <GameWindSpeedImg src={windBarImg} />
               <GameWindSpeedBar>
                 <GameWindSpeed windSpeed={windSpeedBar || 0} />

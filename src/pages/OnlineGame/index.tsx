@@ -7,6 +7,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import firestore, { db } from '../../utils/firestore';
 import Arrow from '../../img/arrow.png';
 import WaitOpponentModal from './waitOpponentModal';
+import windArrow from '../../img/windArrow.png';
 import GameoverModal from '../../components/gameoverModal';
 import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
 import screenImg from '../../img/gamepage/game_screen.png';
@@ -23,7 +24,6 @@ import catImg from '../../img/gamepage/game_cat.png';
 import catAttackImg from '../../img/gamepage/game_catAttack.png';
 import catInjuriedImg from '../../img/gamepage/game_catInjuried.png';
 import catMissImg from '../../img/gamepage/game_catMiss.png';
-import closeImg from '../../img/close.png';
 
 const swing = keyframes`
   0%{background-position:center}
@@ -73,6 +73,18 @@ const GameWindSpeedBox = styled.div`
   width: 157px;
   height: 50px;
 `;
+const GameWindDirectionArrow = styled.div<{ windSpeed: number | string }>`
+  display: ${(p) => (p.windSpeed !== '0' ? 'block' : 'none')};
+  position: absolute;
+  top: 8px;
+  right: ${(p) => (p.windSpeed > 0 ? '10px' : '115px')}; // 10、115
+  width: 30px;
+  height: 10px;
+  background-image: url(${windArrow});
+  background-size: cover;
+  transform: ${(p) => (p.windSpeed > 0 ? 'none' : 'rotate(180deg)')};
+  z-index: 1;
+`;
 const GameWindSpeedImg = styled.img`
   position: relative;
   width: 100%;
@@ -84,7 +96,7 @@ const GameWindSpeedBar = styled.div`
   right: 0;
   left: 0;
   width: 100px;
-  height: 12px;
+  height: 12.5px;
   margin: auto;
 `;
 const GameWindSpeed = styled.div<{ windSpeed: number }>`
@@ -533,7 +545,6 @@ function OnlineGame() {
         if (isMouseDown) {
           const endTime = Number(new Date());
           const quantityOfPower = getQuantityOfPower(endTime);
-          console.log(quantityOfPower);
           firestore.updateHostQuantityOfPower(roomID, roundCount.current, quantityOfPower);
           removeAllListener();
         }
@@ -614,7 +625,6 @@ function OnlineGame() {
         if (isMouseDown) {
           const endTime = Number(new Date());
           const quantityOfPower = getQuantityOfPower(endTime);
-          console.log(quantityOfPower);
           firestore.updateGuestQuantityOfPower(roomID, roundCount.current, quantityOfPower);
           removeAllListener();
         }
@@ -702,7 +712,6 @@ function OnlineGame() {
         dogY -= 10 + quantityOfPower - time ** 2;
         // Is dog hit the cat?
         if (dogX >= 80 - radius && dogX <= 130 + radius && dogY >= 490 - radius) {
-          console.log('hit!');
           stopAnimation();
           firestore.updateGuestHitPoints(roomID, -1 * hitPointsAvailable);
           firestore.updateHostGetPoints(roomID, roundCount.current, hitPointsAvailable);
@@ -717,7 +726,6 @@ function OnlineGame() {
           dogY > 580 ||
           dogY < 0
         ) {
-          console.log('miss!');
           stopAnimation();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
           firestore.updateRoomState(roomID, 'catTurn');
@@ -743,14 +751,12 @@ function OnlineGame() {
       }
       async function startAnimationHandler() {
         ctx?.clearRect(0, 0, 940, 560);
-        console.log(quantityOfPower, wind, radius);
         drawDog(radius);
         // up data dog coordinate
         dogX -= 10 + quantityOfPower - wind * time;
         dogY -= 10 + quantityOfPower - time ** 2;
         // Is dog hit the cat?
         if (dogX >= 80 - radius && dogX <= 130 + radius && dogY >= 490 - radius) {
-          console.log('hit!');
           stopAnimation();
           ctx?.clearRect(0, 0, 940, 560);
           gameCatRef?.current?.setAttribute('style', `background-image:url(${catInjuriedImg})`);
@@ -761,7 +767,6 @@ function OnlineGame() {
           dogY > 580 ||
           dogY < 0
         ) {
-          console.log('miss!');
           stopAnimation();
           ctx?.clearRect(0, 0, 940, 560);
           gameCatRef?.current?.setAttribute('style', `background-image:url(${catMissImg})`);
@@ -848,7 +853,6 @@ function OnlineGame() {
         catX += 10 + quantityOfPower + wind * time;
         catY -= 10 + quantityOfPower - time ** 2;
         if (catX >= 820 - radius && catX <= 870 + radius && catY >= 490 - radius) {
-          console.log('hit!');
           stopAnimation();
           firestore.updateHostHitPoints(roomID, -1 * hitPointsAvailable);
           firestore.updateGuestGetPoints(roomID, roundCount.current, hitPointsAvailable);
@@ -863,7 +867,6 @@ function OnlineGame() {
           catY > 580 ||
           catY < 0
         ) {
-          console.log('miss!');
           stopAnimation();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
           firestore.updateRoomState(roomID, 'dogTurn');
@@ -893,7 +896,6 @@ function OnlineGame() {
         catX += 10 + quantityOfPower + wind * time;
         catY -= 10 + quantityOfPower - time ** 2;
         if (catX >= 820 - radius && catX <= 870 + radius && catY >= 490 - radius) {
-          console.log('hit!');
           stopAnimation();
           ctx?.clearRect(0, 0, 940, 560);
           gameDogRef?.current?.setAttribute('style', `background-image:url(${dogInjuriedImg})`);
@@ -904,7 +906,6 @@ function OnlineGame() {
           catY > 580 ||
           catY < 0
         ) {
-          console.log('miss!');
           stopAnimation();
           ctx?.clearRect(0, 0, 940, 560);
           gameDogRef?.current?.setAttribute('style', `background-image:url(${dogMissImg})`);
@@ -969,6 +970,7 @@ function OnlineGame() {
         <GameCanvasSection>
           <GameControlPanel>
             <GameWindSpeedBox>
+              <GameWindDirectionArrow windSpeed={windSpeed || 0} />
               <GameWindSpeedImg src={windBarImg} />
               <GameWindSpeedBar>
                 <GameWindSpeed windSpeed={windSpeed || 0} />
