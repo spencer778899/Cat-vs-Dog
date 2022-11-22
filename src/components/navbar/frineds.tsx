@@ -11,8 +11,8 @@ interface homeProps {
 
 const FriendsMain = styled.div`
   position: absolute;
-  top: 200px;
-  left: 30px;
+  top: 76px;
+  left: 88px;
   display: flex;
   flex-direction: column;
   width: 300px;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { collection, onSnapshot } from 'firebase/firestore';
@@ -9,6 +9,7 @@ import notificationImg from '../../img/bell.png';
 import LoginModal from '../../pages/Home/loginModal';
 import Friends from './frineds';
 import Invitation from './invitation';
+import useOnClickOutside from '../../utils/useOnClickOutside';
 
 const NavbarBody = styled.div`
   display: flex;
@@ -44,7 +45,7 @@ const NavbarPlayerImg = styled.div<{ img: string }>`
 const NavbarPlayerName = styled.div`
   font-size: 24px;
 `;
-const NavbarImgBox = styled.div`
+const NavbarImgBox = styled.div<{ $display: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -59,6 +60,7 @@ const NavbarImgBox = styled.div`
   border-left-color: #ffe100;
   border-bottom-color: #ffe100;
   box-shadow: 0 0 0 4px #002043, 0 0 0 5px #7c92b0;
+  pointer-events: ${(p) => (p.$display ? 'none' : 'auto')};
   cursor: pointer;
 
   &:hover {
@@ -98,10 +100,18 @@ function Navbar() {
   const [displayLoginModal, setDisplayLoginModal] = useState(false);
   const [displayFriendsCol, setDisplayFriendsCol] = useState(false);
   const [displayInvitationCol, setDisplayInvitationCol] = useState(false);
-
+  const invitationBoxRef = useRef<HTMLDivElement>(null);
+  const friendBoxRef = useRef<HTMLDivElement>(null);
   const displayLoginModalHandler = (display: boolean) => {
     setDisplayLoginModal(display);
   };
+
+  useOnClickOutside(invitationBoxRef, () => {
+    setDisplayInvitationCol(false);
+  });
+  useOnClickOutside(friendBoxRef, () => {
+    setDisplayFriendsCol(false);
+  });
 
   useEffect(() => {
     setInvitationList([]);
@@ -154,10 +164,9 @@ function Navbar() {
             </NavbarPlayer>
             <NavbarNotificationBox>
               <NavbarImgBox
+                $display={displayInvitationCol}
                 onClick={() => {
-                  if (displayInvitationCol) {
-                    setDisplayInvitationCol(false);
-                  } else if (!displayInvitationCol) {
+                  if (!displayInvitationCol) {
                     setDisplayInvitationCol(true);
                   }
                 }}
@@ -166,6 +175,7 @@ function Navbar() {
               </NavbarImgBox>
             </NavbarNotificationBox>
             <NavbarImgBox
+              $display={displayFriendsCol}
               onClick={() => {
                 if (displayFriendsCol) {
                   setDisplayFriendsCol(false);
@@ -177,10 +187,10 @@ function Navbar() {
               <NavbarNotification />
             </NavbarImgBox>
           </NavbarBody>
-          <NavbarInvitationBox $display={displayInvitationCol}>
+          <NavbarInvitationBox ref={invitationBoxRef} $display={displayInvitationCol}>
             <Invitation />
           </NavbarInvitationBox>
-          <NavbarFriendsBox $display={displayFriendsCol}>
+          <NavbarFriendsBox ref={friendBoxRef} $display={displayFriendsCol}>
             <Friends invitationList={invitationList} />
           </NavbarFriendsBox>
         </>
