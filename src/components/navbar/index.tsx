@@ -88,10 +88,23 @@ const NavbarFriendsBox = styled.div<{ $display: boolean }>`
 const NavbarNotificationBox = styled.div`
   display: flex;
   align-items: center;
+  position: relative;
+`;
+const NavbarInvitationReminder = styled.div<{ isInvitation: string | undefined }>`
+  display: ${(p) => (p.isInvitation ? 'relative' : ' none')};
+  position: absolute;
+  left: 45px;
+  bottom: 15px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ff5e00eb;
 `;
 const NavbarInvitationBox = styled.div<{ $display: boolean }>`
   display: ${(p) => (p.$display ? 'flex' : 'none')};
+  position: relative;
 `;
+
 function Navbar() {
   const { isLogin, user } = useGlobalContext();
   const [invitationList, setInvitationList] = useState<
@@ -163,6 +176,7 @@ function Navbar() {
               <NavbarPlayerName>{user.nickname}</NavbarPlayerName>
             </NavbarPlayer>
             <NavbarNotificationBox>
+              <NavbarInvitationReminder isInvitation={user?.inviting?.URL} />
               <NavbarImgBox
                 $display={displayInvitationCol}
                 onClick={() => {
