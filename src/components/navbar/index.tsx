@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../utils/firestore';
 import { useGlobalContext } from '../../context/authContext';
 import friendsImg from '../../img/friends.png';
 import notificationImg from '../../img/bell.png';
+import LoginModal from '../../pages/Home/loginModal';
 import Friends from './frineds';
 import Invitation from './invitation';
 
@@ -14,6 +16,7 @@ const NavbarBody = styled.div`
   position: absolute;
   top: 15px;
   left: 20px;
+  cursor: pointer;
 `;
 const NavbarPlayer = styled.div`
   display: flex;
@@ -22,8 +25,13 @@ const NavbarPlayer = styled.div`
   height: 50px;
   padding: 5px 20px;
   background-color: #ffffff;
-  border: 3px solid #acacac;
+  border: 3px solid #d6d6d6;
   border-radius: 15px;
+
+  &:hover {
+    background-color: #d6d6d6;
+    box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
+  }
 `;
 const NavbarPlayerImg = styled.div<{ img: string }>`
   width: 40px;
@@ -87,8 +95,13 @@ function Navbar() {
   const [invitationList, setInvitationList] = useState<
     { uid: string; nickname: string; photoURL: string }[]
   >([]);
+  const [displayLoginModal, setDisplayLoginModal] = useState(false);
   const [displayFriendsCol, setDisplayFriendsCol] = useState(false);
   const [displayInvitationCol, setDisplayInvitationCol] = useState(false);
+
+  const displayLoginModalHandler = (display: boolean) => {
+    setDisplayLoginModal(display);
+  };
 
   useEffect(() => {
     setInvitationList([]);
@@ -114,10 +127,28 @@ function Navbar() {
   }, [isLogin]);
   return (
     <div>
+      {
+        // prettier-ignore
+        displayLoginModal ?
+          ReactDOM.createPortal(
+            <LoginModal
+              displayLoginModalHandler={displayLoginModalHandler}
+              displayRegisterModalHandler={() => {
+                // login state can't register new account
+              }}
+            />,
+            document?.getElementById('modal-root') as HTMLElement,
+          ) :
+          ''
+      }
       {isLogin && user.photoURL && user.nickname ? (
         <>
           <NavbarBody>
-            <NavbarPlayer>
+            <NavbarPlayer
+              onClick={() => {
+                setDisplayLoginModal(true);
+              }}
+            >
               <NavbarPlayerImg img={user?.photoURL} />
               <NavbarPlayerName>{user.nickname}</NavbarPlayerName>
             </NavbarPlayer>

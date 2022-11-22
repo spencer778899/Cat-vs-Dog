@@ -7,7 +7,7 @@ import RegisterModal from './registerModal';
 import AccomplishmentModal from './accomplishmentModal';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
-import titleBarImg from '../../img/titleBar.png';
+import titleBarImg from '../../img/board.png';
 import dogHeadImg from '../../img/dogHead.png';
 import catHeadImg from '../../img/catHead.png';
 import YellowButton from '../../components/buttons/yellowButton';
@@ -268,13 +268,17 @@ function Home() {
           ''
       }
       <HomeMain>
-        <HomeLogin
-          onClick={() => {
-            setDisplayLoginModal(true);
-          }}
-        >
-          {isLogin ? '登出' : '登入'}
-        </HomeLogin>
+        {isLogin ? (
+          ''
+        ) : (
+          <HomeLogin
+            onClick={() => {
+              setDisplayLoginModal(true);
+            }}
+          >
+            登入
+          </HomeLogin>
+        )}
         <HomeLogoBox>
           <HomeLogoCatImg />
           <HomeLogo>貓狗大戰</HomeLogo>
