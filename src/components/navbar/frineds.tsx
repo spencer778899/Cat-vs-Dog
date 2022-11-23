@@ -100,6 +100,9 @@ const FriendsBattleButton = styled.div`
   cursor: pointer;
 
   &:hover {
+    background-color: #d6d6d6;
+  }
+  &:active {
     background-color: #acacac;
     color: #000;
   }
@@ -116,6 +119,9 @@ const FriendsInviteButton = styled.button`
   cursor: pointer;
 
   &:hover {
+    background-color: #d6d6d6;
+  }
+  &:active {
     background-color: #acacac;
     color: #000;
   }
@@ -150,6 +156,9 @@ const FriendIDSubmit = styled.button`
   cursor: pointer;
 
   &:hover {
+    background-color: #d6d6d6;
+  }
+  &:active {
     background-color: #acacac;
     color: #000;
   }
