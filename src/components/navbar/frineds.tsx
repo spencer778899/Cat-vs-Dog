@@ -201,7 +201,7 @@ function Friends({ invitationList }: homeProps) {
         user.nickname,
         user.photoURL,
       );
-      toast.success('已送出邀請!');
+      toast.success(`對 ${invitationEmail?.current?.value} 的好友邀請已送出!`);
       invitationEmail.current.value = '';
     }
     setLoading(false);
@@ -224,7 +224,7 @@ function Friends({ invitationList }: homeProps) {
     setLoading(false);
   }
 
-  const sendGameInvitation = async (id: string, friendEmail: string) => {
+  const sendGameInvitation = async (id: string, friendEmail: string, friendNickname: string) => {
     setLoading(true);
     if (user.nickname === undefined || user.photoURL === undefined) return;
     const newRoomID = await firestore.setDocRoomID();
@@ -234,7 +234,7 @@ function Friends({ invitationList }: homeProps) {
       photoURL: user?.photoURL,
     });
     navigate(`/onlinegame/${newRoomID}/host/${friendEmail}`);
-    toast.success('邀請已送出!');
+    toast.success(`對 ${friendNickname} 的PK邀請已送出!`);
     setLoading(false);
   };
 
@@ -271,7 +271,7 @@ function Friends({ invitationList }: homeProps) {
                 <FriendsBattleButton
                   onClick={() => {
                     if (loading) return;
-                    sendGameInvitation(friend.uid, friend.email);
+                    sendGameInvitation(friend.uid, friend.email, friend.nickname);
                   }}
                 >
                   PK

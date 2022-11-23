@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import styled, { createGlobalStyle } from 'styled-components';
+import { createGlobalStyle } from 'styled-components';
 import { ToastContainer, Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { onSnapshot, doc } from 'firebase/firestore';
@@ -9,6 +9,7 @@ import { AuthContext } from './context/authContext';
 import firestore, { db } from './utils/firestore';
 import Background from './components/background';
 import Navbar from './components/navbar';
+import CheckDevice from './utils/checkDevice';
 
 const GlobalStyle = createGlobalStyle`
   *{
@@ -92,9 +93,10 @@ function App() {
 
   const foo = useMemo(() => ({ isLogin, user }), [isLogin, user]);
   return (
-    <>
+    <div>
       <GlobalStyle />
       <AuthContext.Provider value={foo}>
+        <CheckDevice />
         <ToastContainer
           position="top-center"
           autoClose={3000}
@@ -113,7 +115,7 @@ function App() {
         <Navbar />
         <Outlet />
       </AuthContext.Provider>
-    </>
+    </div>
   );
 }
 

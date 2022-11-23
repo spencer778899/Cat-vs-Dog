@@ -36,6 +36,10 @@ const HomeMain = styled.div`
   background-color: #ffffff;
   box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
   z-index: -1;
+
+  @media (max-width: 1125px) {
+    display: none;
+  }
 `;
 const HomeLogin = styled.div`
   display: flex;

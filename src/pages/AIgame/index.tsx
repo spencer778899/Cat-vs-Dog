@@ -44,6 +44,9 @@ const GameBody = styled.div`
   width: 940px;
   height: 560px;
   margin: auto;
+  @media (max-width: 1125px) {
+    display: none;
+  }
 `;
 const GameBack = styled(Link)`
   position: absolute;
