@@ -220,7 +220,7 @@ function Home() {
         await firestore.updateGoal1ProgressRate(user.uid, 1);
       } else if (user.friends?.length === 2) {
         await firestore.achieveGoal1(user?.uid);
-        await firestore.updatechangePhotoRight(user?.uid);
+        await firestore.updateChangePhotoRight(user?.uid);
       }
     }
     if (user?.friends === undefined) return;

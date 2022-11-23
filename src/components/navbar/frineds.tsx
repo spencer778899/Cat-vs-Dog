@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
+import MiniButton from '../buttons/miniButton';
 
 interface homeProps {
   invitationList: { uid: string; nickname: string; photoURL: string }[];
@@ -159,6 +160,7 @@ function Friends({ invitationList }: homeProps) {
   const navigate = useNavigate();
   const { user } = useGlobalContext();
   const [showColumn, setShowColumn] = useState('friends');
+  const [loading, setLoading] = useState(false);
   const [friends, setFriends] = useState<
     {
       uid: string;
@@ -178,7 +180,6 @@ function Friends({ invitationList }: homeProps) {
           email: string;
           photoURL: string;
         };
-        console.log(res);
         return {
           uid: res?.uid,
           nickname: res?.nickname,
@@ -220,7 +221,8 @@ function Friends({ invitationList }: homeProps) {
     }
   }
 
-  async function sendGameInvitation(id: string) {
+  const sendGameInvitation = async (id: string, friendEmail: string) => {
+    setLoading(true);
     if (user.nickname === undefined || user.photoURL === undefined) return;
     const newRoomID = await firestore.setDocRoomID();
     await firestore.updateInviting(id, {
@@ -228,9 +230,11 @@ function Friends({ invitationList }: homeProps) {
       URL: `/onlinegame/${newRoomID}/guest`,
       photoURL: user?.photoURL,
     });
-    navigate(`/onlinegame/${newRoomID}/host`);
+    navigate(`/onlinegame/${newRoomID}/host/${friendEmail}`);
     toast.success('邀請已送出!');
-  }
+    setLoading(false);
+  };
+
   return (
     <FriendsMain>
       <FriendsButtonBox>
@@ -263,7 +267,7 @@ function Friends({ invitationList }: homeProps) {
                 </FriendTextBox>
                 <FriendsBattleButton
                   onClick={() => {
-                    sendGameInvitation(friend.uid);
+                    sendGameInvitation(friend.uid, friend.email);
                   }}
                 >
                   PK

@@ -10,6 +10,8 @@ import {
   increment,
   deleteDoc,
   getDocs,
+  query,
+  where,
 } from 'firebase/firestore';
 import {
   getAuth,
@@ -140,7 +142,7 @@ const firestore = {
       friends: newList,
     });
   },
-  async updatechangePhotoRight(id: string) {
+  async updateChangePhotoRight(id: string) {
     await updateDoc(doc(db, 'users', `${id}`), {
       changePhotoRight: true,
     });
@@ -151,6 +153,18 @@ const firestore = {
   ) {
     await updateDoc(doc(db, 'users', `${id}`), {
       inviting: invitation,
+    });
+  },
+  async cleanInviting(userEmail: string) {
+    let userUid;
+    const userQuery = query(collection(db, 'users'), where('email', '==', `${userEmail}`));
+    const userDoc = await getDocs(userQuery);
+    userDoc.forEach((docs) => {
+      const userData = docs.data();
+      userUid = userData.uid;
+    });
+    await updateDoc(doc(db, 'users', `${userUid}`), {
+      inviting: {},
     });
   },
   // game collection
