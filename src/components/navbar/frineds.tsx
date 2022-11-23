@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
-import MiniButton from '../buttons/miniButton';
 
 interface homeProps {
   invitationList: { uid: string; nickname: string; photoURL: string }[];
@@ -194,6 +193,7 @@ function Friends({ invitationList }: homeProps) {
     getFriendsData();
   }, [user.friends]);
   async function sendFriendInvitation() {
+    setLoading(true);
     if (invitationEmail?.current?.value.trim() && user.uid && user.nickname && user.photoURL) {
       await firestore.setNewInvitation(
         invitationEmail?.current?.value,
@@ -204,9 +204,11 @@ function Friends({ invitationList }: homeProps) {
       toast.success('已送出邀請!');
       invitationEmail.current.value = '';
     }
+    setLoading(false);
   }
 
   async function acceptFriendInvitation(id: string) {
+    setLoading(true);
     if (user?.friends?.some((uid) => uid === id) && user.email) {
       toast.info('你們已經是好友了!');
       await firestore.deleteInvitation(user.email, id);
@@ -219,6 +221,7 @@ function Friends({ invitationList }: homeProps) {
       anotherFriends.push(user.uid);
       await firestore.updateFriends(id, anotherFriends);
     }
+    setLoading(false);
   }
 
   const sendGameInvitation = async (id: string, friendEmail: string) => {
@@ -267,6 +270,7 @@ function Friends({ invitationList }: homeProps) {
                 </FriendTextBox>
                 <FriendsBattleButton
                   onClick={() => {
+                    if (loading) return;
                     sendGameInvitation(friend.uid, friend.email);
                   }}
                 >
@@ -286,6 +290,7 @@ function Friends({ invitationList }: homeProps) {
                 </FriendTextBox>
                 <FriendsInviteButton
                   onClick={() => {
+                    if (loading) return;
                     acceptFriendInvitation(invitation.uid);
                   }}
                 >
@@ -299,6 +304,7 @@ function Friends({ invitationList }: homeProps) {
         <FriendIDInput ref={invitationEmail} placeholder="email" />
         <FriendIDSubmit
           onClick={() => {
+            if (loading) return;
             sendFriendInvitation();
           }}
         >
