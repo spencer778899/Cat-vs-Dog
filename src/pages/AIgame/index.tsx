@@ -729,7 +729,7 @@ function AIGame() {
         {
           // prettier-ignore
           roomState === 'dogWin' || roomState === 'catWin' ? ReactDOM.createPortal(
-            <GameoverModal roomState={roomState} />,
+            <GameoverModal roomState={roomState} title="Game Over!" />,
             document?.getElementById('modal-root') as HTMLElement,
           ) : ''
         }

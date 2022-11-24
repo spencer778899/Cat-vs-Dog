@@ -12,7 +12,7 @@ const ExitModalText = styled.div`
   bottom: 0;
   left: 0;
   width: 360px;
-  height: 100px;
+  height: 130px;
   margin: auto;
   font-size: 28px;
   text-align: center;

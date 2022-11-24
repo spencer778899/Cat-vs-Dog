@@ -175,6 +175,11 @@ const firestore = {
     });
     return roomID.id;
   },
+  async getRoomState(id: string) {
+    const roomDoc = await getDoc(doc(db, 'games', `${id}`));
+    const Data = roomDoc.data() as { roomState: string };
+    return Data.roomState;
+  },
   async updateRoomState(roomID: string | undefined, state: string) {
     await updateDoc(doc(db, 'games', `${roomID}`), {
       roomState: `${state}`,

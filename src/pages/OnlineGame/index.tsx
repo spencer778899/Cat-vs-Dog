@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
 import { doc, onSnapshot } from 'firebase/firestore';
+import { toast } from 'react-toastify';
 import firestore, { db } from '../../utils/firestore';
 import Arrow from '../../img/arrow.png';
 import WaitOpponentModal from './waitOpponentModal';
@@ -367,6 +368,8 @@ const GameCatEnergyInner = styled.div`
 
 function OnlineGame() {
   const canvas = useRef<HTMLCanvasElement>(null);
+  const [displayExitWarningModal, setDisplayExitWarningModal] = useState(false);
+  const [isOpponentLeave, setIsOpponentLeave] = useState(false);
   // roomState
   const [identity, setIdentity] = useState<string>();
   const navigate = useNavigate();
@@ -412,6 +415,10 @@ function OnlineGame() {
   const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameCatHealRef = useRef<HTMLDivElement>(null);
 
+  const exitWarningModalHandler = () => {
+    setDisplayExitWarningModal(false);
+  };
+
   // If room isn't exist,create a new one
   useEffect(() => {
     async function createNewRoom() {
@@ -426,6 +433,48 @@ function OnlineGame() {
       setIdentity(urlParams.identity);
     }
   });
+
+  // If game is processing,reject enter request
+  useEffect(() => {
+    async function rejectEnter() {
+      if (!urlParams.roomID) return;
+      const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
+      if (LoginRoomState !== 'wait') {
+        toast.error('你無法在遊戲開始後加入!');
+        navigate('/');
+      }
+    }
+    rejectEnter();
+  }, []);
+  // double check unload request
+  useEffect(() => {
+    const beforeunloadHandler = (event: Event) => {
+      // eslint-disable-next-line no-param-reassign
+      event.returnValue = true;
+      event.preventDefault();
+    };
+    const unloadHandler = () => {
+      firestore.updateRoomState(
+        urlParams.roomID,
+        urlParams.identity === 'host' ? 'hostLeave' : 'guestLeave',
+      );
+    };
+    if (roomState === 'dogTurn' || roomState === 'catTurn') {
+      console.log(1111);
+      window.addEventListener('beforeunload', beforeunloadHandler);
+      window.addEventListener('unload', unloadHandler);
+    }
+    return () => {
+      window.addEventListener('beforeunload', beforeunloadHandler);
+      window.addEventListener('unload', unloadHandler);
+    };
+  }, [roomState]);
+  // subscribe two roomState,hostLeave and guestLeave
+  useEffect(() => {
+    if (roomState === 'hostLeave' || roomState === 'guestLeave') {
+      setIsOpponentLeave(true);
+    }
+  }, [roomState]);
   // subscribe room
   useEffect(() => {
     const roomStateRef = doc(db, 'games', `${roomID}`);
@@ -452,7 +501,7 @@ function OnlineGame() {
     async function setHostDocHandler(id: string) {
       await firestore.updateDocHost('111111', id);
     }
-    if (dogUid === undefined && identity === 'host' && roomID) {
+    if (dogUid === undefined && identity === 'host' && roomID && roomState === 'wait') {
       setHostDocHandler(roomID);
     }
   });
@@ -462,7 +511,7 @@ function OnlineGame() {
       await firestore.updateDocGuest('222222', id);
       await firestore.updateRoomState(id, 'dogTurn');
     }
-    if (catUid === undefined && identity === 'guest' && roomID) {
+    if (catUid === undefined && identity === 'guest' && roomID && roomState === 'wait') {
       setGuestDocHandler(roomID);
     }
   });
@@ -968,10 +1017,19 @@ function OnlineGame() {
         }
         {
           // prettier-ignore
-          roomState === 'dogWin' || roomState === 'catWin' ? ReactDOM.createPortal(
-            <GameoverModal roomState={roomState} />,
-            document?.getElementById('modal-root') as HTMLElement,
-          ) : ''
+          roomState === 'dogWin' || roomState === 'catWin' ?
+            ReactDOM.createPortal(
+              <GameoverModal roomState={roomState} title="Game Over!" />,
+              document?.getElementById('modal-root') as HTMLElement,
+            ) : ''
+        }
+        {
+          // prettier-ignore
+          isOpponentLeave && roomState ?
+            ReactDOM.createPortal(
+              <GameoverModal roomState={roomState === 'hostLeave' ? 'catWin' : 'dogWin'} title="對手已離開" />,
+              document?.getElementById('modal-root') as HTMLElement,
+            ) : ''
         }
         <GameCanvasSection>
           <GameControlPanel>
