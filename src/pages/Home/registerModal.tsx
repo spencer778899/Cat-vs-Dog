@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 import firestore, { authentication } from '../../utils/firestore';
 import nicknameImg from '../../img/nickname.png';
 import emailImg from '../../img/email.png';
@@ -115,28 +116,32 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
 
   const register = async () => {
     setLoading(true);
-    if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
-      alert('請輸入合格的email!');
+    if (!nickname.current?.value.trim()) {
+      toast.info('請輸入暱稱!');
+    } else if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
+      toast.info('請輸入合格的email!');
     } else if (!password.current?.value.trim() || password.current?.value.trim().length < 6) {
-      alert('請輸入至少六位數密碼!(不能輸入空白)');
-    } else if (!nickname.current?.value.trim()) {
-      alert('請輸入暱稱!');
+      toast.info('請輸入至少六位數密碼!(不能輸入空白)');
     } else {
-      const userCredential = await authentication.register(
-        email.current?.value,
-        password.current?.value,
-      );
-      if (userCredential?.user.uid === undefined) {
-        setLoading(false);
-        return;
+      try {
+        const userCredential = await authentication.register(
+          email.current?.value,
+          password.current?.value,
+        );
+        if (userCredential?.user.uid === undefined) return;
+        await firestore.addUser(
+          userCredential?.user.uid,
+          nickname.current.value,
+          email.current.value,
+        );
+        await firestore.setNewAccomplishment(userCredential?.user.uid);
+        toast.success('註冊成功!');
+        displayRegisterModalHandler(false);
+        displayLoginModalHandler(true);
+      } catch (e) {
+        console.log(e);
+        toast.error('註冊失敗!');
       }
-      await firestore.addUser(
-        userCredential?.user.uid,
-        nickname.current.value,
-        email.current.value,
-      );
-      await firestore.setNewAccomplishment(userCredential?.user.uid);
-      displayRegisterModalHandler(false);
     }
     setLoading(false);
   };
@@ -166,7 +171,7 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
         <RegisterModalPasswordBox>
           <RegisterModalNicknameImg />
           <RegisterModalPasswordText>暱稱:</RegisterModalPasswordText>
-          <RegisterModalPasswordInput ref={nickname} />
+          <RegisterModalPasswordInput ref={nickname} maxLength={7} placeholder="至多七個字" />
         </RegisterModalPasswordBox>
         <RegisterModalPasswordBox>
           <RegisterModalMailImg />

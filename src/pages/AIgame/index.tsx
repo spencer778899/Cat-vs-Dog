@@ -7,8 +7,10 @@ import { Link } from 'react-router-dom';
 import GameoverModal from '../../components/gameoverModal';
 import { useGlobalContext } from '../../context/authContext';
 import Arrow from '../../img/arrow.png';
+import windArrow from '../../img/windArrow.png';
 import firestore from '../../utils/firestore';
 import SelectLevelModel from './selectLevelModal';
+import ExitModal from '../../components/exitModal';
 import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
 import screenImg from '../../img/gamepage/game_screen.png';
 import powerUpImg from '../../img/gamepage/game_powerUp.png';
@@ -43,8 +45,11 @@ const GameBody = styled.div`
   width: 940px;
   height: 560px;
   margin: auto;
+  @media (max-width: 1125px) {
+    display: none;
+  }
 `;
-const GameBack = styled(Link)`
+const GameBack = styled.div`
   position: absolute;
   top: -30px;
   right: 5px;
@@ -86,6 +91,18 @@ const GameWindSpeedBox = styled.div`
   width: 157px;
   height: 50px;
 `;
+const GameWindDirectionArrow = styled.div<{ windSpeed: number }>`
+  display: ${(p) => (p.windSpeed ? 'relative' : 'none')};
+  position: absolute;
+  top: 8px;
+  right: ${(p) => (p.windSpeed > 0 ? '10px' : '115px')}; // 10、115
+  width: 30px;
+  height: 10px;
+  background-image: url(${windArrow});
+  background-size: cover;
+  transform: ${(p) => (p.windSpeed > 0 ? 'none' : 'rotate(180deg)')};
+  z-index: 1;
+`;
 const GameWindSpeedImg = styled.img`
   position: relative;
   width: 100%;
@@ -97,7 +114,7 @@ const GameWindSpeedBar = styled.div`
   right: 0;
   left: 0;
   width: 100px;
-  height: 12px;
+  height: 12.5px;
   margin: auto;
 `;
 const GameWindSpeed = styled.div<{ windSpeed: number }>`
@@ -369,6 +386,9 @@ const GameCatEnergyInner = styled.div`
 `;
 
 function AIGame() {
+  // modal state
+  const [displayExitModal, setDisplayExitModal] = useState(false);
+  // game state
   const { isLogin, user } = useGlobalContext();
   const canvas = useRef<HTMLCanvasElement>(null);
   const [AILevel, setAIlevel] = useState<number | typeof NaN>(NaN);
@@ -396,6 +416,9 @@ function AIGame() {
   const getAILevel = (level: number) => {
     setAIlevel(level);
     setRoomState('dogTurn');
+  };
+  const displayExitModalHandler = () => {
+    setDisplayExitModal(false);
   };
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
@@ -515,7 +538,7 @@ function AIGame() {
       }
       function healHandler() {
         setDogHaveHeal(false);
-        setDogHitPoints((prev) => prev + 20);
+        setDogHitPoints((prev) => (prev >= 80 ? 100 : prev + 20));
         removeAllListener();
         setRoomState('catTurn');
       }
@@ -690,7 +713,11 @@ function AIGame() {
   return (
     <GameBody>
       <GamePreloadBackgroundImg />
-      <GameBack to="/" />
+      <GameBack
+        onClick={() => {
+          setDisplayExitModal(true);
+        }}
+      />
       <GameScreen>
         {
           // prettier-ignore
@@ -702,13 +729,21 @@ function AIGame() {
         {
           // prettier-ignore
           roomState === 'dogWin' || roomState === 'catWin' ? ReactDOM.createPortal(
-            <GameoverModal roomState={roomState} />,
+            <GameoverModal roomState={roomState} title="Game Over!" />,
+            document?.getElementById('modal-root') as HTMLElement,
+          ) : ''
+        }
+        {
+          // prettier-ignore
+          displayExitModal ? ReactDOM.createPortal(
+            <ExitModal displayExitModalHandler={displayExitModalHandler} />,
             document?.getElementById('modal-root') as HTMLElement,
           ) : ''
         }
         <GameCanvasSection>
           <GameControlPanel>
             <GameWindSpeedBox>
+              <GameWindDirectionArrow windSpeed={windSpeedBar || 0} />
               <GameWindSpeedImg src={windBarImg} />
               <GameWindSpeedBar>
                 <GameWindSpeed windSpeed={windSpeedBar || 0} />

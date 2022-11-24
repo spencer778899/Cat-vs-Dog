@@ -6,9 +6,11 @@ import catWin1Img from '../../img/gamepage/game_catWin1.png';
 import catWin2Img from '../../img/gamepage/game_catWin2.png';
 import dogWin1Img from '../../img/gamepage/game_dogWin1.png';
 import dogWin2Img from '../../img/gamepage/game_dogWin2.png';
+import titleImg from '../../img/title.png';
 
 interface GameProps {
   roomState: string;
+  title: string;
 }
 
 const GameoverModalBody = styled.div`
@@ -35,6 +37,35 @@ const GameoverModalMain = styled.div`
   border-radius: 20px;
   background-color: #ffffff;
   z-index: 99;
+`;
+const GameoverModalTitle = styled.div`
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  width: 360px;
+  height: 84px;
+  margin: -50px auto auto auto;
+  background-image: url(${titleImg});
+  background-size: cover;
+  background-position: center;
+`;
+const GameoverModalTitleText = styled.div`
+  margin-top: 7px;
+  font-size: 26px;
+  line-height: 2;
+  color: #ffbf00;
+  text-shadow: 0 -1px 0 #fffa6d, #001b51 3px 0 0, #001b51 2.83487px 0.981584px 0,
+    #001b51 2.35766px 1.85511px 0, #001b51 1.62091px 2.52441px 0, #001b51 0.705713px 2.91581px 0,
+    #001b51 -0.287171px 2.98622px 0, #001b51 -1.24844px 2.72789px 0, #001b51 -2.07227px 2.16926px 0,
+    #001b51 -2.66798px 1.37182px 0, #001b51 -2.96998px 0.42336px 0, #001b51 -2.94502px -0.571704px 0,
+    #001b51 -2.59586px -1.50383px 0, #001b51 -1.96093px -2.27041px 0,
+    #001b51 -1.11013px -2.78704px 0, #001b51 -0.137119px -2.99686px 0,
+    #001b51 0.850987px -2.87677px 0, #001b51 1.74541px -2.43999px 0, #001b51 2.44769px -1.73459px 0,
+    #001b51 2.88051px -0.838247px 0;
 `;
 const GameoverModalDogAnimation = styled.div`
   width: 200px;
@@ -91,13 +122,16 @@ const GameoverModalText = styled.div`
 `;
 const GameoverModalButtonBox = styled.div``;
 
-function GameoverModal({ roomState }: GameProps) {
+function GameoverModal({ roomState, title }: GameProps) {
   const navigate = useNavigate();
 
   return (
     <div>
       <GameoverModalBody>
         <GameoverModalMain>
+          <GameoverModalTitle>
+            <GameoverModalTitleText>{title}</GameoverModalTitleText>
+          </GameoverModalTitle>
           {roomState === 'dogWin' ? <GameoverModalDogAnimation /> : ''}
           {roomState === 'catWin' ? <GameoverModalCatAnimation /> : ''}
           <GameoverModalText>{roomState === 'dogWin' ? 'Dog Win!' : 'Cat Win!'}</GameoverModalText>

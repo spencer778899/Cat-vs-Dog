@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 import { useGlobalContext } from '../../context/authContext';
 import emailImg from '../../img/email.png';
 import lockImg from '../../img/lock.png';
@@ -152,28 +153,38 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
   const email = useRef<HTMLInputElement>(null);
   const password = useRef<HTMLInputElement>(null);
 
-  async function updateHeadImg(newPhoto: File) {
-    setLoading(true);
-    if (newPhoto === undefined || user.uid === undefined || user.uid === undefined) return;
-    const photoURL = await firestorage.uploadPhotoURL(newPhoto, user.uid);
-    if (photoURL === undefined) return;
-    await firestore.updatePhotoURL(user.uid, photoURL);
-    setLoading(false);
-  }
   const LoginHandler = async () => {
     setLoading(true);
     if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
-      alert('請輸入正確的email!');
+      toast.warning('請輸入正確的email');
     } else if (!password.current?.value.trim() || password.current?.value.trim().length < 6) {
-      alert('請輸入至少六位數密碼!(不能輸入空白)');
+      toast.warning('請輸入至少六位數密碼!(不能輸入空白)');
     } else {
-      await authentication.signIn(email.current?.value, password.current?.value);
-      email.current.value = '';
-      password.current.value = '';
-      displayLoginModalHandler(false);
+      try {
+        await authentication.signIn(email.current?.value, password.current?.value);
+        toast.success('登入成功!');
+        email.current.value = '';
+        password.current.value = '';
+      } catch (e) {
+        toast.error('帳號或密碼錯誤!');
+      }
     }
     setLoading(false);
   };
+
+  async function updateHeadImg(newPhoto: File) {
+    setLoading(true);
+    if (newPhoto === undefined || user.uid === undefined || user.uid === undefined) return;
+    try {
+      const photoURL = await firestorage.uploadPhotoURL(newPhoto, user.uid);
+      if (photoURL === undefined) return;
+      await firestore.updatePhotoURL(user.uid, photoURL);
+      toast.success('上傳成功!');
+    } catch (e) {
+      toast.error('上傳失敗!');
+    }
+    setLoading(false);
+  }
 
   return (
     <div>
@@ -191,6 +202,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
             <LoginModalHeadBox>
               <LoginModalHeadInput
                 type="file"
+                accept=".jpg,.png.gif"
                 onChange={(e) => {
                   if (e.target.files === null || loading === true) return;
                   updateHeadImg(e.target.files[0]);
@@ -231,6 +243,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
               onClick={() => {
                 setLoading(true);
                 authentication.signOut();
+                displayLoginModalHandler(false);
                 setLoading(false);
               }}
             />
@@ -238,7 +251,6 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
         ) : (
           <LoginModalButtonBox>
             <BlueButton content="登入" loading={loading} onClick={LoginHandler} />
-
             <YellowButton
               content="註冊帳號"
               loading={false}

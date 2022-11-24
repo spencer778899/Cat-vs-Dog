@@ -10,23 +10,18 @@ import catMissImg from '../../img/gamepage/game_catMiss.png';
 const PreloadBackgroundImg = styled.div`
   display: none;
 `;
-const PreloadBackgroundImg1 = styled.img``;
-const PreloadBackgroundImg2 = styled.img``;
-const PreloadBackgroundImg3 = styled.img``;
-const PreloadBackgroundImg4 = styled.img``;
-const PreloadBackgroundImg5 = styled.img``;
-const PreloadBackgroundImg6 = styled.img``;
+const Img = styled.img``;
 
 function GamePreloadBackgroundImg() {
   return (
     <div>
       <PreloadBackgroundImg>
-        <PreloadBackgroundImg1 src={dogImg} />
-        <PreloadBackgroundImg2 src={dogInjuriedImg} />
-        <PreloadBackgroundImg3 src={dogMissImg} />
-        <PreloadBackgroundImg4 src={catInjuriedImg} />
-        <PreloadBackgroundImg5 src={catAttackImg} />
-        <PreloadBackgroundImg6 src={catMissImg} />
+        <Img src={dogImg} />
+        <Img src={dogInjuriedImg} />
+        <Img src={dogMissImg} />
+        <Img src={catInjuriedImg} />
+        <Img src={catAttackImg} />
+        <Img src={catMissImg} />
       </PreloadBackgroundImg>
     </div>
   );

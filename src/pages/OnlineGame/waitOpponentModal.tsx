@@ -1,9 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import YellowButton from '../../components/buttons/yellowButton';
 import Modal from '../../components/modal';
 import backImg from '../../img/back.png';
+import firestore from '../../utils/firestore';
 
 const WaitOpponentModalText = styled.div`
   width: 288px;
@@ -55,9 +56,18 @@ function WaitOpponentModal() {
   const URLcopyHandler = () => {
     navigator.clipboard.writeText(URLInputRef?.current?.value || '');
   };
+  async function clearInvitation() {
+    if (!urlParams.friendEmail) return;
+    firestore.cleanInviting(urlParams.friendEmail);
+  }
   return (
     <Modal title="邀請你的好友!">
-      <WaitOpponentModalBack to="/" />
+      <WaitOpponentModalBack
+        onClick={() => {
+          clearInvitation();
+        }}
+        to="/"
+      />
       <WaitOpponentModalText>等待你的對手．．．</WaitOpponentModalText>
       {urlParams.identity === 'host' ? (
         <>

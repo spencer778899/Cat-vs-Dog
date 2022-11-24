@@ -10,6 +10,8 @@ import {
   increment,
   deleteDoc,
   getDocs,
+  query,
+  where,
 } from 'firebase/firestore';
 import {
   getAuth,
@@ -17,6 +19,7 @@ import {
   signOut,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
+import { toast } from 'react-toastify';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_firebaseConfig_apiKey,
@@ -35,43 +38,23 @@ export const storage = getStorage(app);
 
 export const firestorage = {
   async uploadPhotoURL(photo: File, id: string) {
-    try {
-      const photoRef = ref(storage, `photos/${id}`);
-      await uploadBytes(photoRef, photo);
-      const photoURL = await getDownloadURL(photoRef);
-      return photoURL;
-    } catch (e) {
-      console.log(e);
-      alert('上傳失敗~');
-    }
+    const photoRef = ref(storage, `photos/${id}`);
+    await uploadBytes(photoRef, photo);
+    const photoURL = await getDownloadURL(photoRef);
+    return photoURL;
   },
 };
 
 export const authentication = {
   async register(email: string, password: string) {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      return userCredential;
-    } catch (e) {
-      console.log(e);
-      alert('註冊失敗!');
-    }
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    return userCredential;
   },
   async signIn(mail: string, password: string) {
-    try {
-      await signInWithEmailAndPassword(auth, mail, password);
-      alert('登入成功!');
-    } catch (e) {
-      console.log(e);
-    }
+    await signInWithEmailAndPassword(auth, mail, password);
   },
   async signOut() {
-    try {
-      await signOut(auth);
-      alert('帳號已經登出~');
-    } catch (e) {
-      console.log(e);
-    }
+    await signOut(auth);
   },
 };
 
@@ -130,22 +113,16 @@ const firestore = {
   },
   // user collection
   async addUser(id: string | undefined, name: string, mail: string) {
-    try {
-      await setDoc(doc(db, 'users', `${id}`), {
-        uid: id,
-        nickname: name,
-        email: mail,
-        photoURL:
-          'https://firebasestorage.googleapis.com/v0/b/cat-vs-dog-738e6.appspot.com/o/photos%2F9v2is0Mb9HS0r8kRiVRqPZKwawI2?alt=media&token=0f033cb8-b8d5-4c9e-94e5-3a57bf7fc72a',
-        friends: [],
-        changePhotoRight: false,
-        inviting: {},
-      });
-      alert('註冊成功!');
-    } catch (e) {
-      console.log(e);
-      alert('註冊失敗!');
-    }
+    await setDoc(doc(db, 'users', `${id}`), {
+      uid: id,
+      nickname: name,
+      email: mail,
+      photoURL:
+        'https://firebasestorage.googleapis.com/v0/b/cat-vs-dog-738e6.appspot.com/o/photos%2F9v2is0Mb9HS0r8kRiVRqPZKwawI2?alt=media&token=0f033cb8-b8d5-4c9e-94e5-3a57bf7fc72a',
+      friends: [],
+      changePhotoRight: false,
+      inviting: {},
+    });
   },
   async getUser(id: string) {
     try {
@@ -156,21 +133,16 @@ const firestore = {
     }
   },
   async updatePhotoURL(id: string, URL: string) {
-    try {
-      await updateDoc(doc(db, 'users', `${id}`), {
-        photoURL: URL,
-      });
-      alert('頭貼上傳成功!');
-    } catch (e) {
-      console.log(e);
-    }
+    await updateDoc(doc(db, 'users', `${id}`), {
+      photoURL: URL,
+    });
   },
   async updateFriends(id: string, newList: string[]) {
     await updateDoc(doc(db, 'users', `${id}`), {
       friends: newList,
     });
   },
-  async updatechangePhotoRight(id: string) {
+  async updateChangePhotoRight(id: string) {
     await updateDoc(doc(db, 'users', `${id}`), {
       changePhotoRight: true,
     });
@@ -183,6 +155,18 @@ const firestore = {
       inviting: invitation,
     });
   },
+  async cleanInviting(userEmail: string) {
+    let userUid;
+    const userQuery = query(collection(db, 'users'), where('email', '==', `${userEmail}`));
+    const userDoc = await getDocs(userQuery);
+    userDoc.forEach((docs) => {
+      const userData = docs.data();
+      userUid = userData.uid;
+    });
+    await updateDoc(doc(db, 'users', `${userUid}`), {
+      inviting: {},
+    });
+  },
   // game collection
   async setDocRoomID() {
     const roomID = doc(collection(db, 'games'));
@@ -190,6 +174,11 @@ const firestore = {
       roomState: 'wait',
     });
     return roomID.id;
+  },
+  async getRoomState(id: string) {
+    const roomDoc = await getDoc(doc(db, 'games', `${id}`));
+    const Data = roomDoc.data() as { roomState: string };
+    return Data.roomState;
   },
   async updateRoomState(roomID: string | undefined, state: string) {
     await updateDoc(doc(db, 'games', `${roomID}`), {

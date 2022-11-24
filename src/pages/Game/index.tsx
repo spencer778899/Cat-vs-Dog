@@ -4,9 +4,11 @@ import { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
 import { Link } from 'react-router-dom';
+import ExitModal from '../../components/exitModal';
 import GameoverModal from '../../components/gameoverModal';
 import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
 import Arrow from '../../img/arrow.png';
+import windArrow from '../../img/windArrow.png';
 import screenImg from '../../img/gamepage/game_screen.png';
 import powerUpImg from '../../img/gamepage/game_powerUp.png';
 import X2Img from '../../img/gamepage/game_X2.png';
@@ -40,8 +42,12 @@ const GameBody = styled.div`
   width: 940px;
   height: 560px;
   margin: auto;
+
+  @media (max-width: 1125px) {
+    display: none;
+  }
 `;
-const GameBack = styled(Link)`
+const GameBack = styled.div`
   position: absolute;
   top: -30px;
   right: 5px;
@@ -83,6 +89,18 @@ const GameWindSpeedBox = styled.div`
   width: 157px;
   height: 50px;
 `;
+const GameWindDirectionArrow = styled.div<{ windSpeed: number }>`
+  display: ${(p) => (p.windSpeed ? 'relative' : 'none')};
+  position: absolute;
+  top: 8px;
+  right: ${(p) => (p.windSpeed > 0 ? '10px' : '115px')}; // 10、115
+  width: 30px;
+  height: 10px;
+  background-image: url(${windArrow});
+  background-size: cover;
+  transform: ${(p) => (p.windSpeed > 0 ? 'none' : 'rotate(180deg)')};
+  z-index: 1;
+`;
 const GameWindSpeedImg = styled.img`
   position: relative;
   width: 100%;
@@ -94,7 +112,7 @@ const GameWindSpeedBar = styled.div`
   right: 0;
   left: 0;
   width: 100px;
-  height: 12px;
+  height: 12.5px;
   margin: auto;
 `;
 const GameWindSpeed = styled.div<{ windSpeed: number }>`
@@ -360,6 +378,9 @@ const GameCatEnergyInner = styled.div`
 `;
 
 function Game() {
+  // modal state
+  const [displayExitModal, setDisplayExitModal] = useState(false);
+  // game state
   const canvas = useRef<HTMLCanvasElement>(null);
   const [roomState, setRoomState] = useState('dogTurn');
   const [windSpeedBar, setWindSpeedBar] = useState<number | undefined>(undefined); // -2 ~ 2
@@ -390,6 +411,10 @@ function Game() {
   const gameCatPowerUpRef = useRef<HTMLDivElement>(null);
   const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameCatHealRef = useRef<HTMLDivElement>(null);
+
+  const displayExitModalHandler = () => {
+    setDisplayExitModal(false);
+  };
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
 
@@ -481,7 +506,6 @@ function Game() {
 
         // Is dog hit the cat?
         if (dogX >= 80 - dogRadius && dogX <= 130 + dogRadius && dogY >= 490 - dogRadius) {
-          console.log('hit!');
           stopAnimation();
           setCatHitPoints((prev) => prev - hitPointsAvailable);
           ctx?.clearRect(0, 0, 940, 560);
@@ -495,7 +519,6 @@ function Game() {
           dogY > 580 ||
           dogY < 0
         ) {
-          console.log('miss!');
           stopAnimation();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
           ctx?.clearRect(0, 0, 940, 560);
@@ -507,7 +530,7 @@ function Game() {
       }
       function healHandler() {
         setDogHaveHeal(false);
-        setDogHitPoints((prev) => prev + 20);
+        setDogHitPoints((prev) => (prev >= 80 ? 100 : prev + 20));
         removeAllListener();
         setRoomState('catTurn');
       }
@@ -528,7 +551,6 @@ function Game() {
         if (isMouseDown) {
           const endTime = Number(new Date());
           const quantityOfPower = getQuantityOfPower(endTime);
-          console.log(quantityOfPower);
           clearInterval(dogEnergyInnerHandler);
           timeHandler = setInterval(() => {
             time += 0.06;
@@ -649,7 +671,6 @@ function Game() {
 
         // Is dog cat the cat?
         if (catX >= 820 - catRadius && catX <= 870 + catRadius && catY >= 490 - catRadius) {
-          console.log('hit!');
           stopAnimation();
           setDogHitPoints((prev) => prev - hitPointsAvailable);
           ctx?.clearRect(0, 0, 940, 560);
@@ -663,7 +684,6 @@ function Game() {
           catY > 580 ||
           catY < 0
         ) {
-          console.log('miss!');
           stopAnimation();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
           ctx?.clearRect(0, 0, 940, 560);
@@ -675,7 +695,7 @@ function Game() {
       }
       function healHandler() {
         setCatHaveHeal(false);
-        setCatHitPoints((prev) => prev + 20);
+        setCatHitPoints((prev) => (prev >= 80 ? 100 : prev + 20));
         removeAllListener();
         setRoomState('dogTurn');
       }
@@ -696,7 +716,6 @@ function Game() {
         if (isMouseDown) {
           const endTime = Number(new Date());
           const quantityOfPower = getQuantityOfPower(endTime);
-          console.log(quantityOfPower);
           clearInterval(CatEnergyInnerHandler);
           timeHandler = setInterval(() => {
             time += 0.06;
@@ -748,18 +767,30 @@ function Game() {
   return (
     <GameBody>
       <GamePreloadBackgroundImg />
-      <GameBack to="/" />
+      <GameBack
+        onClick={() => {
+          setDisplayExitModal(true);
+        }}
+      />
       <GameScreen>
         {
           // prettier-ignore
           roomState === 'dogWin' || roomState === 'catWin' ? ReactDOM.createPortal(
-            <GameoverModal roomState={roomState} />,
+            <GameoverModal roomState={roomState} title="Game Over!" />,
+            document?.getElementById('modal-root') as HTMLElement,
+          ) : ''
+        }
+        {
+          // prettier-ignore
+          displayExitModal ? ReactDOM.createPortal(
+            <ExitModal displayExitModalHandler={displayExitModalHandler} />,
             document?.getElementById('modal-root') as HTMLElement,
           ) : ''
         }
         <GameCanvasSection>
           <GameControlPanel>
             <GameWindSpeedBox>
+              <GameWindDirectionArrow windSpeed={windSpeedBar || 0} />
               <GameWindSpeedImg src={windBarImg} />
               <GameWindSpeedBar>
                 <GameWindSpeed windSpeed={windSpeedBar || 0} />

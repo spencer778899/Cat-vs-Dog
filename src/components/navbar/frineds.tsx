@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
@@ -10,8 +11,8 @@ interface homeProps {
 
 const FriendsMain = styled.div`
   position: absolute;
-  top: 200px;
-  left: 30px;
+  top: 76px;
+  left: 88px;
   display: flex;
   flex-direction: column;
   width: 300px;
@@ -72,16 +73,21 @@ const FriendInviteImg = styled.div<{ img: string }>`
 `;
 const FriendTextBox = styled.div`
   width: 135px;
+  height: 58px;
   margin-right: 15px;
 `;
 const FriendName = styled.div`
+  height: 36px;
   font-size: 24px;
   color: #797979;
+  overflow: hidden;
 `;
 const FriendEmail = styled.div`
+  height: 17px;
   margin-top: 5px;
   font-size: 12px;
   color: #797979;
+  overflow: hidden;
 `;
 const FriendsBattleButton = styled.div`
   width: 60px;
@@ -94,6 +100,9 @@ const FriendsBattleButton = styled.div`
   cursor: pointer;
 
   &:hover {
+    background-color: #d6d6d6;
+  }
+  &:active {
     background-color: #acacac;
     color: #000;
   }
@@ -110,6 +119,9 @@ const FriendsInviteButton = styled.button`
   cursor: pointer;
 
   &:hover {
+    background-color: #d6d6d6;
+  }
+  &:active {
     background-color: #acacac;
     color: #000;
   }
@@ -144,6 +156,9 @@ const FriendIDSubmit = styled.button`
   cursor: pointer;
 
   &:hover {
+    background-color: #d6d6d6;
+  }
+  &:active {
     background-color: #acacac;
     color: #000;
   }
@@ -153,6 +168,7 @@ function Friends({ invitationList }: homeProps) {
   const navigate = useNavigate();
   const { user } = useGlobalContext();
   const [showColumn, setShowColumn] = useState('friends');
+  const [loading, setLoading] = useState(false);
   const [friends, setFriends] = useState<
     {
       uid: string;
@@ -172,7 +188,6 @@ function Friends({ invitationList }: homeProps) {
           email: string;
           photoURL: string;
         };
-        console.log(res);
         return {
           uid: res?.uid,
           nickname: res?.nickname,
@@ -187,6 +202,7 @@ function Friends({ invitationList }: homeProps) {
     getFriendsData();
   }, [user.friends]);
   async function sendFriendInvitation() {
+    setLoading(true);
     if (invitationEmail?.current?.value.trim() && user.uid && user.nickname && user.photoURL) {
       await firestore.setNewInvitation(
         invitationEmail?.current?.value,
@@ -194,27 +210,31 @@ function Friends({ invitationList }: homeProps) {
         user.nickname,
         user.photoURL,
       );
-      alert('已送出邀請!');
+      toast.success(`對 ${invitationEmail?.current?.value} 的好友邀請已送出!`);
       invitationEmail.current.value = '';
     }
+    setLoading(false);
   }
 
   async function acceptFriendInvitation(id: string) {
+    setLoading(true);
     if (user?.friends?.some((uid) => uid === id) && user.email) {
-      alert('你們已經是好友了!');
+      toast.info('你們已經是好友了!');
       await firestore.deleteInvitation(user.email, id);
     } else if (user.uid && user.friends && user.email) {
       await firestore.updateFriends(user?.uid, [...user.friends, id]);
       await firestore.deleteInvitation(user.email, id);
-      alert('你們成為好友了!');
+      toast.success('你們成為好友了!');
       const anotherUser = (await firestore.getUser(id)) as { friends: [string] };
       const anotherFriends: [string] = anotherUser.friends;
       anotherFriends.push(user.uid);
       await firestore.updateFriends(id, anotherFriends);
     }
+    setLoading(false);
   }
 
-  async function sendGameInvitation(id: string) {
+  const sendGameInvitation = async (id: string, friendEmail: string, friendNickname: string) => {
+    setLoading(true);
     if (user.nickname === undefined || user.photoURL === undefined) return;
     const newRoomID = await firestore.setDocRoomID();
     await firestore.updateInviting(id, {
@@ -222,9 +242,11 @@ function Friends({ invitationList }: homeProps) {
       URL: `/onlinegame/${newRoomID}/guest`,
       photoURL: user?.photoURL,
     });
-    navigate(`/onlinegame/${newRoomID}/host`);
-    alert('邀請已送出!');
-  }
+    navigate(`/onlinegame/${newRoomID}/host/${friendEmail}`);
+    toast.success(`對 ${friendNickname} 的PK邀請已送出!`);
+    setLoading(false);
+  };
+
   return (
     <FriendsMain>
       <FriendsButtonBox>
@@ -242,7 +264,7 @@ function Friends({ invitationList }: homeProps) {
             setShowColumn('invitation');
           }}
         >
-          邀請
+          好友邀請
         </FriendsInvite>
       </FriendsButtonBox>
       {showColumn === 'friends' ? (
@@ -257,7 +279,8 @@ function Friends({ invitationList }: homeProps) {
                 </FriendTextBox>
                 <FriendsBattleButton
                   onClick={() => {
-                    sendGameInvitation(friend.uid);
+                    if (loading) return;
+                    sendGameInvitation(friend.uid, friend.email, friend.nickname);
                   }}
                 >
                   PK
@@ -276,6 +299,7 @@ function Friends({ invitationList }: homeProps) {
                 </FriendTextBox>
                 <FriendsInviteButton
                   onClick={() => {
+                    if (loading) return;
                     acceptFriendInvitation(invitation.uid);
                   }}
                 >
@@ -289,6 +313,7 @@ function Friends({ invitationList }: homeProps) {
         <FriendIDInput ref={invitationEmail} placeholder="email" />
         <FriendIDSubmit
           onClick={() => {
+            if (loading) return;
             sendFriendInvitation();
           }}
         >

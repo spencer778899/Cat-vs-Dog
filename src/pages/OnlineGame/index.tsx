@@ -4,9 +4,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
 import { doc, onSnapshot } from 'firebase/firestore';
+import { toast } from 'react-toastify';
 import firestore, { db } from '../../utils/firestore';
 import Arrow from '../../img/arrow.png';
 import WaitOpponentModal from './waitOpponentModal';
+import windArrow from '../../img/windArrow.png';
 import GameoverModal from '../../components/gameoverModal';
 import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
 import screenImg from '../../img/gamepage/game_screen.png';
@@ -23,7 +25,6 @@ import catImg from '../../img/gamepage/game_cat.png';
 import catAttackImg from '../../img/gamepage/game_catAttack.png';
 import catInjuriedImg from '../../img/gamepage/game_catInjuried.png';
 import catMissImg from '../../img/gamepage/game_catMiss.png';
-import closeImg from '../../img/close.png';
 
 const swing = keyframes`
   0%{background-position:center}
@@ -42,6 +43,10 @@ const GameBody = styled.div`
   width: 940px;
   height: 560px;
   margin: auto;
+
+  @media (max-width: 1125px) {
+    display: none;
+  }
 `;
 const GameScreen = styled.div`
   position: absolute;
@@ -73,6 +78,18 @@ const GameWindSpeedBox = styled.div`
   width: 157px;
   height: 50px;
 `;
+const GameWindDirectionArrow = styled.div<{ windSpeed: number | string }>`
+  display: ${(p) => (p.windSpeed !== '0' ? 'block' : 'none')};
+  position: absolute;
+  top: 8px;
+  right: ${(p) => (p.windSpeed > 0 ? '10px' : '115px')}; // 10、115
+  width: 30px;
+  height: 10px;
+  background-image: url(${windArrow});
+  background-size: cover;
+  transform: ${(p) => (p.windSpeed > 0 ? 'none' : 'rotate(180deg)')};
+  z-index: 1;
+`;
 const GameWindSpeedImg = styled.img`
   position: relative;
   width: 100%;
@@ -84,7 +101,7 @@ const GameWindSpeedBar = styled.div`
   right: 0;
   left: 0;
   width: 100px;
-  height: 12px;
+  height: 12.5px;
   margin: auto;
 `;
 const GameWindSpeed = styled.div<{ windSpeed: number }>`
@@ -351,6 +368,8 @@ const GameCatEnergyInner = styled.div`
 
 function OnlineGame() {
   const canvas = useRef<HTMLCanvasElement>(null);
+  const [displayExitWarningModal, setDisplayExitWarningModal] = useState(false);
+  const [isOpponentLeave, setIsOpponentLeave] = useState(false);
   // roomState
   const [identity, setIdentity] = useState<string>();
   const navigate = useNavigate();
@@ -396,6 +415,10 @@ function OnlineGame() {
   const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameCatHealRef = useRef<HTMLDivElement>(null);
 
+  const exitWarningModalHandler = () => {
+    setDisplayExitWarningModal(false);
+  };
+
   // If room isn't exist,create a new one
   useEffect(() => {
     async function createNewRoom() {
@@ -410,6 +433,48 @@ function OnlineGame() {
       setIdentity(urlParams.identity);
     }
   });
+
+  // If game is processing,reject enter request
+  useEffect(() => {
+    async function rejectEnter() {
+      if (!urlParams.roomID) return;
+      const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
+      if (LoginRoomState !== 'wait') {
+        toast.error('你無法在遊戲開始後加入!');
+        navigate('/');
+      }
+    }
+    rejectEnter();
+  }, []);
+  // double check unload request
+  useEffect(() => {
+    const beforeunloadHandler = (event: Event) => {
+      // eslint-disable-next-line no-param-reassign
+      event.returnValue = true;
+      event.preventDefault();
+    };
+    const unloadHandler = () => {
+      firestore.updateRoomState(
+        urlParams.roomID,
+        urlParams.identity === 'host' ? 'hostLeave' : 'guestLeave',
+      );
+    };
+    if (roomState === 'dogTurn' || roomState === 'catTurn') {
+      console.log(1111);
+      window.addEventListener('beforeunload', beforeunloadHandler);
+      window.addEventListener('unload', unloadHandler);
+    }
+    return () => {
+      window.addEventListener('beforeunload', beforeunloadHandler);
+      window.addEventListener('unload', unloadHandler);
+    };
+  }, [roomState]);
+  // subscribe two roomState,hostLeave and guestLeave
+  useEffect(() => {
+    if (roomState === 'hostLeave' || roomState === 'guestLeave') {
+      setIsOpponentLeave(true);
+    }
+  }, [roomState]);
   // subscribe room
   useEffect(() => {
     const roomStateRef = doc(db, 'games', `${roomID}`);
@@ -436,7 +501,7 @@ function OnlineGame() {
     async function setHostDocHandler(id: string) {
       await firestore.updateDocHost('111111', id);
     }
-    if (dogUid === undefined && identity === 'host' && roomID) {
+    if (dogUid === undefined && identity === 'host' && roomID && roomState === 'wait') {
       setHostDocHandler(roomID);
     }
   });
@@ -446,7 +511,7 @@ function OnlineGame() {
       await firestore.updateDocGuest('222222', id);
       await firestore.updateRoomState(id, 'dogTurn');
     }
-    if (catUid === undefined && identity === 'guest' && roomID) {
+    if (catUid === undefined && identity === 'guest' && roomID && roomState === 'wait') {
       setGuestDocHandler(roomID);
     }
   });
@@ -514,8 +579,10 @@ function OnlineGame() {
         return timeLong > 2000 ? 10 : 10 * (timeLong / 2000);
       }
       function healHandler() {
+        if (!dogHitPoints) return;
+        const amountOfIncrease: number = dogHitPoints >= 80 ? 100 - dogHitPoints : 20;
         firestore.updateHostHaveHeal(roomID);
-        firestore.updateHostHitPoints(roomID, 20);
+        firestore.updateHostHitPoints(roomID, amountOfIncrease);
         firestore.updateRoomState(roomID, 'catTurn');
         removeAllListener();
       }
@@ -533,7 +600,6 @@ function OnlineGame() {
         if (isMouseDown) {
           const endTime = Number(new Date());
           const quantityOfPower = getQuantityOfPower(endTime);
-          console.log(quantityOfPower);
           firestore.updateHostQuantityOfPower(roomID, roundCount.current, quantityOfPower);
           removeAllListener();
         }
@@ -614,7 +680,6 @@ function OnlineGame() {
         if (isMouseDown) {
           const endTime = Number(new Date());
           const quantityOfPower = getQuantityOfPower(endTime);
-          console.log(quantityOfPower);
           firestore.updateGuestQuantityOfPower(roomID, roundCount.current, quantityOfPower);
           removeAllListener();
         }
@@ -702,7 +767,6 @@ function OnlineGame() {
         dogY -= 10 + quantityOfPower - time ** 2;
         // Is dog hit the cat?
         if (dogX >= 80 - radius && dogX <= 130 + radius && dogY >= 490 - radius) {
-          console.log('hit!');
           stopAnimation();
           firestore.updateGuestHitPoints(roomID, -1 * hitPointsAvailable);
           firestore.updateHostGetPoints(roomID, roundCount.current, hitPointsAvailable);
@@ -717,7 +781,6 @@ function OnlineGame() {
           dogY > 580 ||
           dogY < 0
         ) {
-          console.log('miss!');
           stopAnimation();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
           firestore.updateRoomState(roomID, 'catTurn');
@@ -743,14 +806,12 @@ function OnlineGame() {
       }
       async function startAnimationHandler() {
         ctx?.clearRect(0, 0, 940, 560);
-        console.log(quantityOfPower, wind, radius);
         drawDog(radius);
         // up data dog coordinate
         dogX -= 10 + quantityOfPower - wind * time;
         dogY -= 10 + quantityOfPower - time ** 2;
         // Is dog hit the cat?
         if (dogX >= 80 - radius && dogX <= 130 + radius && dogY >= 490 - radius) {
-          console.log('hit!');
           stopAnimation();
           ctx?.clearRect(0, 0, 940, 560);
           gameCatRef?.current?.setAttribute('style', `background-image:url(${catInjuriedImg})`);
@@ -761,7 +822,6 @@ function OnlineGame() {
           dogY > 580 ||
           dogY < 0
         ) {
-          console.log('miss!');
           stopAnimation();
           ctx?.clearRect(0, 0, 940, 560);
           gameCatRef?.current?.setAttribute('style', `background-image:url(${catMissImg})`);
@@ -848,7 +908,6 @@ function OnlineGame() {
         catX += 10 + quantityOfPower + wind * time;
         catY -= 10 + quantityOfPower - time ** 2;
         if (catX >= 820 - radius && catX <= 870 + radius && catY >= 490 - radius) {
-          console.log('hit!');
           stopAnimation();
           firestore.updateHostHitPoints(roomID, -1 * hitPointsAvailable);
           firestore.updateGuestGetPoints(roomID, roundCount.current, hitPointsAvailable);
@@ -863,7 +922,6 @@ function OnlineGame() {
           catY > 580 ||
           catY < 0
         ) {
-          console.log('miss!');
           stopAnimation();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
           firestore.updateRoomState(roomID, 'dogTurn');
@@ -893,7 +951,6 @@ function OnlineGame() {
         catX += 10 + quantityOfPower + wind * time;
         catY -= 10 + quantityOfPower - time ** 2;
         if (catX >= 820 - radius && catX <= 870 + radius && catY >= 490 - radius) {
-          console.log('hit!');
           stopAnimation();
           ctx?.clearRect(0, 0, 940, 560);
           gameDogRef?.current?.setAttribute('style', `background-image:url(${dogInjuriedImg})`);
@@ -904,7 +961,6 @@ function OnlineGame() {
           catY > 580 ||
           catY < 0
         ) {
-          console.log('miss!');
           stopAnimation();
           ctx?.clearRect(0, 0, 940, 560);
           gameDogRef?.current?.setAttribute('style', `background-image:url(${dogMissImg})`);
@@ -961,14 +1017,24 @@ function OnlineGame() {
         }
         {
           // prettier-ignore
-          roomState === 'dogWin' || roomState === 'catWin' ? ReactDOM.createPortal(
-            <GameoverModal roomState={roomState} />,
-            document?.getElementById('modal-root') as HTMLElement,
-          ) : ''
+          roomState === 'dogWin' || roomState === 'catWin' ?
+            ReactDOM.createPortal(
+              <GameoverModal roomState={roomState} title="Game Over!" />,
+              document?.getElementById('modal-root') as HTMLElement,
+            ) : ''
+        }
+        {
+          // prettier-ignore
+          isOpponentLeave && roomState ?
+            ReactDOM.createPortal(
+              <GameoverModal roomState={roomState === 'hostLeave' ? 'catWin' : 'dogWin'} title="對手已離開" />,
+              document?.getElementById('modal-root') as HTMLElement,
+            ) : ''
         }
         <GameCanvasSection>
           <GameControlPanel>
             <GameWindSpeedBox>
+              <GameWindDirectionArrow windSpeed={windSpeed || 0} />
               <GameWindSpeedImg src={windBarImg} />
               <GameWindSpeedBar>
                 <GameWindSpeed windSpeed={windSpeed || 0} />

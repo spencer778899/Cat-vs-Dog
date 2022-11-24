@@ -7,7 +7,7 @@ import RegisterModal from './registerModal';
 import AccomplishmentModal from './accomplishmentModal';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
-import titleBarImg from '../../img/titleBar.png';
+import titleBarImg from '../../img/board.png';
 import dogHeadImg from '../../img/dogHead.png';
 import catHeadImg from '../../img/catHead.png';
 import YellowButton from '../../components/buttons/yellowButton';
@@ -36,6 +36,10 @@ const HomeMain = styled.div`
   background-color: #ffffff;
   box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
   z-index: -1;
+
+  @media (max-width: 1125px) {
+    display: none;
+  }
 `;
 const HomeLogin = styled.div`
   display: flex;
@@ -220,7 +224,7 @@ function Home() {
         await firestore.updateGoal1ProgressRate(user.uid, 1);
       } else if (user.friends?.length === 2) {
         await firestore.achieveGoal1(user?.uid);
-        await firestore.updatechangePhotoRight(user?.uid);
+        await firestore.updateChangePhotoRight(user?.uid);
       }
     }
     if (user?.friends === undefined) return;
@@ -268,13 +272,17 @@ function Home() {
           ''
       }
       <HomeMain>
-        <HomeLogin
-          onClick={() => {
-            setDisplayLoginModal(true);
-          }}
-        >
-          {isLogin ? '登出' : '登入'}
-        </HomeLogin>
+        {isLogin ? (
+          ''
+        ) : (
+          <HomeLogin
+            onClick={() => {
+              setDisplayLoginModal(true);
+            }}
+          >
+            登入
+          </HomeLogin>
+        )}
         <HomeLogoBox>
           <HomeLogoCatImg />
           <HomeLogo>貓狗大戰</HomeLogo>

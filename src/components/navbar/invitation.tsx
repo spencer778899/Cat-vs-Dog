@@ -30,7 +30,7 @@ const InvitationImg = styled.div<{ img: string }>`
   background-size: cover;
 `;
 const InvitationName = styled.div`
-  margin-right: 10px;
+  margin-right: 15px;
 `;
 const InvitationAgree = styled.div`
   display: flex;
