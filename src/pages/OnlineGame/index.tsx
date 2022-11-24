@@ -25,6 +25,7 @@ import catImg from '../../img/gamepage/game_cat.png';
 import catAttackImg from '../../img/gamepage/game_catAttack.png';
 import catInjuriedImg from '../../img/gamepage/game_catInjuried.png';
 import catMissImg from '../../img/gamepage/game_catMiss.png';
+import { useGlobalContext } from '../../context/authContext';
 
 const swing = keyframes`
   0%{background-position:center}
@@ -118,7 +119,7 @@ const GameHitPointsImg = styled.img`
   top: 0;
   width: 100%;
   height: 60px;
-  z-index: 10;
+  z-index: 2;
 `;
 const GameDogHitPointsBar = styled.div`
   position: absolute;
@@ -136,7 +137,7 @@ const GameDogHitPointsInner = styled.div<{ width: number | undefined }>`
   width: ${(p) => `${p.width}%`};
   height: 100%;
   background-color: red;
-  z-index: 9;
+  z-index: 1;
   transition: linear 0.5s;
 `;
 const GameCatHitPointsBar = styled.div`
@@ -156,7 +157,7 @@ const GameCatHitPointsInner = styled.div<{ width: number | undefined }>`
   height: 100%;
   background-color: red;
   transition: linear 0.5s;
-  z-index: 9;
+  z-index: 1;
 `;
 const GameDogSkillBox = styled.div`
   position: absolute;
@@ -368,6 +369,7 @@ const GameCatEnergyInner = styled.div`
 
 function OnlineGame() {
   const canvas = useRef<HTMLCanvasElement>(null);
+  const { user, isLogin } = useGlobalContext();
   const [displayExitWarningModal, setDisplayExitWarningModal] = useState(false);
   const [isOpponentLeave, setIsOpponentLeave] = useState(false);
   // roomState
@@ -378,9 +380,12 @@ function OnlineGame() {
   const [roomState, setRoomState] = useState<string>();
   const [windSpeed, setWindSpeed] = useState<number | undefined>(undefined);
   const [isDisplayArrow, setIsDisplayArrow] = useState(true);
-  // dog useState
+  // dog(host) useState
+  const [hostUid, setHostUid] = useState();
+  const [hostNickname, setHostNickname] = useState();
+  const [hostEmail, setHostEmail] = useState();
+  const [hostPhotoURL, setHostPhotoURL] = useState();
   const [dogTurnTimeSpent, setDogTurnTimeSpent] = useState<number | undefined>(undefined);
-  const [dogUid, setDogUid] = useState();
   const [dogHitPoints, setDogHitPoints] = useState();
   const [dogHavePowerUp, setDogHavePowerUp] = useState();
   const [dogHaveDoubleHit, setDogHaveDoubleHit] = useState();
@@ -388,9 +393,12 @@ function OnlineGame() {
   const [dogQuantityOfPower, setDogQuantityOfPower] = useState<number>();
   const [dogRadius, setDogRadius] = useState<number>();
   const [dogHitPointsAvailable, setDogHitPointsAvailable] = useState<number>();
-  // cat useState
+  // cat(guest) useState
+  const [guestUid, setGuestUid] = useState();
+  const [guestNickname, setGuestNickname] = useState();
+  const [guestEmail, setGuestEmail] = useState();
+  const [guestPhotoURL, setGuestPhotoURL] = useState();
   const [catTurnTimeSpent, setCatTurnTimeSpent] = useState<number | undefined>(undefined);
-  const [catUid, setCatUid] = useState();
   const [catHitPoints, setCatHitPoints] = useState();
   const [catHavePowerUp, setCatHavePowerUp] = useState();
   const [catHaveDoubleHit, setCatHaveDoubleHit] = useState();
@@ -415,9 +423,9 @@ function OnlineGame() {
   const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameCatHealRef = useRef<HTMLDivElement>(null);
 
-  const exitWarningModalHandler = () => {
-    setDisplayExitWarningModal(false);
-  };
+  console.log('-----------------');
+  console.log(`${hostUid},${hostEmail},${hostPhotoURL},${hostNickname}`);
+  console.log(`${guestUid},${guestEmail},${guestPhotoURL},${guestNickname}`);
 
   // If room isn't exist,create a new one
   useEffect(() => {
@@ -459,15 +467,8 @@ function OnlineGame() {
         urlParams.identity === 'host' ? 'hostLeave' : 'guestLeave',
       );
     };
-    if (roomState === 'dogTurn' || roomState === 'catTurn') {
-      console.log(1111);
-      window.addEventListener('beforeunload', beforeunloadHandler);
-      window.addEventListener('unload', unloadHandler);
-    }
-    return () => {
-      window.addEventListener('beforeunload', beforeunloadHandler);
-      window.addEventListener('unload', unloadHandler);
-    };
+    window.addEventListener('beforeunload', beforeunloadHandler);
+    window.addEventListener('unload', unloadHandler);
   }, [roomState]);
   // subscribe two roomState,hostLeave and guestLeave
   useEffect(() => {
@@ -481,12 +482,18 @@ function OnlineGame() {
     const roomStateSubscriber = onSnapshot(roomStateRef, (docs) => {
       const data = docs.data();
       setRoomState(data?.roomState);
-      setDogUid(data?.host?.uid);
+      setHostUid(data?.host?.uid);
+      setHostNickname(data?.host?.nickname);
+      setHostEmail(data?.host?.email);
+      setHostPhotoURL(data?.host?.photoURL);
       setDogHitPoints(data?.host?.hitPoints);
       setDogHavePowerUp(data?.host?.havePowerUp);
       setDogHaveDoubleHit(data?.host?.haveDoubleHit);
       setDogHaveHeal(data?.host?.haveHeal);
-      setCatUid(data?.guest?.uid);
+      setGuestUid(data?.guest?.uid);
+      setGuestNickname(data?.guest?.nickname);
+      setGuestEmail(data?.guest?.email);
+      setGuestPhotoURL(data?.guest?.photoURL);
       setCatHitPoints(data?.guest?.hitPoints);
       setCatHavePowerUp(data?.guest?.havePowerUp);
       setCatHaveDoubleHit(data?.guest?.haveDoubleHit);
@@ -499,19 +506,31 @@ function OnlineGame() {
   // updateDoc of host when host enter
   useEffect(() => {
     async function setHostDocHandler(id: string) {
-      await firestore.updateDocHost('111111', id);
+      await firestore.updateDocHost(
+        id,
+        user.uid || '',
+        user.nickname || '',
+        user.email || '',
+        user.photoURL || '',
+      );
     }
-    if (dogUid === undefined && identity === 'host' && roomID && roomState === 'wait') {
+    if (hostUid === undefined && identity === 'host' && roomID && roomState === 'wait') {
       setHostDocHandler(roomID);
     }
   });
   // setDoc of guest when guest enter
   useEffect(() => {
     async function setGuestDocHandler(id: string) {
-      await firestore.updateDocGuest('222222', id);
+      await firestore.updateDocGuest(
+        id,
+        user.uid || '',
+        user.nickname || '',
+        user.email || '',
+        user.photoURL || '',
+      );
       await firestore.updateRoomState(id, 'dogTurn');
     }
-    if (catUid === undefined && identity === 'guest' && roomID && roomState === 'wait') {
+    if (guestUid === undefined && identity === 'guest' && roomID && roomState === 'wait') {
       setGuestDocHandler(roomID);
     }
   });

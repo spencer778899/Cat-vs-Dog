@@ -22,6 +22,7 @@ const FriendsMain = styled.div`
   border-radius: 10px;
   box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
   background-color: #ffffff;
+  z-index: 10;
 `;
 const FriendsButtonBox = styled.div`
   display: flex;

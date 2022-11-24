@@ -9,6 +9,7 @@ const InvitationBody = styled.div`
   position: absolute;
   top: 76px;
   left: 88px;
+  z-index: 10;
 `;
 const InvitationMain = styled.div`
   display: flex;
