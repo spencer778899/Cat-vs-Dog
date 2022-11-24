@@ -251,7 +251,6 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
         ) : (
           <LoginModalButtonBox>
             <BlueButton content="登入" loading={loading} onClick={LoginHandler} />
-
             <YellowButton
               content="註冊帳號"
               loading={false}

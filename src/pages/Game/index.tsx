@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
 import { Link } from 'react-router-dom';
+import ExitModal from '../../components/exitModal';
 import GameoverModal from '../../components/gameoverModal';
 import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
 import Arrow from '../../img/arrow.png';
@@ -46,7 +47,7 @@ const GameBody = styled.div`
     display: none;
   }
 `;
-const GameBack = styled(Link)`
+const GameBack = styled.div`
   position: absolute;
   top: -30px;
   right: 5px;
@@ -377,6 +378,9 @@ const GameCatEnergyInner = styled.div`
 `;
 
 function Game() {
+  // modal state
+  const [displayExitModal, setDisplayExitModal] = useState(false);
+  // game state
   const canvas = useRef<HTMLCanvasElement>(null);
   const [roomState, setRoomState] = useState('dogTurn');
   const [windSpeedBar, setWindSpeedBar] = useState<number | undefined>(undefined); // -2 ~ 2
@@ -407,6 +411,10 @@ function Game() {
   const gameCatPowerUpRef = useRef<HTMLDivElement>(null);
   const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameCatHealRef = useRef<HTMLDivElement>(null);
+
+  const displayExitModalHandler = () => {
+    setDisplayExitModal(false);
+  };
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
 
@@ -759,12 +767,23 @@ function Game() {
   return (
     <GameBody>
       <GamePreloadBackgroundImg />
-      <GameBack to="/" />
+      <GameBack
+        onClick={() => {
+          setDisplayExitModal(true);
+        }}
+      />
       <GameScreen>
         {
           // prettier-ignore
           roomState === 'dogWin' || roomState === 'catWin' ? ReactDOM.createPortal(
             <GameoverModal roomState={roomState} />,
+            document?.getElementById('modal-root') as HTMLElement,
+          ) : ''
+        }
+        {
+          // prettier-ignore
+          displayExitModal ? ReactDOM.createPortal(
+            <ExitModal displayExitModalHandler={displayExitModalHandler} />,
             document?.getElementById('modal-root') as HTMLElement,
           ) : ''
         }
