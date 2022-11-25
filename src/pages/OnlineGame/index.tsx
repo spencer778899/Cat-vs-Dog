@@ -21,11 +21,14 @@ import dogImg from '../../img/gamepage/game_dog.png';
 import dogAttackImg from '../../img/gamepage/game_dogAttack.png';
 import dogInjuriedImg from '../../img/gamepage/game_dogInjuried.png';
 import dogMissImg from '../../img/gamepage/game_dogMiss.png';
+import dogHeadIcon from '../../img/dogHead.png';
 import catImg from '../../img/gamepage/game_cat.png';
 import catAttackImg from '../../img/gamepage/game_catAttack.png';
 import catInjuriedImg from '../../img/gamepage/game_catInjuried.png';
 import catMissImg from '../../img/gamepage/game_catMiss.png';
+import catHeadIcon from '../../img/catHead.png';
 import { useGlobalContext } from '../../context/authContext';
+import UserInformationBox from './userInformationBox';
 
 const swing = keyframes`
   0%{background-position:center}
@@ -366,6 +369,112 @@ const GameCatEnergyInner = styled.div`
   height: 100%;
   background-color: red;
 `;
+const GamePlayerBox = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  top: 120px;
+  width: 940px;
+  height: 60px;
+`;
+const GameHostTextTrack = styled.div`
+  align-items: center;
+  position: absolute;
+  top: 180px;
+  width: 940px;
+  height: 60px;
+`;
+const GameHostMessageBox = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 10px;
+  height: 40px;
+  width: fit-content;
+  margin: auto;
+`;
+const GameGuestMessageBox = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 10px;
+  height: 40px;
+  width: fit-content;
+  margin: auto;
+`;
+const GameDogHeadIcon = styled.div`
+  width: 40px;
+  height: 25px;
+  margin-right: 10px;
+  background-image: url(${dogHeadIcon});
+  background-size: cover;
+`;
+const GameCatHeadIcon = styled.div`
+  width: 40px;
+  height: 20px;
+  margin-right: 10px;
+  background-image: url(${catHeadIcon});
+  background-size: cover;
+`;
+const GameHostMessage = styled.div`
+  width: fit-content;
+  height: 24px;
+  color: #000;
+`;
+const GameGuestTextTrack = styled.div`
+  align-items: center;
+  position: absolute;
+  top: 240px;
+  width: 940px;
+  height: 60px;
+`;
+const GameGuestMessage = styled.div`
+  width: fit-content;
+  height: 24px;
+  color: #000;
+`;
+const GameChatBox = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  bottom: -50px;
+  right: 0;
+  height: 50px;
+`;
+const GameChatInput = styled.input`
+  width: 200px;
+  height: 30px;
+  padding: 5px;
+  margin-right: 10px;
+  border: 1px solid #797979;
+  border-radius: 5px;
+  font-size: 18px;
+`;
+const GameChatSubmit = styled.div`
+  display: inline-block;
+  height: 30px;
+  padding: 3px;
+  border: 0.5px solid #acacac;
+  border-radius: 20px;
+  text-align: center;
+  background-color: #fff;
+  font-weight: 500;
+  color: #acacac;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #d6d6d6;
+  }
+  &:active {
+    background-color: #acacac;
+    color: #000;
+  }
+`;
 
 function OnlineGame() {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -443,17 +552,17 @@ function OnlineGame() {
   });
 
   // If game is processing,reject enter request
-  useEffect(() => {
-    async function rejectEnter() {
-      if (!urlParams.roomID) return;
-      const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
-      if (LoginRoomState !== 'wait') {
-        toast.error('你無法在遊戲開始後加入!');
-        navigate('/');
-      }
-    }
-    rejectEnter();
-  }, []);
+  // useEffect(() => {
+  //   async function rejectEnter() {
+  //     if (!urlParams.roomID) return;
+  //     const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
+  //     if (LoginRoomState !== 'wait') {
+  //       toast.error('你無法在遊戲開始後加入!');
+  //       navigate('/');
+  //     }
+  //   }
+  //   rejectEnter();
+  // }, []);
   // double check unload request
   useEffect(() => {
     const beforeunloadHandler = (event: Event) => {
@@ -1022,6 +1131,10 @@ function OnlineGame() {
     }
   }, [catQuantityOfPower]);
 
+  async function submitMessage() {
+    // -
+  }
+
   return (
     <GameBody>
       <GamePreloadBackgroundImg />
@@ -1089,21 +1202,46 @@ function OnlineGame() {
               </GameSkillBox>
             </GameCatSkillBox>
           </GameControlPanel>
-
+          <GameDogEnergyBar ref={dogEnergyBarRef}>
+            <GameDogEnergyInner ref={dogEnergyInnerRef} />
+          </GameDogEnergyBar>
+          <GameCatEnergyBar ref={catEnergyBarRef}>
+            <GameCatEnergyInner ref={catEnergyInnerRef} />
+          </GameCatEnergyBar>
+          <GameWhoseTurnMark roomState={roomState} isDisplayArrow={isDisplayArrow} />
+          <GameDogTimer>{dogTurnTimeSpent}</GameDogTimer>
+          <GameDog ref={gameDogRef} roomState={roomState} />
+          <GameCatTimer>{catTurnTimeSpent}</GameCatTimer>
+          <GameCat ref={gameCatRef} roomState={roomState} />
           <GameCanvas width={940} height={560} ref={canvas} />
         </GameCanvasSection>
-        <GameDogEnergyBar ref={dogEnergyBarRef}>
-          <GameDogEnergyInner ref={dogEnergyInnerRef} />
-        </GameDogEnergyBar>
-        <GameCatEnergyBar ref={catEnergyBarRef}>
-          <GameCatEnergyInner ref={catEnergyInnerRef} />
-        </GameCatEnergyBar>
-        <GameWhoseTurnMark roomState={roomState} isDisplayArrow={isDisplayArrow} />
-        <GameDogTimer>{dogTurnTimeSpent}</GameDogTimer>
-        <GameDog ref={gameDogRef} roomState={roomState} />
-        <GameCatTimer>{catTurnTimeSpent}</GameCatTimer>
-        <GameCat ref={gameCatRef} roomState={roomState} />
+        <GamePlayerBox>
+          <UserInformationBox photoURL={guestPhotoURL} name={guestNickname} email={guestEmail} />
+          <UserInformationBox photoURL={hostPhotoURL} name={hostNickname} email={hostEmail} />
+        </GamePlayerBox>
+        <GameHostTextTrack>
+          <GameHostMessageBox>
+            <GameDogHeadIcon />
+            <GameHostMessage>狗狗訊息</GameHostMessage>
+          </GameHostMessageBox>
+        </GameHostTextTrack>
+        <GameGuestTextTrack>
+          <GameGuestMessageBox>
+            <GameCatHeadIcon />
+            <GameGuestMessage>貓貓訊息</GameGuestMessage>
+          </GameGuestMessageBox>
+        </GameGuestTextTrack>
       </GameScreen>
+      <GameChatBox>
+        <GameChatInput />
+        <GameChatSubmit
+          onClick={() => {
+            submitMessage();
+          }}
+        >
+          送出訊息
+        </GameChatSubmit>
+      </GameChatBox>
     </GameBody>
   );
 }

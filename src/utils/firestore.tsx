@@ -310,6 +310,11 @@ const firestore = {
       },
     });
   },
+  async setMessage(roomID: string, identity: string, newMessage: string) {
+    await setDoc(doc(db, 'games', `${roomID}`, 'chatRoom', `${identity}`), {
+      message: `${newMessage}`,
+    });
+  },
 };
 
 export default firestore;
