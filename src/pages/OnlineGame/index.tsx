@@ -47,6 +47,7 @@ const GameBody = styled.div`
   width: 940px;
   height: 560px;
   margin: auto;
+  box-shadow: 0 0 20px #00000090;
 
   @media (max-width: 1125px) {
     display: none;

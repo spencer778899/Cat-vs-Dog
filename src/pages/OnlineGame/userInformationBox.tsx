@@ -6,32 +6,37 @@ const UserInformationBoxBody = styled.div`
 `;
 const UserInformationBoxMain = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  width: 200px;
+  width: 150px;
   height: 60px;
   padding: 5px 0 5px 10px;
   border-radius: 15px;
   background-color: #fff;
-  opacity: 50%;
+  opacity: 70%;
+
+  &:hover {
+    opacity: 1;
+  }
 `;
 const UserInformationBoxImg = styled.div<{ photoURL: string }>`
-  width: 40px;
-  height: 40px;
-  margin-right: 10px;
+  width: 30px;
+  height: 30px;
+  margin-right: 6px;
   border: 0.5px solid #000;
   border-radius: 50%;
   background-image: url(${(p) => p.photoURL});
   background-size: cover;
 `;
 const UserInformationBoxTexts = styled.div`
-  width: 135px;
+  width: 95px;
 `;
 const UserInformationBoxName = styled.div`
-  font-size: 20px;
+  font-size: 15px;
   overflow: hidden;
 `;
 const UserInformationBoxEmail = styled.div`
-  font-size: 12px;
+  font-size: 9px;
   overflow: hidden;
 `;
 
@@ -55,8 +60,8 @@ function UserInformationBox({
         />
         <UserInformationBoxTexts>
           <UserInformationBoxName>{name || '訪客'}</UserInformationBoxName>
-          <UserInformationBoxEmail>{email || ''}</UserInformationBoxEmail>
         </UserInformationBoxTexts>
+        <UserInformationBoxEmail>{email || ''}</UserInformationBoxEmail>
       </UserInformationBoxMain>
     </UserInformationBoxBody>
   );
