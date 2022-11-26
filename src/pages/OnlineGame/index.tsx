@@ -393,7 +393,7 @@ const hostBullet = keyframes`
     left: 100%;
     opacity: 100%;
   }
-  80%{
+  90%{
     opacity: 100%;
   }
   100%{
@@ -418,7 +418,7 @@ const guestBullet = keyframes`
     right: 100%;
     opacity: 100%;
   }
-  80%{
+  90%{
     opacity: 100%;
   }
   100%{
@@ -514,6 +514,7 @@ function OnlineGame() {
   const { user, isLogin } = useGlobalContext();
   const [isOpponentLeave, setIsOpponentLeave] = useState(false);
   const [displayBullet, setDisplayBullet] = useState(true);
+  const [nowTime, setNowTime] = useState(() => Date.now());
   // roomState
   const [identity, setIdentity] = useState<string>();
   const navigate = useNavigate();
@@ -571,7 +572,6 @@ function OnlineGame() {
   const gameCatPowerUpRef = useRef<HTMLDivElement>(null);
   const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameCatHealRef = useRef<HTMLDivElement>(null);
-
   // If room isn't exist,create a new one
   useEffect(() => {
     async function createNewRoom() {
@@ -652,12 +652,22 @@ function OnlineGame() {
       roomStateSubscriber();
     };
   }, [roomID]);
+
+  // remove message before it be add over 5sec
+  useEffect(() => {
+    setHostMessages(hostMessages?.filter((message) => nowTime - message.key < 5000));
+    setGuestMessages(guestMessages?.filter((message) => nowTime - message.key < 5000));
+  }, [nowTime]);
+
   // subscribe chatroom
   useEffect(() => {
     const hostChatRoomSubscribe = onSnapshot(
       doc(db, 'games', `${roomID}`, 'chatRoom', 'host'),
       (docs) => {
         const data = docs.data();
+        setTimeout(() => {
+          setNowTime(Date.now());
+        }, 5000);
         setHostMessages(data?.messages || []);
       },
     );
@@ -665,6 +675,9 @@ function OnlineGame() {
       doc(db, 'games', `${roomID}`, 'chatRoom', 'guest'),
       (docs) => {
         const data = docs.data();
+        setTimeout(() => {
+          setNowTime(Date.now());
+        }, 5000);
         setGuestMessages(data?.messages || []);
       },
     );
