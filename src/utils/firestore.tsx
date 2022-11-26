@@ -182,7 +182,7 @@ const firestore = {
   },
   async updateRoomState(roomID: string | undefined, state: string) {
     await updateDoc(doc(db, 'games', `${roomID}`), {
-      roomState: `${state}`,
+      roomState: state,
     });
   },
   async updateDocHost(
@@ -310,10 +310,24 @@ const firestore = {
       },
     });
   },
-  async setMessage(roomID: string, identity: string, newMessage: string) {
-    await setDoc(doc(db, 'games', `${roomID}`, 'chatRoom', `${identity}`), {
-      message: `${newMessage}`,
-    });
+  async setMessage(
+    roomID: string,
+    identity: string,
+    newMessage: {
+      identity: string;
+      key: number;
+      content: string | undefined;
+    }[],
+  ) {
+    if (identity === 'host') {
+      await setDoc(doc(db, 'games', `${roomID}`, 'chatRoom', 'host'), {
+        messages: newMessage,
+      });
+    } else if (identity === 'guest') {
+      await setDoc(doc(db, 'games', `${roomID}`, 'chatRoom', 'guest'), {
+        messages: newMessage,
+      });
+    }
   },
 };
 

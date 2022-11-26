@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import firestore, { db } from '../../utils/firestore';
 import Arrow from '../../img/arrow.png';
@@ -378,12 +378,27 @@ const GamePlayerBox = styled.div`
   width: 940px;
   height: 60px;
 `;
-const GameHostTextTrack = styled.div`
+const GameHostTextTrack = styled.div<{ displayBullet: boolean }>`
   align-items: center;
   position: absolute;
   top: 180px;
   width: 940px;
   height: 60px;
+  overflow: hidden;
+  opacity: ${(p) => (p.displayBullet ? '100%' : '0%')}; ;
+`;
+const hostBullet = keyframes`
+  0%{
+    left: 100%;
+    opacity: 100%;
+  }
+  80%{
+    opacity: 100%;
+  }
+  100%{
+    left: 0%;
+    opacity: 0%;
+  }
 `;
 const GameHostMessageBox = styled.div`
   display: flex;
@@ -391,10 +406,24 @@ const GameHostMessageBox = styled.div`
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 10px;
+  left: 0%;
   height: 40px;
-  width: fit-content;
-  margin: auto;
+  width: 250px;
+  animation: ${hostBullet} 5s linear 1;
+  opacity: 0%;
+`;
+const guestBullet = keyframes`
+  0%{
+    right: 100%;
+    opacity: 100%;
+  }
+  80%{
+    opacity: 100%;
+  }
+  100%{
+    right: 0%;
+    opacity: 0%;
+  }
 `;
 const GameGuestMessageBox = styled.div`
   display: flex;
@@ -402,10 +431,11 @@ const GameGuestMessageBox = styled.div`
   position: absolute;
   top: 0;
   bottom: 0;
-  right: 10px;
+  right: 0%;
   height: 40px;
-  width: fit-content;
-  margin: auto;
+  width: 250px;
+  animation: ${guestBullet} 5s linear 1;
+  opacity: 0%;
 `;
 const GameDogHeadIcon = styled.div`
   width: 40px;
@@ -422,21 +452,23 @@ const GameCatHeadIcon = styled.div`
   background-size: cover;
 `;
 const GameHostMessage = styled.div`
-  width: fit-content;
+  width: 200px;
   height: 24px;
-  color: #000;
+  color: #fff;
 `;
-const GameGuestTextTrack = styled.div`
+const GameGuestTextTrack = styled.div<{ displayBullet: boolean }>`
   align-items: center;
   position: absolute;
   top: 240px;
   width: 940px;
   height: 60px;
+  overflow: hidden;
+  opacity: ${(p) => (p.displayBullet ? '100%' : '0%')}; ;
 `;
 const GameGuestMessage = styled.div`
-  width: fit-content;
+  width: 200px;
   height: 24px;
-  color: #000;
+  color: #fff;
 `;
 const GameChatBox = styled.div`
   display: flex;
@@ -479,8 +511,8 @@ const GameChatSubmit = styled.div`
 function OnlineGame() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const { user, isLogin } = useGlobalContext();
-  const [displayExitWarningModal, setDisplayExitWarningModal] = useState(false);
   const [isOpponentLeave, setIsOpponentLeave] = useState(false);
+  const [displayBullet, setDisplayBullet] = useState(true);
   // roomState
   const [identity, setIdentity] = useState<string>();
   const navigate = useNavigate();
@@ -494,6 +526,9 @@ function OnlineGame() {
   const [hostNickname, setHostNickname] = useState();
   const [hostEmail, setHostEmail] = useState();
   const [hostPhotoURL, setHostPhotoURL] = useState();
+  const [hostMessages, setHostMessages] = useState<
+    { identity: string; key: number; content: string }[]
+  >([]);
   const [dogTurnTimeSpent, setDogTurnTimeSpent] = useState<number | undefined>(undefined);
   const [dogHitPoints, setDogHitPoints] = useState();
   const [dogHavePowerUp, setDogHavePowerUp] = useState();
@@ -507,6 +542,9 @@ function OnlineGame() {
   const [guestNickname, setGuestNickname] = useState();
   const [guestEmail, setGuestEmail] = useState();
   const [guestPhotoURL, setGuestPhotoURL] = useState();
+  const [guestMessages, setGuestMessages] = useState<
+    { identity: string; key: number; content: string }[]
+  >([]);
   const [catTurnTimeSpent, setCatTurnTimeSpent] = useState<number | undefined>(undefined);
   const [catHitPoints, setCatHitPoints] = useState();
   const [catHavePowerUp, setCatHavePowerUp] = useState();
@@ -517,6 +555,7 @@ function OnlineGame() {
   const [catHitPointsAvailable, setCatHitPointsAvailable] = useState<number>();
   // roomRef
   const roundCount = useRef(0);
+  const chatMessageRef = useRef<HTMLInputElement>(null);
   // dog useRef
   const gameDogRef = useRef<HTMLDivElement>(null);
   const dogEnergyBarRef = useRef<HTMLDivElement>(null);
@@ -532,10 +571,6 @@ function OnlineGame() {
   const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameCatHealRef = useRef<HTMLDivElement>(null);
 
-  console.log('-----------------');
-  console.log(`${hostUid},${hostEmail},${hostPhotoURL},${hostNickname}`);
-  console.log(`${guestUid},${guestEmail},${guestPhotoURL},${guestNickname}`);
-
   // If room isn't exist,create a new one
   useEffect(() => {
     async function createNewRoom() {
@@ -549,20 +584,20 @@ function OnlineGame() {
       setRoomID(urlParams.roomID);
       setIdentity(urlParams.identity);
     }
-  });
+  }, [urlParams]);
 
   // If game is processing,reject enter request
-  // useEffect(() => {
-  //   async function rejectEnter() {
-  //     if (!urlParams.roomID) return;
-  //     const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
-  //     if (LoginRoomState !== 'wait') {
-  //       toast.error('你無法在遊戲開始後加入!');
-  //       navigate('/');
-  //     }
-  //   }
-  //   rejectEnter();
-  // }, []);
+  useEffect(() => {
+    async function rejectEnter() {
+      if (!urlParams.roomID) return;
+      const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
+      if (LoginRoomState !== 'wait') {
+        toast.error('你無法在遊戲開始後加入!');
+        navigate('/');
+      }
+    }
+    rejectEnter();
+  }, []);
   // double check unload request
   useEffect(() => {
     const beforeunloadHandler = (event: Event) => {
@@ -570,15 +605,19 @@ function OnlineGame() {
       event.returnValue = true;
       event.preventDefault();
     };
-    const unloadHandler = () => {
-      firestore.updateRoomState(
+    const unloadHandler = async () => {
+      await firestore.updateRoomState(
         urlParams.roomID,
         urlParams.identity === 'host' ? 'hostLeave' : 'guestLeave',
       );
     };
-    window.addEventListener('beforeunload', beforeunloadHandler);
     window.addEventListener('unload', unloadHandler);
-  }, [roomState]);
+    window.addEventListener('beforeunload', beforeunloadHandler);
+    return () => {
+      window.removeEventListener('unload', unloadHandler);
+      window.removeEventListener('beforeunload', beforeunloadHandler);
+    };
+  }, [urlParams]);
   // subscribe two roomState,hostLeave and guestLeave
   useEffect(() => {
     if (roomState === 'hostLeave' || roomState === 'guestLeave') {
@@ -610,6 +649,27 @@ function OnlineGame() {
     });
     return () => {
       roomStateSubscriber();
+    };
+  }, [roomID]);
+  // subscribe chatroom
+  useEffect(() => {
+    const hostChatRoomSubscribe = onSnapshot(
+      doc(db, 'games', `${roomID}`, 'chatRoom', 'host'),
+      (docs) => {
+        const data = docs.data();
+        setHostMessages(data?.messages || []);
+      },
+    );
+    const guestChatRoomSubscribe = onSnapshot(
+      doc(db, 'games', `${roomID}`, 'chatRoom', 'guest'),
+      (docs) => {
+        const data = docs.data();
+        setGuestMessages(data?.messages || []);
+      },
+    );
+    return () => {
+      hostChatRoomSubscribe();
+      guestChatRoomSubscribe();
     };
   }, [roomID]);
   // updateDoc of host when host enter
@@ -1131,8 +1191,30 @@ function OnlineGame() {
     }
   }, [catQuantityOfPower]);
 
-  async function submitMessage() {
-    // -
+  function submitMessage() {
+    if (identity === 'host' && roomID && chatMessageRef?.current?.value) {
+      const newList = [
+        ...hostMessages,
+        {
+          identity,
+          key: Date.now(),
+          content: chatMessageRef.current.value,
+        },
+      ];
+      firestore.setMessage(roomID, identity, newList);
+      chatMessageRef.current.value = '';
+    } else if (identity === 'guest' && roomID && chatMessageRef?.current?.value) {
+      const newList = [
+        ...guestMessages,
+        {
+          identity,
+          key: Date.now(),
+          content: chatMessageRef.current.value,
+        },
+      ];
+      firestore.setMessage(roomID, identity, newList);
+      chatMessageRef.current.value = '';
+    }
   }
 
   return (
@@ -1219,27 +1301,38 @@ function OnlineGame() {
           <UserInformationBox photoURL={guestPhotoURL} name={guestNickname} email={guestEmail} />
           <UserInformationBox photoURL={hostPhotoURL} name={hostNickname} email={hostEmail} />
         </GamePlayerBox>
-        <GameHostTextTrack>
-          <GameHostMessageBox>
-            <GameDogHeadIcon />
-            <GameHostMessage>狗狗訊息</GameHostMessage>
-          </GameHostMessageBox>
+        <GameHostTextTrack displayBullet={displayBullet}>
+          {hostMessages.map((message) => (
+            <GameHostMessageBox key={message.key}>
+              <GameDogHeadIcon />
+              <GameHostMessage>{message.content}</GameHostMessage>
+            </GameHostMessageBox>
+          ))}
         </GameHostTextTrack>
-        <GameGuestTextTrack>
-          <GameGuestMessageBox>
-            <GameCatHeadIcon />
-            <GameGuestMessage>貓貓訊息</GameGuestMessage>
-          </GameGuestMessageBox>
+        <GameGuestTextTrack displayBullet={displayBullet}>
+          {guestMessages.map((message) => (
+            <GameGuestMessageBox key={message.key}>
+              <GameCatHeadIcon />
+              <GameGuestMessage>{message.content}</GameGuestMessage>
+            </GameGuestMessageBox>
+          ))}
         </GameGuestTextTrack>
       </GameScreen>
       <GameChatBox>
-        <GameChatInput />
+        <GameChatInput ref={chatMessageRef} maxLength={10} placeholder="至多10個字" />
         <GameChatSubmit
           onClick={() => {
             submitMessage();
           }}
         >
           送出訊息
+        </GameChatSubmit>
+        <GameChatSubmit
+          onClick={() => {
+            setDisplayBullet(!displayBullet);
+          }}
+        >
+          {displayBullet ? '關閉彈幕' : '開啟彈幕'}
         </GameChatSubmit>
       </GameChatBox>
     </GameBody>
