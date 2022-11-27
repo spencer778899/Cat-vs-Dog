@@ -182,13 +182,22 @@ const firestore = {
   },
   async updateRoomState(roomID: string | undefined, state: string) {
     await updateDoc(doc(db, 'games', `${roomID}`), {
-      roomState: `${state}`,
+      roomState: state,
     });
   },
-  async updateDocHost(hostUid: string, roomID: string) {
+  async updateDocHost(
+    roomID: string,
+    hostUid: string,
+    hostNickname: string,
+    hostEmail: string,
+    hostPhotoURL: string,
+  ) {
     await updateDoc(doc(db, 'games', `${roomID}`), {
       host: {
-        uid: hostUid, // dame
+        uid: hostUid,
+        nickname: hostNickname,
+        email: hostEmail,
+        photoURL: hostPhotoURL,
         hitPoints: 100,
         havePowerUp: true,
         haveHeal: true,
@@ -196,10 +205,19 @@ const firestore = {
       },
     });
   },
-  async updateDocGuest(guestUid: string, roomID: string) {
+  async updateDocGuest(
+    roomID: string,
+    guestUid: string,
+    guestNickname: string,
+    guestEmail: string,
+    guestPhotoURL: string,
+  ) {
     await updateDoc(doc(db, 'games', `${roomID}`), {
       guest: {
-        uid: guestUid, // dame
+        uid: guestUid,
+        nickname: guestNickname,
+        email: guestEmail,
+        photoURL: guestPhotoURL,
         hitPoints: 100,
         havePowerUp: true,
         haveHeal: true,
@@ -291,6 +309,25 @@ const firestore = {
         hitPointsAvailable: 15,
       },
     });
+  },
+  async setMessage(
+    roomID: string,
+    identity: string,
+    newMessage: {
+      identity: string;
+      key: number;
+      content: string | undefined;
+    }[],
+  ) {
+    if (identity === 'host') {
+      await setDoc(doc(db, 'games', `${roomID}`, 'chatRoom', 'host'), {
+        messages: newMessage,
+      });
+    } else if (identity === 'guest') {
+      await setDoc(doc(db, 'games', `${roomID}`, 'chatRoom', 'guest'), {
+        messages: newMessage,
+      });
+    }
   },
 };
 

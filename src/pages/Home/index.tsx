@@ -34,7 +34,7 @@ const HomeMain = styled.div`
   padding: 15px 20px;
   border-radius: 15px;
   background-color: #ffffff;
-  box-shadow: -2px 2px 4px 0 rgb(0 0 0 / 30%);
+  box-shadow: 0 0 20px #00000090;
   z-index: -1;
 
   @media (max-width: 1125px) {
@@ -61,7 +61,7 @@ const HomeLogin = styled.div`
 `;
 const HomeLogoBox = styled.div`
   position: absolute;
-  top: -40px;
+  top: -47px;
   right: 0;
   left: 0;
   display: flex;
@@ -74,6 +74,7 @@ const HomeLogoBox = styled.div`
   background-size: cover;
 `;
 const HomeLogo = styled.div`
+  margin-top: 15px;
   font-size: 28px;
   font-weight: bold;
 `;

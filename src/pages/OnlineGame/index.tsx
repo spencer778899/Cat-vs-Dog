@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import firestore, { db } from '../../utils/firestore';
 import Arrow from '../../img/arrow.png';
@@ -21,10 +21,16 @@ import dogImg from '../../img/gamepage/game_dog.png';
 import dogAttackImg from '../../img/gamepage/game_dogAttack.png';
 import dogInjuriedImg from '../../img/gamepage/game_dogInjuried.png';
 import dogMissImg from '../../img/gamepage/game_dogMiss.png';
+import dogHeadIcon from '../../img/dogHead.png';
 import catImg from '../../img/gamepage/game_cat.png';
 import catAttackImg from '../../img/gamepage/game_catAttack.png';
 import catInjuriedImg from '../../img/gamepage/game_catInjuried.png';
 import catMissImg from '../../img/gamepage/game_catMiss.png';
+import catHeadIcon from '../../img/catHead.png';
+import { useGlobalContext } from '../../context/authContext';
+import UserInformationBox from './userInformationBox';
+import MinBlueButton from '../../components/buttons/minBlueBottom';
+import Switch from '../../components/switch/Switch';
 
 const swing = keyframes`
   0%{background-position:center}
@@ -43,6 +49,7 @@ const GameBody = styled.div`
   width: 940px;
   height: 560px;
   margin: auto;
+  box-shadow: 0 0 20px #00000090;
 
   @media (max-width: 1125px) {
     display: none;
@@ -118,7 +125,7 @@ const GameHitPointsImg = styled.img`
   top: 0;
   width: 100%;
   height: 60px;
-  z-index: 10;
+  z-index: 2;
 `;
 const GameDogHitPointsBar = styled.div`
   position: absolute;
@@ -136,7 +143,7 @@ const GameDogHitPointsInner = styled.div<{ width: number | undefined }>`
   width: ${(p) => `${p.width}%`};
   height: 100%;
   background-color: red;
-  z-index: 9;
+  z-index: 1;
   transition: linear 0.5s;
 `;
 const GameCatHitPointsBar = styled.div`
@@ -156,7 +163,7 @@ const GameCatHitPointsInner = styled.div<{ width: number | undefined }>`
   height: 100%;
   background-color: red;
   transition: linear 0.5s;
-  z-index: 9;
+  z-index: 1;
 `;
 const GameDogSkillBox = styled.div`
   position: absolute;
@@ -365,11 +372,152 @@ const GameCatEnergyInner = styled.div`
   height: 100%;
   background-color: red;
 `;
+const GamePlayerBox = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  top: 120px;
+  width: 940px;
+  height: 60px;
+`;
+const GameHostTextTrack = styled.div<{ displayBullet: boolean }>`
+  align-items: center;
+  position: absolute;
+  top: 180px;
+  width: 940px;
+  height: 60px;
+  overflow: hidden;
+  opacity: ${(p) => (p.displayBullet ? '100%' : '0%')}; ;
+`;
+const hostBullet = keyframes`
+  0%{
+    left: 100%;
+    opacity: 100%;
+  }
+  85%{
+    opacity: 100%;
+  }
+  100%{
+    left: -250px;
+    opacity: 0%;
+  }
+`;
+const GameHostMessageBox = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0%;
+  height: 40px;
+  width: 250px;
+  animation: ${hostBullet} 5s linear 1;
+  opacity: 0%;
+`;
+const guestBullet = keyframes`
+  0%{
+    right: 100%;
+    opacity: 100%;
+  }
+  85%{
+    opacity: 100%;
+  }
+  100%{
+    right: -250px;
+    opacity: 0%;
+  }
+`;
+const GameGuestMessageBox = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0%;
+  height: 40px;
+  width: 250px;
+  animation: ${guestBullet} 5s linear 1;
+  opacity: 0%;
+`;
+const GameDogHeadIcon = styled.div`
+  width: 40px;
+  height: 25px;
+  margin-right: 10px;
+  background-image: url(${dogHeadIcon});
+  background-size: cover;
+`;
+const GameCatHeadIcon = styled.div`
+  width: 40px;
+  height: 20px;
+  margin-right: 10px;
+  background-image: url(${catHeadIcon});
+  background-size: cover;
+`;
+const GameHostMessage = styled.div`
+  width: 200px;
+  height: 24px;
+  color: #fff;
+`;
+const GameGuestTextTrack = styled.div<{ displayBullet: boolean }>`
+  align-items: center;
+  position: absolute;
+  top: 240px;
+  width: 940px;
+  height: 60px;
+  overflow: hidden;
+  opacity: ${(p) => (p.displayBullet ? '100%' : '0%')}; ;
+`;
+const GameGuestMessage = styled.div`
+  width: 200px;
+  height: 24px;
+  color: #fff;
+`;
+const GameChatBox = styled.div`
+  display: flex;
+  align-items: center;
+  position: absolute;
+  bottom: -50px;
+  right: 0;
+  height: 50px;
+`;
+const GameChatInput = styled.input`
+  width: 200px;
+  height: 30px;
+  padding: 5px;
+  margin-right: 10px;
+  border: 3px solid #000;
+  border-radius: 5px;
+  font-size: 18px;
+`;
+const GameChatSubmit = styled.div`
+  display: inline-block;
+  width: 75px;
+  height: 25px;
+  margin-right: 10px;
+  text-align: center;
+  background-color: #ffbf00;
+  border-top-color: #ffe100;
+  border-right-color: #ffe100;
+  border-left-color: #ffe100;
+  border-bottom-color: #f88700;
+  border-radius: 34px;
+  box-shadow: 0 0 0 3px #002043, 0 0 0 3.5px #7c92b0;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #ffcb00;
+    border-top-color: #ffef7c;
+    border-bottom-color: #f88700;
+  }
+`;
 
 function OnlineGame() {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const [displayExitWarningModal, setDisplayExitWarningModal] = useState(false);
+  const { user, isLogin } = useGlobalContext();
   const [isOpponentLeave, setIsOpponentLeave] = useState(false);
+  const [displayBullet, setDisplayBullet] = useState(true);
+  const [nowTime, setNowTime] = useState(() => Date.now());
   // roomState
   const [identity, setIdentity] = useState<string>();
   const navigate = useNavigate();
@@ -378,9 +526,15 @@ function OnlineGame() {
   const [roomState, setRoomState] = useState<string>();
   const [windSpeed, setWindSpeed] = useState<number | undefined>(undefined);
   const [isDisplayArrow, setIsDisplayArrow] = useState(true);
-  // dog useState
+  // dog(host) useState
+  const [hostUid, setHostUid] = useState();
+  const [hostNickname, setHostNickname] = useState();
+  const [hostEmail, setHostEmail] = useState();
+  const [hostPhotoURL, setHostPhotoURL] = useState();
+  const [hostMessages, setHostMessages] = useState<
+    { identity: string; key: number; content: string }[]
+  >([]);
   const [dogTurnTimeSpent, setDogTurnTimeSpent] = useState<number | undefined>(undefined);
-  const [dogUid, setDogUid] = useState();
   const [dogHitPoints, setDogHitPoints] = useState();
   const [dogHavePowerUp, setDogHavePowerUp] = useState();
   const [dogHaveDoubleHit, setDogHaveDoubleHit] = useState();
@@ -388,9 +542,15 @@ function OnlineGame() {
   const [dogQuantityOfPower, setDogQuantityOfPower] = useState<number>();
   const [dogRadius, setDogRadius] = useState<number>();
   const [dogHitPointsAvailable, setDogHitPointsAvailable] = useState<number>();
-  // cat useState
+  // cat(guest) useState
+  const [guestUid, setGuestUid] = useState();
+  const [guestNickname, setGuestNickname] = useState();
+  const [guestEmail, setGuestEmail] = useState();
+  const [guestPhotoURL, setGuestPhotoURL] = useState();
+  const [guestMessages, setGuestMessages] = useState<
+    { identity: string; key: number; content: string }[]
+  >([]);
   const [catTurnTimeSpent, setCatTurnTimeSpent] = useState<number | undefined>(undefined);
-  const [catUid, setCatUid] = useState();
   const [catHitPoints, setCatHitPoints] = useState();
   const [catHavePowerUp, setCatHavePowerUp] = useState();
   const [catHaveDoubleHit, setCatHaveDoubleHit] = useState();
@@ -400,6 +560,7 @@ function OnlineGame() {
   const [catHitPointsAvailable, setCatHitPointsAvailable] = useState<number>();
   // roomRef
   const roundCount = useRef(0);
+  const chatMessageRef = useRef<HTMLInputElement>(null);
   // dog useRef
   const gameDogRef = useRef<HTMLDivElement>(null);
   const dogEnergyBarRef = useRef<HTMLDivElement>(null);
@@ -415,10 +576,6 @@ function OnlineGame() {
   const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameCatHealRef = useRef<HTMLDivElement>(null);
 
-  const exitWarningModalHandler = () => {
-    setDisplayExitWarningModal(false);
-  };
-
   // If room isn't exist,create a new one
   useEffect(() => {
     async function createNewRoom() {
@@ -432,7 +589,7 @@ function OnlineGame() {
       setRoomID(urlParams.roomID);
       setIdentity(urlParams.identity);
     }
-  });
+  }, [urlParams]);
 
   // If game is processing,reject enter request
   useEffect(() => {
@@ -453,22 +610,19 @@ function OnlineGame() {
       event.returnValue = true;
       event.preventDefault();
     };
-    const unloadHandler = () => {
-      firestore.updateRoomState(
+    const unloadHandler = async () => {
+      await firestore.updateRoomState(
         urlParams.roomID,
         urlParams.identity === 'host' ? 'hostLeave' : 'guestLeave',
       );
     };
-    if (roomState === 'dogTurn' || roomState === 'catTurn') {
-      console.log(1111);
-      window.addEventListener('beforeunload', beforeunloadHandler);
-      window.addEventListener('unload', unloadHandler);
-    }
+    window.addEventListener('unload', unloadHandler);
+    window.addEventListener('beforeunload', beforeunloadHandler);
     return () => {
-      window.addEventListener('beforeunload', beforeunloadHandler);
-      window.addEventListener('unload', unloadHandler);
+      window.removeEventListener('unload', unloadHandler);
+      window.removeEventListener('beforeunload', beforeunloadHandler);
     };
-  }, [roomState]);
+  }, [urlParams]);
   // subscribe two roomState,hostLeave and guestLeave
   useEffect(() => {
     if (roomState === 'hostLeave' || roomState === 'guestLeave') {
@@ -481,12 +635,18 @@ function OnlineGame() {
     const roomStateSubscriber = onSnapshot(roomStateRef, (docs) => {
       const data = docs.data();
       setRoomState(data?.roomState);
-      setDogUid(data?.host?.uid);
+      setHostUid(data?.host?.uid);
+      setHostNickname(data?.host?.nickname);
+      setHostEmail(data?.host?.email);
+      setHostPhotoURL(data?.host?.photoURL);
       setDogHitPoints(data?.host?.hitPoints);
       setDogHavePowerUp(data?.host?.havePowerUp);
       setDogHaveDoubleHit(data?.host?.haveDoubleHit);
       setDogHaveHeal(data?.host?.haveHeal);
-      setCatUid(data?.guest?.uid);
+      setGuestUid(data?.guest?.uid);
+      setGuestNickname(data?.guest?.nickname);
+      setGuestEmail(data?.guest?.email);
+      setGuestPhotoURL(data?.guest?.photoURL);
       setCatHitPoints(data?.guest?.hitPoints);
       setCatHavePowerUp(data?.guest?.havePowerUp);
       setCatHaveDoubleHit(data?.guest?.haveDoubleHit);
@@ -496,22 +656,68 @@ function OnlineGame() {
       roomStateSubscriber();
     };
   }, [roomID]);
+
+  // remove message before it be add over 5sec
+  useEffect(() => {
+    setHostMessages(hostMessages?.filter((message) => nowTime - message.key < 6000));
+    setGuestMessages(guestMessages?.filter((message) => nowTime - message.key < 6000));
+  }, [nowTime]);
+
+  // subscribe chatroom
+  useEffect(() => {
+    const hostChatRoomSubscribe = onSnapshot(
+      doc(db, 'games', `${roomID}`, 'chatRoom', 'host'),
+      (docs) => {
+        const data = docs.data();
+        setTimeout(() => {
+          setNowTime(Date.now());
+        }, 6000);
+        setHostMessages(data?.messages || []);
+      },
+    );
+    const guestChatRoomSubscribe = onSnapshot(
+      doc(db, 'games', `${roomID}`, 'chatRoom', 'guest'),
+      (docs) => {
+        const data = docs.data();
+        setTimeout(() => {
+          setNowTime(Date.now());
+        }, 6000);
+        setGuestMessages(data?.messages || []);
+      },
+    );
+    return () => {
+      hostChatRoomSubscribe();
+      guestChatRoomSubscribe();
+    };
+  }, [roomID]);
   // updateDoc of host when host enter
   useEffect(() => {
     async function setHostDocHandler(id: string) {
-      await firestore.updateDocHost('111111', id);
+      await firestore.updateDocHost(
+        id,
+        user.uid || '',
+        user.nickname || '',
+        user.email || '',
+        user.photoURL || '',
+      );
     }
-    if (dogUid === undefined && identity === 'host' && roomID && roomState === 'wait') {
+    if (hostUid === undefined && identity === 'host' && roomID && roomState === 'wait') {
       setHostDocHandler(roomID);
     }
   });
   // setDoc of guest when guest enter
   useEffect(() => {
     async function setGuestDocHandler(id: string) {
-      await firestore.updateDocGuest('222222', id);
+      await firestore.updateDocGuest(
+        id,
+        user.uid || '',
+        user.nickname || '',
+        user.email || '',
+        user.photoURL || '',
+      );
       await firestore.updateRoomState(id, 'dogTurn');
     }
-    if (catUid === undefined && identity === 'guest' && roomID && roomState === 'wait') {
+    if (guestUid === undefined && identity === 'guest' && roomID && roomState === 'wait') {
       setGuestDocHandler(roomID);
     }
   });
@@ -1003,6 +1209,32 @@ function OnlineGame() {
     }
   }, [catQuantityOfPower]);
 
+  const submitMessage = () => {
+    if (identity === 'host' && roomID && chatMessageRef?.current?.value) {
+      const newList = [
+        ...hostMessages,
+        {
+          identity,
+          key: Date.now(),
+          content: chatMessageRef.current.value,
+        },
+      ];
+      firestore.setMessage(roomID, identity, newList);
+      chatMessageRef.current.value = '';
+    } else if (identity === 'guest' && roomID && chatMessageRef?.current?.value) {
+      const newList = [
+        ...guestMessages,
+        {
+          identity,
+          key: Date.now(),
+          content: chatMessageRef.current.value,
+        },
+      ];
+      firestore.setMessage(roomID, identity, newList);
+      chatMessageRef.current.value = '';
+    }
+  };
+
   return (
     <GameBody>
       <GamePreloadBackgroundImg />
@@ -1070,21 +1302,45 @@ function OnlineGame() {
               </GameSkillBox>
             </GameCatSkillBox>
           </GameControlPanel>
-
+          <GameDogEnergyBar ref={dogEnergyBarRef}>
+            <GameDogEnergyInner ref={dogEnergyInnerRef} />
+          </GameDogEnergyBar>
+          <GameCatEnergyBar ref={catEnergyBarRef}>
+            <GameCatEnergyInner ref={catEnergyInnerRef} />
+          </GameCatEnergyBar>
+          <GameWhoseTurnMark roomState={roomState} isDisplayArrow={isDisplayArrow} />
+          <GameDogTimer>{dogTurnTimeSpent}</GameDogTimer>
+          <GameDog ref={gameDogRef} roomState={roomState} />
+          <GameCatTimer>{catTurnTimeSpent}</GameCatTimer>
+          <GameCat ref={gameCatRef} roomState={roomState} />
           <GameCanvas width={940} height={560} ref={canvas} />
         </GameCanvasSection>
-        <GameDogEnergyBar ref={dogEnergyBarRef}>
-          <GameDogEnergyInner ref={dogEnergyInnerRef} />
-        </GameDogEnergyBar>
-        <GameCatEnergyBar ref={catEnergyBarRef}>
-          <GameCatEnergyInner ref={catEnergyInnerRef} />
-        </GameCatEnergyBar>
-        <GameWhoseTurnMark roomState={roomState} isDisplayArrow={isDisplayArrow} />
-        <GameDogTimer>{dogTurnTimeSpent}</GameDogTimer>
-        <GameDog ref={gameDogRef} roomState={roomState} />
-        <GameCatTimer>{catTurnTimeSpent}</GameCatTimer>
-        <GameCat ref={gameCatRef} roomState={roomState} />
+        <GamePlayerBox>
+          <UserInformationBox photoURL={guestPhotoURL} name={guestNickname} email={guestEmail} />
+          <UserInformationBox photoURL={hostPhotoURL} name={hostNickname} email={hostEmail} />
+        </GamePlayerBox>
+        <GameHostTextTrack displayBullet={displayBullet}>
+          {hostMessages.map((message) => (
+            <GameHostMessageBox key={message.key}>
+              <GameDogHeadIcon />
+              <GameHostMessage>{message.content}</GameHostMessage>
+            </GameHostMessageBox>
+          ))}
+        </GameHostTextTrack>
+        <GameGuestTextTrack displayBullet={displayBullet}>
+          {guestMessages.map((message) => (
+            <GameGuestMessageBox key={message.key}>
+              <GameCatHeadIcon />
+              <GameGuestMessage>{message.content}</GameGuestMessage>
+            </GameGuestMessageBox>
+          ))}
+        </GameGuestTextTrack>
       </GameScreen>
+      <GameChatBox>
+        <GameChatInput ref={chatMessageRef} maxLength={10} placeholder="至多10個字" />
+        <GameChatSubmit onClick={submitMessage}>送出訊息</GameChatSubmit>
+        <Switch setDisplayBullet={setDisplayBullet} />
+      </GameChatBox>
     </GameBody>
   );
 }

@@ -4,7 +4,9 @@ import ReactLoading from 'react-loading';
 
 interface Props {
   content: string;
+  index: string;
   loading: boolean;
+  loadingIndex: string;
   onClick: () => void;
 }
 
@@ -13,16 +15,15 @@ const Wrapper = styled.button`
   justify-content: center;
   align-items: center;
   position: relative;
-  width: 186px;
-  height: 40px;
-  margin: 0 10px;
+  width: 60px;
+  height: 25px;
   background-color: #13bafe;
   border-top-color: #66cfff;
   border-right-color: #66cfff;
   border-left-color: #66cfff;
   border-bottom-color: #248aed;
   border-radius: 34px;
-  box-shadow: 0 0 0 4px #002043, 0 0 0 5px #7c92b0;
+  box-shadow: 0 0 0 2px #002043, 0 0 0 2.5px #7c92b0;
   text-align: center;
   cursor: pointer;
 
@@ -34,8 +35,8 @@ const Wrapper = styled.button`
 `;
 
 const WrapperText = styled.div`
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 400;
 `;
 
 const Loading = styled(ReactLoading)`
@@ -43,11 +44,12 @@ const Loading = styled(ReactLoading)`
   position: absolute;
   top: 0;
   bottom: 0;
-  right: 24px;
+  right: 0;
+  left: 0;
   margin: auto;
 `;
 
-function BlueButton({ content, loading, onClick }: Props) {
+function MinBlueButton({ content, index, loading, loadingIndex, onClick }: Props) {
   const handleClick = () => {
     if (loading) return;
     onClick();
@@ -58,10 +60,14 @@ function BlueButton({ content, loading, onClick }: Props) {
         handleClick();
       }}
     >
-      <WrapperText>{content}</WrapperText>
-      {loading && <Loading type="bars" color="#000" height={24} width={24} />}
+      <WrapperText>
+        {loading && `MinBlueButton${index}` === loadingIndex ? '' : content}
+      </WrapperText>
+      {loading && `MinBlueButton${index}` === loadingIndex && (
+        <Loading type="bars" color="#000" height={24} width={24} />
+      )}
     </Wrapper>
   );
 }
 
-export default BlueButton;
+export default MinBlueButton;

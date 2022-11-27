@@ -42,6 +42,7 @@ const GameBody = styled.div`
   width: 940px;
   height: 560px;
   margin: auto;
+  box-shadow: 0 0 20px #00000090;
 
   @media (max-width: 1125px) {
     display: none;
@@ -56,7 +57,7 @@ const GameBack = styled.div`
   background-image: url(${closeImg});
   background-size: cover;
   opacity: 40%;
-  z-index: 10;
+  z-index: 1;
   cursor: pointer;
 `;
 const GameScreen = styled.div`
@@ -129,7 +130,7 @@ const GameHitPointsImg = styled.img`
   top: 0;
   width: 100%;
   height: 60px;
-  z-index: 10;
+  z-index: 2;
 `;
 const GameDogHitPointsBar = styled.div`
   position: absolute;
@@ -147,7 +148,7 @@ const GameDogHitPointsInner = styled.div<{ width: number }>`
   width: ${(p) => `${p.width}%`};
   height: 100%;
   background-color: red;
-  z-index: 9;
+  z-index: 1;
   transition: linear 0.5s;
 `;
 const GameCatHitPointsBar = styled.div`
@@ -167,7 +168,7 @@ const GameCatHitPointsInner = styled.div<{ width: number }>`
   height: 100%;
   background-color: red;
   transition: linear 0.5s;
-  z-index: 9;
+  z-index: 1;
 `;
 const GameDogSkillBox = styled.div`
   position: absolute;
