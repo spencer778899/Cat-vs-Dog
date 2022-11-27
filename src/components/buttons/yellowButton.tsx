@@ -27,7 +27,9 @@ const Wrapper = styled.button`
   cursor: pointer;
 
   &:hover {
-    opacity: 90%;
+    background-color: #ffcb00;
+    border-top-color: #ffef7c;
+    border-bottom-color: #f88700;
   }
 `;
 

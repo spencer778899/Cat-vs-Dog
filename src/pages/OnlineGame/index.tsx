@@ -393,11 +393,11 @@ const hostBullet = keyframes`
     left: 100%;
     opacity: 100%;
   }
-  90%{
+  85%{
     opacity: 100%;
   }
   100%{
-    left: 0%;
+    left: -250px;
     opacity: 0%;
   }
 `;
@@ -418,11 +418,11 @@ const guestBullet = keyframes`
     right: 100%;
     opacity: 100%;
   }
-  90%{
+  85%{
     opacity: 100%;
   }
   100%{
-    right: 0%;
+    right: -250px;
     opacity: 0%;
   }
 `;
@@ -588,17 +588,17 @@ function OnlineGame() {
   }, [urlParams]);
 
   // If game is processing,reject enter request
-  useEffect(() => {
-    async function rejectEnter() {
-      if (!urlParams.roomID) return;
-      const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
-      if (LoginRoomState !== 'wait') {
-        toast.error('你無法在遊戲開始後加入!');
-        navigate('/');
-      }
-    }
-    rejectEnter();
-  }, []);
+  // useEffect(() => {
+  //   async function rejectEnter() {
+  //     if (!urlParams.roomID) return;
+  //     const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
+  //     if (LoginRoomState !== 'wait') {
+  //       toast.error('你無法在遊戲開始後加入!');
+  //       navigate('/');
+  //     }
+  //   }
+  //   rejectEnter();
+  // }, []);
   // double check unload request
   useEffect(() => {
     const beforeunloadHandler = (event: Event) => {
@@ -655,8 +655,8 @@ function OnlineGame() {
 
   // remove message before it be add over 5sec
   useEffect(() => {
-    setHostMessages(hostMessages?.filter((message) => nowTime - message.key < 5000));
-    setGuestMessages(guestMessages?.filter((message) => nowTime - message.key < 5000));
+    setHostMessages(hostMessages?.filter((message) => nowTime - message.key < 6000));
+    setGuestMessages(guestMessages?.filter((message) => nowTime - message.key < 6000));
   }, [nowTime]);
 
   // subscribe chatroom
@@ -667,7 +667,7 @@ function OnlineGame() {
         const data = docs.data();
         setTimeout(() => {
           setNowTime(Date.now());
-        }, 5000);
+        }, 6000);
         setHostMessages(data?.messages || []);
       },
     );
@@ -677,7 +677,7 @@ function OnlineGame() {
         const data = docs.data();
         setTimeout(() => {
           setNowTime(Date.now());
-        }, 5000);
+        }, 6000);
         setGuestMessages(data?.messages || []);
       },
     );
