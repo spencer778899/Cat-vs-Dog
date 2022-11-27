@@ -29,6 +29,8 @@ import catMissImg from '../../img/gamepage/game_catMiss.png';
 import catHeadIcon from '../../img/catHead.png';
 import { useGlobalContext } from '../../context/authContext';
 import UserInformationBox from './userInformationBox';
+import MinBlueButton from '../../components/buttons/minBlueBottom';
+import Switch from '../../components/switch/Switch';
 
 const swing = keyframes`
   0%{background-position:center}
@@ -484,28 +486,29 @@ const GameChatInput = styled.input`
   height: 30px;
   padding: 5px;
   margin-right: 10px;
-  border: 1px solid #797979;
+  border: 3px solid #000;
   border-radius: 5px;
   font-size: 18px;
 `;
 const GameChatSubmit = styled.div`
   display: inline-block;
-  height: 30px;
-  padding: 3px;
-  border: 0.5px solid #acacac;
-  border-radius: 20px;
+  width: 75px;
+  height: 25px;
+  margin-right: 10px;
   text-align: center;
-  background-color: #fff;
-  font-weight: 500;
-  color: #acacac;
+  background-color: #ffbf00;
+  border-top-color: #ffe100;
+  border-right-color: #ffe100;
+  border-left-color: #ffe100;
+  border-bottom-color: #f88700;
+  border-radius: 34px;
+  box-shadow: 0 0 0 3px #002043, 0 0 0 3.5px #7c92b0;
   cursor: pointer;
 
   &:hover {
-    background-color: #d6d6d6;
-  }
-  &:active {
-    background-color: #acacac;
-    color: #000;
+    background-color: #ffcb00;
+    border-top-color: #ffef7c;
+    border-bottom-color: #f88700;
   }
 `;
 
@@ -572,6 +575,7 @@ function OnlineGame() {
   const gameCatPowerUpRef = useRef<HTMLDivElement>(null);
   const gameCatDoubleHitRef = useRef<HTMLDivElement>(null);
   const gameCatHealRef = useRef<HTMLDivElement>(null);
+
   // If room isn't exist,create a new one
   useEffect(() => {
     async function createNewRoom() {
@@ -588,17 +592,17 @@ function OnlineGame() {
   }, [urlParams]);
 
   // If game is processing,reject enter request
-  // useEffect(() => {
-  //   async function rejectEnter() {
-  //     if (!urlParams.roomID) return;
-  //     const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
-  //     if (LoginRoomState !== 'wait') {
-  //       toast.error('你無法在遊戲開始後加入!');
-  //       navigate('/');
-  //     }
-  //   }
-  //   rejectEnter();
-  // }, []);
+  useEffect(() => {
+    async function rejectEnter() {
+      if (!urlParams.roomID) return;
+      const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
+      if (LoginRoomState !== 'wait') {
+        toast.error('你無法在遊戲開始後加入!');
+        navigate('/');
+      }
+    }
+    rejectEnter();
+  }, []);
   // double check unload request
   useEffect(() => {
     const beforeunloadHandler = (event: Event) => {
@@ -1205,7 +1209,7 @@ function OnlineGame() {
     }
   }, [catQuantityOfPower]);
 
-  function submitMessage() {
+  const submitMessage = () => {
     if (identity === 'host' && roomID && chatMessageRef?.current?.value) {
       const newList = [
         ...hostMessages,
@@ -1229,7 +1233,7 @@ function OnlineGame() {
       firestore.setMessage(roomID, identity, newList);
       chatMessageRef.current.value = '';
     }
-  }
+  };
 
   return (
     <GameBody>
@@ -1334,20 +1338,8 @@ function OnlineGame() {
       </GameScreen>
       <GameChatBox>
         <GameChatInput ref={chatMessageRef} maxLength={10} placeholder="至多10個字" />
-        <GameChatSubmit
-          onClick={() => {
-            submitMessage();
-          }}
-        >
-          送出訊息
-        </GameChatSubmit>
-        <GameChatSubmit
-          onClick={() => {
-            setDisplayBullet(!displayBullet);
-          }}
-        >
-          {displayBullet ? '關閉彈幕' : '開啟彈幕'}
-        </GameChatSubmit>
+        <GameChatSubmit onClick={submitMessage}>送出訊息</GameChatSubmit>
+        <Switch setDisplayBullet={setDisplayBullet} />
       </GameChatBox>
     </GameBody>
   );
