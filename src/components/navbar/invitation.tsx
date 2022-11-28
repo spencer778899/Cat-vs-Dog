@@ -79,8 +79,8 @@ function Invitation() {
 
   async function agreeGameInvitation() {
     if (isLogin === false || user.uid === undefined) return;
+    navigate(`${user.inviting?.URL}`);
     firestore.updateInviting(user.uid, {});
-    navigate(`${user.inviting}`);
   }
   async function rejectGameInvitation() {
     if (isLogin === false || user.uid === undefined) return;

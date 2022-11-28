@@ -61,8 +61,7 @@ function MinYellowButton({ content, index, loading, loadingIndex, friend, onClic
   const handleClick = () => {
     if (!loading && friend.email) {
       onClick(`${index}`, friend.uid, friend.email, friend.email);
-    }
-    if (!loading && friend.uid) {
+    } else if (!loading && friend.uid) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       onClick(index, friend.uid);

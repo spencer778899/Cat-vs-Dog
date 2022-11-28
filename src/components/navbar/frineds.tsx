@@ -197,7 +197,6 @@ function Friends({ invitationList }: homeProps) {
     setLoading(false);
     setLoadingIndex('none');
   };
-
   const sendGameInvitation = async (
     index: string,
     id: string,
