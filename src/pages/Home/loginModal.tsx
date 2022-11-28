@@ -83,6 +83,7 @@ const LoginModalUserEmail = styled.div`
 
 const LoginModalMailInput = styled.input`
   height: 30px;
+  padding-left: 5px;
   border: 1px solid #79797979;
   border-radius: 5px;
 `;
@@ -109,6 +110,7 @@ const LoginModalPasswordText = styled.div`
 `;
 const LoginModalPasswordInput = styled.input`
   height: 30px;
+  padding-left: 5px;
   border: 1px solid #79797979;
   border-radius: 5px;
 `;
@@ -172,6 +174,12 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
     setLoading(false);
   };
 
+  const keyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      LoginHandler();
+    }
+  };
+
   async function updateHeadImg(newPhoto: File) {
     setLoading(true);
     if (newPhoto === undefined || user.uid === undefined || user.uid === undefined) return;
@@ -219,7 +227,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
           {isLogin ? (
             <LoginModalUserEmail>{user.email}</LoginModalUserEmail>
           ) : (
-            <LoginModalMailInput ref={email} />
+            <LoginModalMailInput ref={email} autoFocus />
           )}
         </LoginModalMailbox>
         {isLogin ? (
@@ -232,7 +240,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
           <LoginModalPasswordBox>
             <LoginModalPasswordImg />
             <LoginModalPasswordText>密碼:</LoginModalPasswordText>
-            <LoginModalPasswordInput type="password" ref={password} />
+            <LoginModalPasswordInput type="password" ref={password} onKeyDown={keyDownHandler} />
           </LoginModalPasswordBox>
         )}
         {isLogin ? (
