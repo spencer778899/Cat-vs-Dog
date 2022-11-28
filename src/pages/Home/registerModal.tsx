@@ -97,6 +97,7 @@ const RegisterModalPasswordText = styled.div`
 `;
 const RegisterModalPasswordInput = styled.input`
   height: 30px;
+  padding-left: 5px;
   border: 1px solid #797979;
   border-radius: 5px;
 `;
@@ -146,6 +147,12 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
     setLoading(false);
   };
 
+  const keyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      register();
+    }
+  };
+
   return (
     <div>
       <Modal title="註冊">
@@ -171,7 +178,12 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
         <RegisterModalPasswordBox>
           <RegisterModalNicknameImg />
           <RegisterModalPasswordText>暱稱:</RegisterModalPasswordText>
-          <RegisterModalPasswordInput ref={nickname} maxLength={7} placeholder="至多七個字" />
+          <RegisterModalPasswordInput
+            ref={nickname}
+            maxLength={7}
+            placeholder="至多七個字"
+            autoFocus
+          />
         </RegisterModalPasswordBox>
         <RegisterModalPasswordBox>
           <RegisterModalMailImg />
@@ -181,7 +193,12 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
         <RegisterModalPasswordBox>
           <RegisterModalPasswordImg />
           <RegisterModalPasswordText>密碼:</RegisterModalPasswordText>
-          <RegisterModalPasswordInput type="password" ref={password} placeholder="至少六位密碼" />
+          <RegisterModalPasswordInput
+            type="password"
+            ref={password}
+            placeholder="至少六位密碼"
+            onKeyDown={keyDownHandler}
+          />
         </RegisterModalPasswordBox>
         <RegisterModalButtonBox>
           <BlueButton content="註冊" loading={loading} onClick={register} />

@@ -1235,6 +1235,12 @@ function OnlineGame() {
     }
   };
 
+  const keyDownHandler = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      submitMessage();
+    }
+  };
+
   return (
     <GameBody>
       <GamePreloadBackgroundImg />
@@ -1337,7 +1343,12 @@ function OnlineGame() {
         </GameGuestTextTrack>
       </GameScreen>
       <GameChatBox>
-        <GameChatInput ref={chatMessageRef} maxLength={10} placeholder="至多10個字" />
+        <GameChatInput
+          ref={chatMessageRef}
+          maxLength={10}
+          placeholder="至多10個字"
+          onKeyDown={keyDownHandler}
+        />
         <GameChatSubmit onClick={submitMessage}>送出訊息</GameChatSubmit>
         <Switch setDisplayBullet={setDisplayBullet} />
       </GameChatBox>

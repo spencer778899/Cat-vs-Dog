@@ -18,6 +18,12 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
     font-family: 'Noto Sans TC', sans-serif;
   }
+  .noScrollbar{
+    -ms-overflow-style: none;
+  }
+  .noScrollbar::-webkit-scrollbar {
+    display: none;
+  }
 `;
 function App() {
   const [isLogin, setIsLogin] = useState(false);

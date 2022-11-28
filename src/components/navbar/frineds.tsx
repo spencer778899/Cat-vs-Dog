@@ -48,6 +48,10 @@ const FriendsInvite = styled.div<{ display: string }>`
   border-top-right-radius: 10px;
   background-color: ${(p) => (p.display === 'friends' ? '#e0e0e0' : '##ffffff')};
 `;
+const FriendsBox = styled.div`
+  max-height: 440px;
+  overflow: scroll;
+`;
 const FriendBox = styled.div`
   display: flex;
   justify-content: space-between;
@@ -93,25 +97,6 @@ const FriendEmail = styled.div`
   font-size: 12px;
   color: #797979;
   overflow: hidden;
-`;
-const FriendsInviteButton = styled.button`
-  width: 60px;
-  height: 24px;
-  border: 0.5px solid #acacac;
-  border-radius: 20px;
-  text-align: center;
-  background-color: #fff;
-  font-weight: 500;
-  color: #acacac;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #d6d6d6;
-  }
-  &:active {
-    background-color: #acacac;
-    color: #000;
-  }
 `;
 const FriendInviteBox = styled.div`
   position: absolute;
@@ -188,6 +173,12 @@ function Friends({ invitationList }: homeProps) {
     setLoadingIndex('none');
   };
 
+  const keyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      sendFriendInvitation();
+    }
+  };
+
   const acceptFriendInvitation = async (index: string, id: string) => {
     setLoading(true);
     setLoadingIndex(`MinYellowButton${index}`);
@@ -249,7 +240,7 @@ function Friends({ invitationList }: homeProps) {
         </FriendsInvite>
       </FriendsButtonBox>
       {showColumn === 'friends' ? (
-        <div>
+        <FriendsBox className="noScrollbar">
           {friends &&
             friends.map((friend, index) => (
               <FriendBox key={`${friend.email}`}>
@@ -268,9 +259,9 @@ function Friends({ invitationList }: homeProps) {
                 />
               </FriendBox>
             ))}
-        </div>
+        </FriendsBox>
       ) : (
-        <div>
+        <FriendsBox className="noScrollbar">
           {invitationList &&
             invitationList.map((invitation, index) => (
               <FriendBox key={invitation.uid}>
@@ -288,10 +279,10 @@ function Friends({ invitationList }: homeProps) {
                 />
               </FriendBox>
             ))}
-        </div>
+        </FriendsBox>
       )}
       <FriendInviteBox>
-        <FriendIDInput ref={invitationEmail} placeholder="email" />
+        <FriendIDInput ref={invitationEmail} placeholder="email" onKeyDown={keyDownHandler} />
         <MinBlueButton
           content="交朋友"
           index="1"
