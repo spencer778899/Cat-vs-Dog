@@ -93,12 +93,12 @@ const NavbarNotificationBox = styled.div`
 const NavbarInvitationReminder = styled.div<{ isInvitation: string | undefined }>`
   display: ${(p) => (p.isInvitation ? 'relative' : ' none')};
   position: absolute;
-  left: 45px;
-  bottom: 15px;
-  width: 10px;
-  height: 10px;
+  left: 42px;
+  top: 18px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
-  background-color: #ff5e00eb;
+  background-color: #e60000;
 `;
 const NavbarInvitationBox = styled.div<{ $display: boolean }>`
   display: ${(p) => (p.$display ? 'flex' : 'none')};
@@ -148,6 +148,14 @@ function Navbar() {
       friendRequestSubscribe();
     };
   }, [isLogin]);
+
+  useEffect(() => {
+    if (user.inviting?.URL) {
+      setDisplayInvitationCol(true);
+    } else {
+      setDisplayInvitationCol(false);
+    }
+  }, [user.inviting]);
   return (
     <div>
       {
