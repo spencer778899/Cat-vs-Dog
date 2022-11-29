@@ -240,7 +240,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
           <LoginModalPasswordBox>
             <LoginModalPasswordImg />
             <LoginModalPasswordText>密碼:</LoginModalPasswordText>
-            <LoginModalPasswordInput type="password" ref={password} onKeyDown={keyDownHandler} />
+            <LoginModalPasswordInput type="password" ref={password} onKeyPress={keyDownHandler} />
           </LoginModalPasswordBox>
         )}
         {isLogin ? (

@@ -197,7 +197,7 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
             type="password"
             ref={password}
             placeholder="至少六位密碼"
-            onKeyDown={keyDownHandler}
+            onKeyPress={keyDownHandler}
           />
         </RegisterModalPasswordBox>
         <RegisterModalButtonBox>

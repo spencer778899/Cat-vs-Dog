@@ -281,7 +281,7 @@ function Friends({ invitationList }: homeProps) {
         </FriendsBox>
       )}
       <FriendInviteBox>
-        <FriendIDInput ref={invitationEmail} placeholder="email" onKeyDown={keyDownHandler} />
+        <FriendIDInput ref={invitationEmail} placeholder="email" onKeyPress={keyDownHandler} />
         <MinBlueButton
           content="交朋友"
           index="1"

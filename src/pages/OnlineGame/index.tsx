@@ -1347,7 +1347,7 @@ function OnlineGame() {
           ref={chatMessageRef}
           maxLength={10}
           placeholder="至多10個字"
-          onKeyDown={keyDownHandler}
+          onKeyPress={keyDownHandler}
         />
         <GameChatSubmit onClick={submitMessage}>送出訊息</GameChatSubmit>
         <Switch setDisplayBullet={setDisplayBullet} />
