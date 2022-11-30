@@ -596,7 +596,10 @@ function OnlineGame() {
     async function rejectEnter() {
       if (!urlParams.roomID) return;
       const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
-      if (LoginRoomState !== 'wait') {
+      if (LoginRoomState === 'hostLeave' || LoginRoomState === 'guestLeave') {
+        toast.info('遊戲房間是空的');
+        navigate('/');
+      } else if (LoginRoomState !== 'wait') {
         toast.error('你無法在遊戲開始後加入!');
         navigate('/');
       }

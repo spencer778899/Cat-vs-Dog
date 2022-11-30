@@ -57,8 +57,13 @@ function WaitOpponentModal() {
     navigator.clipboard.writeText(URLInputRef?.current?.value || '');
   };
   async function clearInvitation() {
-    if (!urlParams.friendEmail) return;
-    firestore.cleanInviting(urlParams.friendEmail);
+    if (urlParams.friendEmail) {
+      firestore.cleanInviting(urlParams.friendEmail);
+    }
+    await firestore.updateRoomState(
+      urlParams.roomID,
+      urlParams.identity === 'host' ? 'hostLeave' : 'guestLeave',
+    );
   }
   return (
     <Modal title="邀請你的好友!">
