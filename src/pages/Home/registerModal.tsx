@@ -26,14 +26,22 @@ const RegisterModalAside = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   width: 200px;
-  height: 100px;
-  margin-top: 20px;
+  height: 130px;
+`;
+const RegisterModalAsideTile = styled.div`
+  width: 100%;
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #0257bc;
+  text-align: center;
 `;
 const RegisterModalImgBox = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100px;
 `;
 const RegisterModalStar = styled.div`
   width: 40px;
@@ -164,6 +172,7 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
           ✖
         </RegisterModalBack>
         <RegisterModalAside>
+          <RegisterModalAsideTile>會員專屬功能</RegisterModalAsideTile>
           <RegisterModalImgBox>
             <RegisterModalStar />
             <RegisterModalStarText>成就系統</RegisterModalStarText>
