@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import YellowButton from '../components/buttons/yellowButton';
+import YellowButton from '../buttons/yellowButton';
 
 const CheckDeviceBody = styled.div`
   position: absolute;
@@ -74,7 +74,7 @@ function CheckDevice() {
               <CheckDeviceMain>
                 網頁只支援PC裝置，視窗寬度要求 1124px 以上
                 <CheckDeviceButtonBox>
-                  <YellowButton content="回上一頁" loading={false} onClick={backPreviousPage} />
+                  {/* <YellowButton content="回上一頁" loading={false} onClick={backPreviousPage} /> */}
                 </CheckDeviceButtonBox>
               </CheckDeviceMain>
             </CheckDeviceBody>,

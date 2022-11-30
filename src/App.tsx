@@ -9,7 +9,7 @@ import { AuthContext } from './context/authContext';
 import firestore, { db } from './utils/firestore';
 import Background from './components/background';
 import Navbar from './components/navbar';
-import CheckDevice from './utils/checkDevice';
+import CheckDevice from './components/checkDevice/checkDevice';
 
 const GlobalStyle = createGlobalStyle`
   *{
