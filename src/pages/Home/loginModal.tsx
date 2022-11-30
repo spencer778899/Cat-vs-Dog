@@ -167,8 +167,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
       try {
         await authentication.signIn(email.current?.value, password.current?.value);
         toast.success('登入成功!');
-        email.current.value = '';
-        password.current.value = '';
+        displayLoginModalHandler(false);
       } catch (e) {
         toast.error('帳號或密碼錯誤!');
       }

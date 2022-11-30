@@ -138,7 +138,6 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
         await firestore.setNewAccomplishment(userCredential?.user.uid);
         toast.success('註冊成功!');
         displayRegisterModalHandler(false);
-        displayLoginModalHandler(true);
       } catch (e) {
         console.log(e);
         toast.error('註冊失敗!');
