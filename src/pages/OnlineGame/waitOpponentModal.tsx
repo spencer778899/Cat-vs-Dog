@@ -73,7 +73,7 @@ function WaitOpponentModal() {
         <>
           <WaitOpponentModalURL
             ref={URLInputRef}
-            value={`${window.location.hostname}/onlinegame/${urlParams.roomID}/guest`}
+            value={`https://${window.location.hostname}/onlinegame/${urlParams.roomID}/guest`}
             readOnly
           />
           <YellowButton content="複製連結" loading={false} onClick={URLcopyHandler} />
