@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
-import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import firestore, { db } from '../../utils/firestore';
 import Arrow from '../../img/arrow.png';
@@ -29,7 +29,6 @@ import catMissImg from '../../img/gamepage/game_catMiss.png';
 import catHeadIcon from '../../img/catHead.png';
 import { useGlobalContext } from '../../context/authContext';
 import UserInformationBox from './userInformationBox';
-import MinBlueButton from '../../components/buttons/minBlueBottom';
 import Switch from '../../components/switch/Switch';
 
 const swing = keyframes`
@@ -600,6 +599,10 @@ function OnlineGame() {
         toast.info('遊戲房間是空的');
         navigate('/');
       } else if (LoginRoomState !== 'wait') {
+        await firestore.updateRoomState(
+          urlParams.roomID,
+          urlParams.identity === 'host' ? 'hostLeave' : 'guestLeave',
+        );
         toast.error('你無法在遊戲開始後加入!');
         navigate('/');
       }
