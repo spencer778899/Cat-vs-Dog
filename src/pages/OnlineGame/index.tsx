@@ -254,8 +254,12 @@ const GameCanvas = styled.canvas`
   display: block;
   margin: 0 auto;
 `;
-const GameWhoseTurnMark = styled.div<{ roomState: string | undefined; isDisplayArrow: boolean }>`
-  display: ${(p) => (p.isDisplayArrow ? 'block' : 'none')};
+const GameWhoseTurnMark = styled.div<{
+  roomState: string | undefined;
+  isMyTurn: boolean;
+  isDisplayArrow: boolean;
+}>`
+  display: ${(p) => (p.isMyTurn && p.isDisplayArrow ? 'block' : 'none')};
   position: absolute;
   top: 400px;
   left: ${(p) => (p.roomState === 'dogTurn' ? '829px' : '75px')};
@@ -300,6 +304,13 @@ const GameDogTimer = styled.div`
   height: 40px;
   font-size: 30px;
 `;
+const GameDogText = styled.div<{ roomState: string | undefined; identity: string | undefined }>`
+  display: ${(p) => (p.roomState === 'dogTurn' && p.identity === 'guest' ? 'block' : 'none')};
+  position: absolute;
+  top: 400px;
+  right: 64px;
+  text-align: center;
+`;
 const GameDog = styled.div<{ roomState: string | undefined }>`
   position: absolute;
   bottom: 0;
@@ -322,6 +333,13 @@ const GameCatTimer = styled.div`
   width: 25px;
   height: 40px;
   font-size: 30px;
+`;
+const GameCatText = styled.div<{ roomState: string | undefined; identity: string | undefined }>`
+  display: ${(p) => (p.roomState === 'catTurn' && p.identity === 'host' ? 'block' : 'none')};
+  position: absolute;
+  top: 400px;
+  left: 60px;
+  text-align: center;
 `;
 const GameCat = styled.div<{ roomState: string | undefined }>`
   position: absolute;
@@ -510,6 +528,31 @@ const GameChatSubmit = styled.div`
     border-bottom-color: #f88700;
   }
 `;
+
+function WhoseGameMaker({
+  state,
+  usersIdentity,
+  isDisplayArrow,
+}: {
+  state: string | undefined;
+  usersIdentity: string | undefined;
+  isDisplayArrow: boolean;
+}) {
+  const [isMyTurn, setIsMyTurn] = useState(false);
+  useEffect(() => {
+    if (
+      (state === 'dogTurn' && usersIdentity === 'host') ||
+      (state === 'catTurn' && usersIdentity === 'guest')
+    ) {
+      setIsMyTurn(true);
+    } else {
+      setIsMyTurn(false);
+    }
+  }, [state, usersIdentity]);
+  return (
+    <GameWhoseTurnMark roomState={state} isMyTurn={isMyTurn} isDisplayArrow={isDisplayArrow} />
+  );
+}
 
 function OnlineGame() {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -1320,10 +1363,20 @@ function OnlineGame() {
           <GameCatEnergyBar ref={catEnergyBarRef}>
             <GameCatEnergyInner ref={catEnergyInnerRef} />
           </GameCatEnergyBar>
-          <GameWhoseTurnMark roomState={roomState} isDisplayArrow={isDisplayArrow} />
+          <WhoseGameMaker
+            state={roomState}
+            usersIdentity={identity}
+            isDisplayArrow={isDisplayArrow}
+          />
           <GameDogTimer>{dogTurnTimeSpent}</GameDogTimer>
+          <GameDogText roomState={roomState} identity={identity}>
+            對手的回合
+          </GameDogText>
           <GameDog ref={gameDogRef} roomState={roomState} />
           <GameCatTimer>{catTurnTimeSpent}</GameCatTimer>
+          <GameCatText roomState={roomState} identity={identity}>
+            對手的回合
+          </GameCatText>
           <GameCat ref={gameCatRef} roomState={roomState} />
           <GameCanvas width={940} height={560} ref={canvas} />
         </GameCanvasSection>

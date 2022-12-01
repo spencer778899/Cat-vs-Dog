@@ -125,12 +125,8 @@ const firestore = {
     });
   },
   async getUser(id: string) {
-    try {
-      const user = await getDoc(doc(db, 'users', `${id}`));
-      return user.data();
-    } catch (e) {
-      console.log(e);
-    }
+    const user = await getDoc(doc(db, 'users', `${id}`));
+    return user.data();
   },
   async updatePhotoURL(id: string, URL: string) {
     await updateDoc(doc(db, 'users', `${id}`), {
