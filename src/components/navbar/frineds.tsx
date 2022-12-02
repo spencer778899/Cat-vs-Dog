@@ -61,6 +61,7 @@ const FriendBox = styled.div`
   padding: 10px;
 `;
 const FriendImg = styled.div<{ img: string }>`
+  position: relative;
   width: 50px;
   height: 50px;
   margin-right: 20px;
@@ -68,6 +69,16 @@ const FriendImg = styled.div<{ img: string }>`
   border-radius: 50%;
   background-image: url(${(p) => p.img});
   background-size: cover;
+`;
+const FriendOnlineLight = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 15px;
+  height: 15px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background-color: #1f9900; // off-line #acacac
 `;
 const FriendInviteImg = styled.div<{ img: string }>`
   width: 50px;
@@ -243,7 +254,9 @@ function Friends({ invitationList }: homeProps) {
           {friends &&
             friends.map((friend, index) => (
               <FriendBox key={`${friend.email}`}>
-                <FriendImg img={friend.photoURL} />
+                <FriendImg img={friend.photoURL}>
+                  <FriendOnlineLight />
+                </FriendImg>
                 <FriendTextBox>
                   <FriendName>{friend.nickname}</FriendName>
                   <FriendEmail>{friend.email}</FriendEmail>

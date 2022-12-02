@@ -6,7 +6,7 @@ import { ToastContainer, Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { onSnapshot, doc } from 'firebase/firestore';
 import { AuthContext } from './context/authContext';
-import firestore, { db } from './utils/firestore';
+import firestore, { db, realtime } from './utils/firestore';
 import Background from './components/background';
 import Navbar from './components/navbar';
 import CheckDevice from './components/checkDevice/checkDevice';
@@ -27,6 +27,7 @@ const GlobalStyle = createGlobalStyle`
 `;
 function App() {
   const [isLogin, setIsLogin] = useState(false);
+  const [online, setOnline] = useState(false);
   const [user, setUser] = useState<{
     uid: string | undefined;
     nickname: string | undefined;
@@ -68,6 +69,8 @@ function App() {
           inviting: userData?.inviting,
         });
         setIsLogin(true);
+        await firestore.updateUserOnline(auth.uid, true);
+        await realtime.loginRealtime(auth.uid);
       } else {
         setIsLogin(false);
       }

@@ -8,7 +8,7 @@ import lockImg from '../../img/lock.png';
 import nicknameImg from '../../img/nickname.png';
 import memberImg from '../../img/member.png';
 import pencilImg from '../../img/pencil.png';
-import firestore, { authentication, firestorage } from '../../utils/firestore';
+import firestore, { authentication, firestorage, realtime } from '../../utils/firestore';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import YellowButton from '../../components/buttons/yellowButton';
@@ -260,7 +260,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
                 loading={loading}
                 onClick={() => {
                   setLoading(true);
-                  authentication.signOut();
+                  authentication.signOut(user.uid);
                   displayLoginModalHandler(false);
                   setLoading(false);
                 }}
