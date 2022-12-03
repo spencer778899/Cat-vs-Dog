@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
-import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import firestore, { db } from '../../utils/firestore';
 import Arrow from '../../img/arrow.png';
@@ -29,7 +29,6 @@ import catMissImg from '../../img/gamepage/game_catMiss.png';
 import catHeadIcon from '../../img/catHead.png';
 import { useGlobalContext } from '../../context/authContext';
 import UserInformationBox from './userInformationBox';
-import MinBlueButton from '../../components/buttons/minBlueBottom';
 import Switch from '../../components/switch/Switch';
 
 const swing = keyframes`
@@ -255,8 +254,12 @@ const GameCanvas = styled.canvas`
   display: block;
   margin: 0 auto;
 `;
-const GameWhoseTurnMark = styled.div<{ roomState: string | undefined; isDisplayArrow: boolean }>`
-  display: ${(p) => (p.isDisplayArrow ? 'block' : 'none')};
+const GameWhoseTurnMark = styled.div<{
+  roomState: string | undefined;
+  isMyTurn: boolean;
+  isDisplayArrow: boolean;
+}>`
+  display: ${(p) => (p.isMyTurn && p.isDisplayArrow ? 'block' : 'none')};
   position: absolute;
   top: 400px;
   left: ${(p) => (p.roomState === 'dogTurn' ? '829px' : '75px')};
@@ -301,6 +304,13 @@ const GameDogTimer = styled.div`
   height: 40px;
   font-size: 30px;
 `;
+const GameDogText = styled.div<{ roomState: string | undefined; identity: string | undefined }>`
+  display: ${(p) => (p.roomState === 'dogTurn' && p.identity === 'guest' ? 'block' : 'none')};
+  position: absolute;
+  top: 400px;
+  right: 64px;
+  text-align: center;
+`;
 const GameDog = styled.div<{ roomState: string | undefined }>`
   position: absolute;
   bottom: 0;
@@ -323,6 +333,13 @@ const GameCatTimer = styled.div`
   width: 25px;
   height: 40px;
   font-size: 30px;
+`;
+const GameCatText = styled.div<{ roomState: string | undefined; identity: string | undefined }>`
+  display: ${(p) => (p.roomState === 'catTurn' && p.identity === 'host' ? 'block' : 'none')};
+  position: absolute;
+  top: 400px;
+  left: 60px;
+  text-align: center;
 `;
 const GameCat = styled.div<{ roomState: string | undefined }>`
   position: absolute;
@@ -512,6 +529,31 @@ const GameChatSubmit = styled.div`
   }
 `;
 
+function WhoseGameMaker({
+  state,
+  usersIdentity,
+  isDisplayArrow,
+}: {
+  state: string | undefined;
+  usersIdentity: string | undefined;
+  isDisplayArrow: boolean;
+}) {
+  const [isMyTurn, setIsMyTurn] = useState(false);
+  useEffect(() => {
+    if (
+      (state === 'dogTurn' && usersIdentity === 'host') ||
+      (state === 'catTurn' && usersIdentity === 'guest')
+    ) {
+      setIsMyTurn(true);
+    } else {
+      setIsMyTurn(false);
+    }
+  }, [state, usersIdentity]);
+  return (
+    <GameWhoseTurnMark roomState={state} isMyTurn={isMyTurn} isDisplayArrow={isDisplayArrow} />
+  );
+}
+
 function OnlineGame() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const { user, isLogin } = useGlobalContext();
@@ -596,7 +638,14 @@ function OnlineGame() {
     async function rejectEnter() {
       if (!urlParams.roomID) return;
       const LoginRoomState = await firestore.getRoomState(urlParams.roomID);
-      if (LoginRoomState !== 'wait') {
+      if (LoginRoomState === 'hostLeave' || LoginRoomState === 'guestLeave') {
+        toast.info('遊戲房間是空的');
+        navigate('/');
+      } else if (LoginRoomState !== 'wait') {
+        await firestore.updateRoomState(
+          urlParams.roomID,
+          urlParams.identity === 'host' ? 'hostLeave' : 'guestLeave',
+        );
         toast.error('你無法在遊戲開始後加入!');
         navigate('/');
       }
@@ -1314,10 +1363,20 @@ function OnlineGame() {
           <GameCatEnergyBar ref={catEnergyBarRef}>
             <GameCatEnergyInner ref={catEnergyInnerRef} />
           </GameCatEnergyBar>
-          <GameWhoseTurnMark roomState={roomState} isDisplayArrow={isDisplayArrow} />
+          <WhoseGameMaker
+            state={roomState}
+            usersIdentity={identity}
+            isDisplayArrow={isDisplayArrow}
+          />
           <GameDogTimer>{dogTurnTimeSpent}</GameDogTimer>
+          <GameDogText roomState={roomState} identity={identity}>
+            對手的回合
+          </GameDogText>
           <GameDog ref={gameDogRef} roomState={roomState} />
           <GameCatTimer>{catTurnTimeSpent}</GameCatTimer>
+          <GameCatText roomState={roomState} identity={identity}>
+            對手的回合
+          </GameCatText>
           <GameCat ref={gameCatRef} roomState={roomState} />
           <GameCanvas width={940} height={560} ref={canvas} />
         </GameCanvasSection>
@@ -1347,7 +1406,7 @@ function OnlineGame() {
           ref={chatMessageRef}
           maxLength={10}
           placeholder="至多10個字"
-          onKeyDown={keyDownHandler}
+          onKeyPress={keyDownHandler}
         />
         <GameChatSubmit onClick={submitMessage}>送出訊息</GameChatSubmit>
         <Switch setDisplayBullet={setDisplayBullet} />

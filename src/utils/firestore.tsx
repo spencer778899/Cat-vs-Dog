@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import { initializeApp } from 'firebase/app';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import {
@@ -19,7 +20,7 @@ import {
   signOut,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
-import { toast } from 'react-toastify';
+import { getDatabase, onDisconnect, ref as DBref, set } from 'firebase/database';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_firebaseConfig_apiKey,
@@ -29,12 +30,14 @@ const firebaseConfig = {
   messagingSenderId: process.env.REACT_APP_firebaseConfig_messagingSenderId,
   appId: process.env.REACT_APP_firebaseConfig_appId,
   measurementId: process.env.REACT_APP_firebaseConfig_measurementId,
+  databaseURL: process.env.REACT_APP_firebaseConfig_databaseURL,
 };
 
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+export const database = getDatabase(app);
 
 export const firestorage = {
   async uploadPhotoURL(photo: File, id: string) {
@@ -52,9 +55,30 @@ export const authentication = {
   },
   async signIn(mail: string, password: string) {
     await signInWithEmailAndPassword(auth, mail, password);
+    // await firestore.updateUserOnline(UserData?.user.uid, true);
+    // await realtime.loginRealtime(UserData?.user.uid);
   },
-  async signOut() {
+  async signOut(id: string | undefined) {
     await signOut(auth);
+    await firestore.updateUserOnline(id, false);
+    await realtime.signOutRealtime(id);
+  },
+};
+
+export const realtime = {
+  async loginRealtime(uid: string | undefined) {
+    const local = getDatabase();
+    const presenceRef = DBref(local, `users/${uid}/online`);
+    await set(DBref(local, `users/${uid}`), {
+      online: true,
+    });
+    await onDisconnect(presenceRef).set('false');
+  },
+  async signOutRealtime(uid: string | undefined) {
+    const local = getDatabase();
+    await set(DBref(local, `users/${uid}`), {
+      online: false,
+    });
   },
 };
 
@@ -115,6 +139,7 @@ const firestore = {
   async addUser(id: string | undefined, name: string, mail: string) {
     await setDoc(doc(db, 'users', `${id}`), {
       uid: id,
+      online: false,
       nickname: name,
       email: mail,
       photoURL:
@@ -124,13 +149,14 @@ const firestore = {
       inviting: {},
     });
   },
+  async updateUserOnline(id: string | undefined, state: boolean) {
+    await updateDoc(doc(db, 'users', `${id}`), {
+      online: state,
+    });
+  },
   async getUser(id: string) {
-    try {
-      const user = await getDoc(doc(db, 'users', `${id}`));
-      return user.data();
-    } catch (e) {
-      console.log(e);
-    }
+    const user = await getDoc(doc(db, 'users', `${id}`));
+    return user.data();
   },
   async updatePhotoURL(id: string, URL: string) {
     await updateDoc(doc(db, 'users', `${id}`), {

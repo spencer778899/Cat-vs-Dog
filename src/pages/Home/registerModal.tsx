@@ -26,14 +26,22 @@ const RegisterModalAside = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   width: 200px;
-  height: 100px;
-  margin-top: 20px;
+  height: 130px;
+`;
+const RegisterModalAsideTile = styled.div`
+  width: 100%;
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #0257bc;
+  text-align: center;
 `;
 const RegisterModalImgBox = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100px;
 `;
 const RegisterModalStar = styled.div`
   width: 40px;
@@ -136,9 +144,9 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
           email.current.value,
         );
         await firestore.setNewAccomplishment(userCredential?.user.uid);
+        // await firestore.updateUserOnline(userCredential?.user.uid, true);
         toast.success('註冊成功!');
         displayRegisterModalHandler(false);
-        displayLoginModalHandler(true);
       } catch (e) {
         console.log(e);
         toast.error('註冊失敗!');
@@ -148,7 +156,7 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
   };
 
   const keyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && loading === false) {
       register();
     }
   };
@@ -165,6 +173,7 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
           ✖
         </RegisterModalBack>
         <RegisterModalAside>
+          <RegisterModalAsideTile>會員專屬功能</RegisterModalAsideTile>
           <RegisterModalImgBox>
             <RegisterModalStar />
             <RegisterModalStarText>成就系統</RegisterModalStarText>
@@ -197,7 +206,7 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
             type="password"
             ref={password}
             placeholder="至少六位密碼"
-            onKeyDown={keyDownHandler}
+            onKeyPress={keyDownHandler}
           />
         </RegisterModalPasswordBox>
         <RegisterModalButtonBox>

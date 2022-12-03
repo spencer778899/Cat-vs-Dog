@@ -9,6 +9,7 @@ import MinYellowButton from '../buttons/minYellowButton';
 
 interface homeProps {
   invitationList: { uid: string; nickname: string; photoURL: string }[];
+  displayFriendsCol: boolean;
 }
 
 const FriendsMain = styled.div`
@@ -61,6 +62,7 @@ const FriendBox = styled.div`
   padding: 10px;
 `;
 const FriendImg = styled.div<{ img: string }>`
+  position: relative;
   width: 50px;
   height: 50px;
   margin-right: 20px;
@@ -68,6 +70,16 @@ const FriendImg = styled.div<{ img: string }>`
   border-radius: 50%;
   background-image: url(${(p) => p.img});
   background-size: cover;
+`;
+const FriendOnlineLight = styled.div<{ online: boolean }>`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 15px;
+  height: 15px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background-color: ${(p) => (p.online ? '#1f9900' : '#acacac')};
 `;
 const FriendInviteImg = styled.div<{ img: string }>`
   width: 50px;
@@ -118,7 +130,7 @@ const FriendIDInput = styled.input`
   font-size: 18px;
 `;
 
-function Friends({ invitationList }: homeProps) {
+function Friends({ invitationList, displayFriendsCol }: homeProps) {
   const navigate = useNavigate();
   const { user } = useGlobalContext();
   const [showColumn, setShowColumn] = useState('friends');
@@ -126,6 +138,7 @@ function Friends({ invitationList }: homeProps) {
   const [loadingIndex, setLoadingIndex] = useState('none');
   const [friends, setFriends] = useState<
     {
+      online: boolean;
       uid: string;
       nickname: string;
       email: string;
@@ -138,12 +151,14 @@ function Friends({ invitationList }: homeProps) {
       setFriends([]);
       const result = user.friends?.map(async (uid) => {
         const res = (await firestore.getUser(uid)) as {
+          online: boolean;
           uid: string;
           nickname: string;
           email: string;
           photoURL: string;
         };
         return {
+          online: res?.online,
           uid: res?.uid,
           nickname: res?.nickname,
           email: res?.email,
@@ -152,10 +167,11 @@ function Friends({ invitationList }: homeProps) {
       });
       if (!result) return;
       const newList = await Promise.all(result);
+      newList.sort((a, b) => Number(b.online) - Number(a.online));
       setFriends(newList);
     }
     getFriendsData();
-  }, [user.friends]);
+  }, [user.friends, displayFriendsCol]);
   const sendFriendInvitation = async () => {
     setLoading(true);
     setLoadingIndex('MinBlueButton1');
@@ -174,7 +190,7 @@ function Friends({ invitationList }: homeProps) {
   };
 
   const keyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && loading === false) {
       sendFriendInvitation();
     }
   };
@@ -243,7 +259,9 @@ function Friends({ invitationList }: homeProps) {
           {friends &&
             friends.map((friend, index) => (
               <FriendBox key={`${friend.email}`}>
-                <FriendImg img={friend.photoURL} />
+                <FriendImg img={friend.photoURL}>
+                  <FriendOnlineLight online={friend.online} />
+                </FriendImg>
                 <FriendTextBox>
                   <FriendName>{friend.nickname}</FriendName>
                   <FriendEmail>{friend.email}</FriendEmail>
@@ -281,7 +299,7 @@ function Friends({ invitationList }: homeProps) {
         </FriendsBox>
       )}
       <FriendInviteBox>
-        <FriendIDInput ref={invitationEmail} placeholder="email" onKeyDown={keyDownHandler} />
+        <FriendIDInput ref={invitationEmail} placeholder="email" onKeyPress={keyDownHandler} />
         <MinBlueButton
           content="交朋友"
           index="1"

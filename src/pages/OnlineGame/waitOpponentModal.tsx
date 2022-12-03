@@ -57,8 +57,13 @@ function WaitOpponentModal() {
     navigator.clipboard.writeText(URLInputRef?.current?.value || '');
   };
   async function clearInvitation() {
-    if (!urlParams.friendEmail) return;
-    firestore.cleanInviting(urlParams.friendEmail);
+    if (urlParams.friendEmail) {
+      firestore.cleanInviting(urlParams.friendEmail);
+    }
+    await firestore.updateRoomState(
+      urlParams.roomID,
+      urlParams.identity === 'host' ? 'hostLeave' : 'guestLeave',
+    );
   }
   return (
     <Modal title="邀請你的好友!">
@@ -73,7 +78,7 @@ function WaitOpponentModal() {
         <>
           <WaitOpponentModalURL
             ref={URLInputRef}
-            value={`${window.location.hostname}/onlinegame/${urlParams.roomID}/guest`}
+            value={`https://${window.location.hostname}/onlinegame/${urlParams.roomID}/guest`}
             readOnly
           />
           <YellowButton content="複製連結" loading={false} onClick={URLcopyHandler} />

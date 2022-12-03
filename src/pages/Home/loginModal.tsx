@@ -1,13 +1,14 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
+import { useLocation, useParams } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
 import emailImg from '../../img/email.png';
 import lockImg from '../../img/lock.png';
 import nicknameImg from '../../img/nickname.png';
 import memberImg from '../../img/member.png';
 import pencilImg from '../../img/pencil.png';
-import firestore, { authentication, firestorage } from '../../utils/firestore';
+import firestore, { authentication, firestorage, realtime } from '../../utils/firestore';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import YellowButton from '../../components/buttons/yellowButton';
@@ -150,6 +151,7 @@ const LoginModalButtonBox = styled.div`
 
 function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: HomeProps) {
   const regexp = /^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+  const location = useLocation();
   const { isLogin, user } = useGlobalContext();
   const [loading, setLoading] = useState(false);
   const email = useRef<HTMLInputElement>(null);
@@ -165,8 +167,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
       try {
         await authentication.signIn(email.current?.value, password.current?.value);
         toast.success('登入成功!');
-        email.current.value = '';
-        password.current.value = '';
+        displayLoginModalHandler(false);
       } catch (e) {
         toast.error('帳號或密碼錯誤!');
       }
@@ -175,7 +176,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
   };
 
   const keyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && loading === false) {
       LoginHandler();
     }
   };
@@ -240,21 +241,31 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
           <LoginModalPasswordBox>
             <LoginModalPasswordImg />
             <LoginModalPasswordText>密碼:</LoginModalPasswordText>
-            <LoginModalPasswordInput type="password" ref={password} onKeyDown={keyDownHandler} />
+            <LoginModalPasswordInput type="password" ref={password} onKeyPress={keyDownHandler} />
           </LoginModalPasswordBox>
         )}
         {isLogin ? (
           <LoginModalButtonBox>
-            <BlueButton
-              content="登出"
-              loading={loading}
-              onClick={() => {
-                setLoading(true);
-                authentication.signOut();
-                displayLoginModalHandler(false);
-                setLoading(false);
-              }}
-            />
+            {location.pathname === '/' ? (
+              <BlueButton
+                content="登出"
+                loading={loading}
+                onClick={() => {
+                  setLoading(true);
+                  authentication.signOut(user.uid);
+                  displayLoginModalHandler(false);
+                  setLoading(false);
+                }}
+              />
+            ) : (
+              <BlueButton
+                content="返回遊戲"
+                loading={loading}
+                onClick={() => {
+                  displayLoginModalHandler(false);
+                }}
+              />
+            )}
           </LoginModalButtonBox>
         ) : (
           <LoginModalButtonBox>
