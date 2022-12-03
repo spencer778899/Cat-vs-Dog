@@ -176,7 +176,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
   };
 
   const keyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && loading === false) {
       LoginHandler();
     }
   };

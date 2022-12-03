@@ -190,7 +190,7 @@ function Friends({ invitationList, displayFriendsCol }: homeProps) {
   };
 
   const keyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && loading === false) {
       sendFriendInvitation();
     }
   };
