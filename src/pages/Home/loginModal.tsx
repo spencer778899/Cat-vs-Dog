@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
 import emailImg from '../../img/email.png';
 import lockImg from '../../img/lock.png';
@@ -151,7 +151,7 @@ const LoginModalButtonBox = styled.div`
 
 function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: HomeProps) {
   const regexp = /^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
-  const urlParams = useParams();
+  const location = useLocation();
   const { isLogin, user } = useGlobalContext();
   const [loading, setLoading] = useState(false);
   const email = useRef<HTMLInputElement>(null);
@@ -246,15 +246,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
         )}
         {isLogin ? (
           <LoginModalButtonBox>
-            {urlParams.roomID ? (
-              <BlueButton
-                content="返回遊戲"
-                loading={loading}
-                onClick={() => {
-                  displayLoginModalHandler(false);
-                }}
-              />
-            ) : (
+            {location.pathname === '/' ? (
               <BlueButton
                 content="登出"
                 loading={loading}
@@ -263,6 +255,14 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
                   authentication.signOut(user.uid);
                   displayLoginModalHandler(false);
                   setLoading(false);
+                }}
+              />
+            ) : (
+              <BlueButton
+                content="返回遊戲"
+                loading={loading}
+                onClick={() => {
+                  displayLoginModalHandler(false);
                 }}
               />
             )}

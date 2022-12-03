@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
-import { Link } from 'react-router-dom';
 import ExitModal from '../../components/exitModal';
 import GameoverModal from '../../components/gameoverModal';
 import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
@@ -424,7 +423,6 @@ function Game() {
         setTimeout(resolve, sec);
       });
     }
-
     // setDogTurn
     function setDogTurn() {
       let dogX = 840;
