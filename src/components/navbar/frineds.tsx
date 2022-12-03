@@ -9,6 +9,7 @@ import MinYellowButton from '../buttons/minYellowButton';
 
 interface homeProps {
   invitationList: { uid: string; nickname: string; photoURL: string }[];
+  displayFriendsCol: boolean;
 }
 
 const FriendsMain = styled.div`
@@ -70,7 +71,7 @@ const FriendImg = styled.div<{ img: string }>`
   background-image: url(${(p) => p.img});
   background-size: cover;
 `;
-const FriendOnlineLight = styled.div`
+const FriendOnlineLight = styled.div<{ online: boolean }>`
   position: absolute;
   right: 0;
   bottom: 0;
@@ -78,7 +79,7 @@ const FriendOnlineLight = styled.div`
   height: 15px;
   border: 3px solid #fff;
   border-radius: 50%;
-  background-color: #1f9900; // off-line #acacac
+  background-color: ${(p) => (p.online ? '#1f9900' : '#acacac')};
 `;
 const FriendInviteImg = styled.div<{ img: string }>`
   width: 50px;
@@ -129,7 +130,7 @@ const FriendIDInput = styled.input`
   font-size: 18px;
 `;
 
-function Friends({ invitationList }: homeProps) {
+function Friends({ invitationList, displayFriendsCol }: homeProps) {
   const navigate = useNavigate();
   const { user } = useGlobalContext();
   const [showColumn, setShowColumn] = useState('friends');
@@ -137,6 +138,7 @@ function Friends({ invitationList }: homeProps) {
   const [loadingIndex, setLoadingIndex] = useState('none');
   const [friends, setFriends] = useState<
     {
+      online: boolean;
       uid: string;
       nickname: string;
       email: string;
@@ -149,12 +151,14 @@ function Friends({ invitationList }: homeProps) {
       setFriends([]);
       const result = user.friends?.map(async (uid) => {
         const res = (await firestore.getUser(uid)) as {
+          online: boolean;
           uid: string;
           nickname: string;
           email: string;
           photoURL: string;
         };
         return {
+          online: res?.online,
           uid: res?.uid,
           nickname: res?.nickname,
           email: res?.email,
@@ -163,10 +167,11 @@ function Friends({ invitationList }: homeProps) {
       });
       if (!result) return;
       const newList = await Promise.all(result);
+      newList.sort((a, b) => Number(b.online) - Number(a.online));
       setFriends(newList);
     }
     getFriendsData();
-  }, [user.friends]);
+  }, [user.friends, displayFriendsCol]);
   const sendFriendInvitation = async () => {
     setLoading(true);
     setLoadingIndex('MinBlueButton1');
@@ -255,7 +260,7 @@ function Friends({ invitationList }: homeProps) {
             friends.map((friend, index) => (
               <FriendBox key={`${friend.email}`}>
                 <FriendImg img={friend.photoURL}>
-                  <FriendOnlineLight />
+                  <FriendOnlineLight online={friend.online} />
                 </FriendImg>
                 <FriendTextBox>
                   <FriendName>{friend.nickname}</FriendName>

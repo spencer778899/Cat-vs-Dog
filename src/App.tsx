@@ -27,7 +27,6 @@ const GlobalStyle = createGlobalStyle`
 `;
 function App() {
   const [isLogin, setIsLogin] = useState(false);
-  const [online, setOnline] = useState(false);
   const [user, setUser] = useState<{
     uid: string | undefined;
     nickname: string | undefined;

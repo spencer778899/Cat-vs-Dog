@@ -213,7 +213,7 @@ function Navbar() {
             <Invitation />
           </NavbarInvitationBox>
           <NavbarFriendsBox ref={friendBoxRef} $display={displayFriendsCol}>
-            <Friends invitationList={invitationList} />
+            <Friends invitationList={invitationList} displayFriendsCol={displayFriendsCol} />
           </NavbarFriendsBox>
         </>
       ) : (
