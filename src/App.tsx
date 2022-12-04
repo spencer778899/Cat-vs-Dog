@@ -46,6 +46,11 @@ function App() {
   });
 
   useEffect(() => {
+    async function handleUserOnline() {
+      if (!user.uid) return;
+      await firestore.updateUserOnline(user.uid, true);
+      await realtime.loginRealtime(user.uid);
+    }
     async function userHandler(auth: { uid: string } | null) {
       setUser({
         uid: undefined,
@@ -75,8 +80,10 @@ function App() {
       }
     }
     onAuthStateChanged(getAuth(), userHandler);
+    document.addEventListener('visibilitychange', handleUserOnline);
     return () => {
       onAuthStateChanged(getAuth(), userHandler);
+      document.removeEventListener('visibilitychange', handleUserOnline);
     };
   }, [isLogin]);
 
