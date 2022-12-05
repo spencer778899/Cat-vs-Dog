@@ -29,7 +29,7 @@ import catMissImg from '../../img/gamepage/game_catMiss.png';
 import catHeadIcon from '../../img/catHead.png';
 import { useGlobalContext } from '../../context/authContext';
 import UserInformationBox from './userInformationBox';
-import Switch from '../../components/switch/Switch';
+import Switch from '../../components/switch';
 
 const swing = keyframes`
   0%{background-position:center}
