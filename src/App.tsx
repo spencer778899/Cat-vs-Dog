@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { createGlobalStyle } from 'styled-components';
 import { ToastContainer, Flip } from 'react-toastify';
@@ -9,7 +9,7 @@ import { AuthContext } from './context/authContext';
 import firestore, { db, realtime } from './utils/firestore';
 import Background from './components/background';
 import Navbar from './components/navbar';
-import CheckDevice from './components/checkDevice/checkDevice';
+import CheckDevice from './components/checkDevice';
 
 const GlobalStyle = createGlobalStyle`
   *{
@@ -25,6 +25,7 @@ const GlobalStyle = createGlobalStyle`
     display: none;
   }
 `;
+
 function App() {
   const [isLogin, setIsLogin] = useState(false);
   const [user, setUser] = useState<{
@@ -46,11 +47,6 @@ function App() {
   });
 
   useEffect(() => {
-    async function handleUserOnline() {
-      if (!user.uid) return;
-      await firestore.updateUserOnline(user.uid, true);
-      await realtime.loginRealtime(user.uid);
-    }
     async function userHandler(auth: { uid: string } | null) {
       setUser({
         uid: undefined,
@@ -74,18 +70,28 @@ function App() {
         });
         setIsLogin(true);
         await firestore.updateUserOnline(auth.uid, true);
-        await realtime.loginRealtime(auth.uid);
+        await realtime.setUserIsOnline(auth.uid);
       } else {
         setIsLogin(false);
       }
     }
     onAuthStateChanged(getAuth(), userHandler);
-    document.addEventListener('visibilitychange', handleUserOnline);
     return () => {
       onAuthStateChanged(getAuth(), userHandler);
-      document.removeEventListener('visibilitychange', handleUserOnline);
     };
   }, [isLogin]);
+
+  useEffect(() => {
+    async function userOnlineStateHandler() {
+      if (!user.uid) return;
+      await firestore.updateUserOnline(user.uid, true);
+      await realtime.setUserIsOnline(user.uid);
+    }
+    document.addEventListener('visibilitychange', userOnlineStateHandler);
+    return () => {
+      document.removeEventListener('visibilitychange', userOnlineStateHandler);
+    };
+  }, [user.uid]);
 
   useEffect(() => {
     if (isLogin === false) return;
