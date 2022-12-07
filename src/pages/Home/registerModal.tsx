@@ -144,11 +144,9 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
           email.current.value,
         );
         await firestore.setNewAccomplishment(userCredential?.user.uid);
-        // await firestore.updateUserOnline(userCredential?.user.uid, true);
         toast.success('註冊成功!');
         displayRegisterModalHandler(false);
       } catch (e) {
-        console.log(e);
         toast.error('註冊失敗!');
       }
     }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import LoginModal from './loginModal';
 import RegisterModal from './registerModal';
 import AccomplishmentModal from './accomplishmentModal';

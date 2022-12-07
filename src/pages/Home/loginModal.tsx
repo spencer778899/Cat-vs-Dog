@@ -1,14 +1,14 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
 import emailImg from '../../img/email.png';
 import lockImg from '../../img/lock.png';
 import nicknameImg from '../../img/nickname.png';
 import memberImg from '../../img/member.png';
 import pencilImg from '../../img/pencil.png';
-import firestore, { authentication, firestorage, realtime } from '../../utils/firestore';
+import firestore, { authentication, firestorage } from '../../utils/firestore';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import YellowButton from '../../components/buttons/yellowButton';
