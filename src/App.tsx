@@ -29,32 +29,32 @@ const GlobalStyle = createGlobalStyle`
 function App() {
   const [isLogin, setIsLogin] = useState(false);
   const [user, setUser] = useState<{
-    uid: string | undefined;
-    nickname: string | undefined;
-    email: string | undefined;
-    photoURL: string | undefined;
+    uid: string;
+    nickname: string;
+    email: string;
+    photoURL: string;
     friends: string[] | undefined;
-    changePhotoRight: boolean | undefined;
+    changePhotoRight: boolean;
     inviting: { nickname: string; URL: string; photoURL: string } | undefined;
   }>({
-    uid: undefined,
-    nickname: undefined,
-    email: undefined,
-    photoURL: undefined,
+    uid: '',
+    nickname: '',
+    email: '',
+    photoURL: '',
     friends: undefined,
-    changePhotoRight: undefined,
+    changePhotoRight: false,
     inviting: undefined,
   });
 
   useEffect(() => {
     async function userHandler(auth: { uid: string } | null) {
       setUser({
-        uid: undefined,
-        nickname: undefined,
-        email: undefined,
-        photoURL: undefined,
+        uid: '',
+        nickname: '',
+        email: '',
+        photoURL: '',
         friends: undefined,
-        changePhotoRight: undefined,
+        changePhotoRight: false,
         inviting: undefined,
       });
       if (auth) {
@@ -112,11 +112,11 @@ function App() {
     };
   }, [isLogin]);
 
-  const foo = useMemo(() => ({ isLogin, user }), [isLogin, user]);
+  const userDate = useMemo(() => ({ isLogin, user }), [isLogin, user]);
   return (
     <div>
       <GlobalStyle />
-      <AuthContext.Provider value={foo}>
+      <AuthContext.Provider value={userDate}>
         <CheckDevice />
         <ToastContainer
           position="top-center"
