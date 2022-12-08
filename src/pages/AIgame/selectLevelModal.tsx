@@ -1,19 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import backImg from '../../img/back.png';
-import puppy1Img from '../../img/puppy1.png';
-import puppy2Img from '../../img/puppy2.png';
-import puppy3Img from '../../img/puppy3.png';
-import puppy4Img from '../../img/puppy4.png';
-import puppy5Img from '../../img/puppy5.png';
-import github1Img from '../../img/github1.png';
-import github2Img from '../../img/github2.png';
-import hacker1Img from '../../img/hacker1.png';
-import hacker2Img from '../../img/hacker2.png';
 import YellowButton from '../../components/buttons/yellowButton';
 import Modal from '../../components/modal';
 import SelectLevelModalPreload from './selectLevelModalPreload';
+import imageHub from '../../utils/imageHub';
 
 interface AIgameProps {
   getAILevel: (level: number) => void;
@@ -28,7 +19,7 @@ const SelectLevelModalBack = styled(Link)`
   left: 15px;
   width: 34px;
   height: 38px;
-  background-image: url(${backImg});
+  background-image: url(${imageHub.backImg});
   background-size: cover;
   cursor: pointer;
 
@@ -55,7 +46,7 @@ const SelectLevelModalLevel1Img = styled.div`
   left: -10px;
   width: 90px;
   height: 90px;
-  background-image: url(${puppy1Img});
+  background-image: url(${imageHub.puppy1Img});
   background-size: cover;
   border: 4px solid #fff;
   border-radius: 50%;
@@ -64,22 +55,22 @@ const SelectLevelModalLevel1Img = styled.div`
 
   @keyframes Level1Animation {
     0% {
-      background-image: url(${puppy1Img});
+      background-image: url(${imageHub.puppy1Img});
     }
     2% {
-      background-image: url(${puppy2Img});
+      background-image: url(${imageHub.puppy2Img});
     }
     4% {
-      background-image: url(${puppy3Img});
+      background-image: url(${imageHub.puppy3Img});
     }
     6% {
-      background-image: url(${puppy4Img});
+      background-image: url(${imageHub.puppy4Img});
     }
     8% {
-      background-image: url(${puppy5Img});
+      background-image: url(${imageHub.puppy5Img});
     }
     100% {
-      background-image: url(${puppy5Img});
+      background-image: url(${imageHub.puppy5Img});
     }
   }
 `;
@@ -101,7 +92,7 @@ const SelectLevelModalLevel2Img = styled.div`
   left: -10px;
   width: 90px;
   height: 90px;
-  background-image: url(${github1Img});
+  background-image: url(${imageHub.github1Img});
   background-size: cover;
   border: 4px solid #fff;
   border-radius: 50%;
@@ -110,13 +101,13 @@ const SelectLevelModalLevel2Img = styled.div`
 
   @keyframes Level2Animation {
     0% {
-      background-image: url(${github1Img});
+      background-image: url(${imageHub.github1Img});
     }
     30% {
-      background-image: url(${github2Img});
+      background-image: url(${imageHub.github2Img});
     }
     100% {
-      background-image: url(${github2Img});
+      background-image: url(${imageHub.github2Img});
     }
   }
 `;
@@ -138,7 +129,7 @@ const SelectLevelModalLevel3Img = styled.div`
   left: -10px;
   width: 90px;
   height: 90px;
-  background-image: url(${hacker1Img});
+  background-image: url(${imageHub.hacker1Img});
   background-size: cover;
   border: 4px solid #fff;
   border-radius: 50%;
@@ -148,13 +139,13 @@ const SelectLevelModalLevel3Img = styled.div`
 
   @keyframes Level3Animation {
     0% {
-      background-image: url(${hacker1Img});
+      background-image: url(${imageHub.hacker1Img});
     }
     50% {
-      background-image: url(${hacker2Img});
+      background-image: url(${imageHub.hacker2Img});
     }
     100% {
-      background-image: url(${hacker1Img});
+      background-image: url(${imageHub.hacker1Img});
     }
   }
 `;

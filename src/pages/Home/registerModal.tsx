@@ -2,11 +2,7 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import firestore, { authentication } from '../../utils/firestore';
-import nicknameImg from '../../img/nickname.png';
-import emailImg from '../../img/email.png';
-import lockImg from '../../img/lock.png';
-import starImg from '../../img/star.png';
-import friendsImg from '../../img/friends.png';
+import imageHub from '../../utils/imageHub';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import YellowButton from '../../components/buttons/yellowButton';
@@ -46,7 +42,7 @@ const RegisterModalImgBox = styled.div`
 const RegisterModalStar = styled.div`
   width: 40px;
   height: 40px;
-  background-image: url(${starImg});
+  background-image: url(${imageHub.starImg});
   background-size: cover;
   margin-bottom: 10px;
 `;
@@ -56,7 +52,7 @@ const RegisterModalStarText = styled.div`
 const RegisterModalFriends = styled.div`
   width: 40px;
   height: 40px;
-  background-image: url(${friendsImg});
+  background-image: url(${imageHub.friendsImg});
   background-size: cover;
   margin-bottom: 10px;
 `;
@@ -80,21 +76,21 @@ const RegisterModalPasswordImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${lockImg});
+  background-image: url(${imageHub.lockImg});
   background-size: cover;
 `;
 const RegisterModalNicknameImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${nicknameImg});
+  background-image: url(${imageHub.nicknameImg});
   background-size: cover;
 `;
 const RegisterModalMailImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${emailImg});
+  background-image: url(${imageHub.emailImg});
   background-size: cover;
 `;
 const RegisterModalPasswordText = styled.div`

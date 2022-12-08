@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import YellowButton from '../../components/buttons/yellowButton';
 import Modal from '../../components/modal';
-import backImg from '../../img/back.png';
+import imageHub from '../../utils/imageHub';
 import firestore from '../../utils/firestore';
 
 const WaitOpponentModalText = styled.div`
@@ -40,7 +40,7 @@ const WaitOpponentModalBack = styled(Link)`
   left: 15px;
   width: 34px;
   height: 38px;
-  background-image: url(${backImg});
+  background-image: url(${imageHub.backImg});
   background-size: cover;
   cursor: pointer;
 

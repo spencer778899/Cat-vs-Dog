@@ -6,23 +6,7 @@ import styled, { css, keyframes } from 'styled-components';
 import ExitModal from '../../components/exitModal';
 import GameoverModal from '../../components/gameoverModal';
 import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
-import Arrow from '../../img/arrow.png';
-import windArrow from '../../img/windArrow.png';
-import screenImg from '../../img/gamepage/game_screen.png';
-import powerUpImg from '../../img/gamepage/game_powerUp.png';
-import X2Img from '../../img/gamepage/game_X2.png';
-import healImg from '../../img/gamepage/game_heal.png';
-import hitPointsBarImg from '../../img/gamepage/game_hitPointsBar.png';
-import windBarImg from '../../img/gamepage/game_windBar.png';
-import dogImg from '../../img/gamepage/game_dog.png';
-import dogAttackImg from '../../img/gamepage/game_dogAttack.png';
-import dogInjuriedImg from '../../img/gamepage/game_dogInjuried.png';
-import dogMissImg from '../../img/gamepage/game_dogMiss.png';
-import catImg from '../../img/gamepage/game_cat.png';
-import catAttackImg from '../../img/gamepage/game_catAttack.png';
-import catInjuriedImg from '../../img/gamepage/game_catInjuried.png';
-import catMissImg from '../../img/gamepage/game_catMiss.png';
-import closeImg from '../../img/close.png';
+import imageHub from '../../utils/imageHub';
 
 const swing = keyframes`
   0%{background-position:center}
@@ -53,7 +37,7 @@ const GameBack = styled.div`
   right: 5px;
   width: 27px;
   height: 27px;
-  background-image: url(${closeImg});
+  background-image: url(${imageHub.closeImg});
   background-size: cover;
   opacity: 40%;
   z-index: 1;
@@ -96,7 +80,7 @@ const GameWindDirectionArrow = styled.div<{ windSpeed: number }>`
   right: ${(p) => (p.windSpeed > 0 ? '10px' : '115px')}; // 10、115
   width: 30px;
   height: 10px;
-  background-image: url(${windArrow});
+  background-image: url(${imageHub.windArrow});
   background-size: cover;
   transform: ${(p) => (p.windSpeed > 0 ? 'none' : 'rotate(180deg)')};
   z-index: 1;
@@ -186,7 +170,7 @@ const GameDogPowerUp = styled.div<{ dogHavePowerUp: boolean }>`
   display: ${(p) => (p.dogHavePowerUp ? 'relative' : 'none')};
   width: 40px;
   height: 40px;
-  background-image: url(${powerUpImg});
+  background-image: url(${imageHub.powerUpImg});
   background-size: cover;
   cursor: pointer;
 `;
@@ -195,7 +179,7 @@ const GameDogDoubleHit = styled.div<{ dogHaveDoubleHit: boolean }>`
   width: 40px;
   height: 40px;
 
-  background-image: url(${X2Img});
+  background-image: url(${imageHub.doubleHitImg});
   background-size: cover;
   cursor: pointer;
 `;
@@ -203,7 +187,7 @@ const GameDogHeal = styled.div<{ dogHaveHeal: boolean }>`
   display: ${(p) => (p.dogHaveHeal ? 'relative' : 'none')};
   width: 40px;
   height: 40px;
-  background-image: url(${healImg});
+  background-image: url(${imageHub.healImg});
   background-size: cover;
   color: red;
   font-size: 24px;
@@ -222,7 +206,7 @@ const GameCatPowerUp = styled.div<{ catHavePowerUp: boolean }>`
   align-items: center;
   width: 40px;
   height: 40px;
-  background-image: url(${powerUpImg});
+  background-image: url(${imageHub.powerUpImg});
   background-size: cover;
   cursor: pointer;
 `;
@@ -232,7 +216,7 @@ const GameCatDoubleHit = styled.div<{ catHaveDoubleHit: boolean }>`
   align-items: center;
   width: 40px;
   height: 40px;
-  background-image: url(${X2Img});
+  background-image: url(${imageHub.doubleHitImg});
   background-size: cover;
   cursor: pointer;
 `;
@@ -242,7 +226,7 @@ const GameCatHeal = styled.div<{ catHaveHeal: boolean }>`
   align-items: center;
   width: 40px;
   height: 40px;
-  background-image: url(${healImg});
+  background-image: url(${imageHub.healImg});
   background-size: cover;
   color: red;
   font-size: 24px;
@@ -254,7 +238,7 @@ const GameCanvasSection = styled.div`
   height: 560px;
 `;
 const GameCanvas = styled.canvas`
-  background: url(${screenImg});
+  background: url(${imageHub.screenImg});
   background-size: cover;
   display: block;
   margin: 0 auto;
@@ -266,7 +250,7 @@ const GameWhoseTurnMark = styled.div<{ roomState: string; isDisplayArrow: boolea
   left: ${(p) => (p.roomState === 'dogTurn' ? '829px' : '75px')};
   width: 21px;
   height: 35px;
-  background-image: url(${Arrow});
+  background-image: url(${imageHub.Arrow});
   background-size: cover;
   animation-duration: 0.7s;
   animation-name: blink;
@@ -305,6 +289,7 @@ const GameDogTimer = styled.div`
   height: 40px;
   font-size: 30px;
 `;
+const { dogAttackImg, dogImg } = imageHub;
 const GameDog = styled.div<{ roomState: string }>`
   position: absolute;
   bottom: 0;
@@ -328,6 +313,7 @@ const GameCatTimer = styled.div`
   height: 40px;
   font-size: 30px;
 `;
+const { catAttackImg, catImg } = imageHub;
 const GameCat = styled.div<{ roomState: string }>`
   position: absolute;
   bottom: 0;
@@ -508,7 +494,10 @@ function Game() {
           stopAnimation();
           setCatHitPoints((prev) => prev - hitPointsAvailable);
           ctx?.clearRect(0, 0, 940, 560);
-          gameCatRef?.current?.setAttribute('style', `background-image:url(${catInjuriedImg})`);
+          gameCatRef?.current?.setAttribute(
+            'style',
+            `background-image:url(${imageHub.catInjuriedImg})`,
+          );
           await delay(1000);
           gameCatRef?.current?.setAttribute('style', '');
           testGameState();
@@ -521,7 +510,10 @@ function Game() {
           stopAnimation();
           dogEnergyBarRef?.current?.setAttribute('style', 'display:none');
           ctx?.clearRect(0, 0, 940, 560);
-          gameCatRef?.current?.setAttribute('style', `background-image:url(${catMissImg})`);
+          gameCatRef?.current?.setAttribute(
+            'style',
+            `background-image:url(${imageHub.catMissImg})`,
+          );
           await delay(1000);
           gameCatRef?.current?.setAttribute('style', '');
           setRoomState('catTurn');
@@ -673,7 +665,10 @@ function Game() {
           stopAnimation();
           setDogHitPoints((prev) => prev - hitPointsAvailable);
           ctx?.clearRect(0, 0, 940, 560);
-          gameDogRef?.current?.setAttribute('style', `background-image:url(${dogInjuriedImg})`);
+          gameDogRef?.current?.setAttribute(
+            'style',
+            `background-image:url(${imageHub.dogInjuriedImg})`,
+          );
           await delay(1000);
           gameDogRef?.current?.setAttribute('style', '');
           testGameState();
@@ -686,7 +681,10 @@ function Game() {
           stopAnimation();
           catEnergyBarRef?.current?.setAttribute('style', 'display:none');
           ctx?.clearRect(0, 0, 940, 560);
-          gameDogRef?.current?.setAttribute('style', `background-image:url(${dogMissImg})`);
+          gameDogRef?.current?.setAttribute(
+            'style',
+            `background-image:url(${imageHub.dogMissImg})`,
+          );
           await delay(1000);
           gameDogRef?.current?.setAttribute('style', '');
           setRoomState('dogTurn');
@@ -790,12 +788,12 @@ function Game() {
           <GameControlPanel>
             <GameWindSpeedBox>
               <GameWindDirectionArrow windSpeed={windSpeedBar || 0} />
-              <GameWindSpeedImg src={windBarImg} />
+              <GameWindSpeedImg src={imageHub.windBarImg} />
               <GameWindSpeedBar>
                 <GameWindSpeed windSpeed={windSpeedBar || 0} />
               </GameWindSpeedBar>
             </GameWindSpeedBox>
-            <GameHitPointsImg src={hitPointsBarImg} />
+            <GameHitPointsImg src={imageHub.hitPointsBarImg} />
             <GameDogHitPointsBar>
               <GameDogHitPointsInner width={dogHitPoints} />
             </GameDogHitPointsBar>

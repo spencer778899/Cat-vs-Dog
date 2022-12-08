@@ -3,11 +3,7 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { useLocation } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
-import emailImg from '../../img/email.png';
-import lockImg from '../../img/lock.png';
-import nicknameImg from '../../img/nickname.png';
-import memberImg from '../../img/member.png';
-import pencilImg from '../../img/pencil.png';
+import imageHub from '../../utils/imageHub';
 import firestore, { authentication, firestorage } from '../../utils/firestore';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
@@ -30,7 +26,7 @@ const LoginModalImg = styled.div<{ background: string | undefined }>`
   height: 130px;
   margin-top: 20px;
   margin-bottom: 50px;
-  background-image: url(${(p) => p.background || memberImg});
+  background-image: url(${(p) => p.background || imageHub.memberImg});
   background-size: cover;
   border: ${(p) => (p.background ? '3px solid #000000' : 'none')};
   border-radius: 50%;
@@ -48,7 +44,7 @@ const LoginModalHeadBox = styled.label`
   background-color: #0a5efb;
   border: 4px #fff solid;
   border-radius: 50%;
-  background-image: url(${pencilImg});
+  background-image: url(${imageHub.pencilImg});
   background-size: contain;
   cursor: pointer;
 `;
@@ -67,7 +63,7 @@ const LoginModalMailImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${emailImg});
+  background-image: url(${imageHub.emailImg});
   background-size: cover;
 `;
 const LoginModalMailText = styled.div`
@@ -100,7 +96,7 @@ const LoginModalPasswordImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${lockImg});
+  background-image: url(${imageHub.lockImg});
   background-size: cover;
 `;
 const LoginModalPasswordText = styled.div`
@@ -127,7 +123,7 @@ const LoginModalNicknameImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${nicknameImg});
+  background-image: url(${imageHub.nicknameImg});
   background-size: cover;
 `;
 const LoginModalNicknameText = styled.div`

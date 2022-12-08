@@ -4,8 +4,7 @@ import styled from 'styled-components';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../utils/firestore';
 import { useGlobalContext } from '../../context/authContext';
-import friendsImg from '../../img/friends.png';
-import notificationImg from '../../img/bell.png';
+import imageHub from '../../utils/imageHub';
 import LoginModal from '../../pages/Home/loginModal';
 import Friends from './frineds';
 import Invitation from './invitation';
@@ -73,13 +72,13 @@ const NavbarImgBox = styled.div<{ $display: boolean }>`
 const NavbarFriendsCol = styled.div`
   width: 35px;
   height: 35px;
-  background-image: url(${notificationImg});
+  background-image: url(${imageHub.notificationImg});
   background-size: contain;
 `;
 const NavbarNotification = styled.div`
   width: 35px;
   height: 35px;
-  background-image: url(${friendsImg});
+  background-image: url(${imageHub.friendsImg});
   background-size: cover;
 `;
 const NavbarFriendsBox = styled.div<{ $display: boolean }>`

@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import ReactLoading from 'react-loading';
 import styled from 'styled-components';
-import getFriend0Img from '../../img/getFriend0.png';
-import getFriend1Img from '../../img/getFriend1.png';
-import hacker0Img from '../../img/hacker0.png';
-import hacker1Img from '../../img/hacker1.png';
-import championImg from '../../img/champion.png';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import BackButton from '../../components/buttons/BackButton';
+import imageHub from '../../utils/imageHub';
 
 interface HomeProps {
   displayAccomplishmentModalHandler: (display: boolean) => void;
@@ -60,7 +56,7 @@ const AccomplishmentModalGoal1Img = styled.div<{ achieved: boolean | undefined }
   width: 50px;
   height: 50px;
   margin-bottom: 20px;
-  background-image: url(${(p) => (p.achieved ? getFriend1Img : getFriend0Img)});
+  background-image: url(${(p) => (p.achieved ? imageHub.getFriend1Img : imageHub.getFriend0Img)});
   background-size: cover;
   border-radius: 50%;
   border: 2px #012442 solid;
@@ -70,7 +66,7 @@ const AccomplishmentModalGoal2Img = styled.div<{ achieved: boolean | undefined }
   width: 50px;
   height: 50px;
   margin-bottom: 20px;
-  background-image: url(${(p) => (p.achieved ? hacker1Img : hacker0Img)});
+  background-image: url(${(p) => (p.achieved ? imageHub.hacker1Img : imageHub.hacker0Img)});
   background-size: cover;
   border-radius: 50%;
   border: 2px #012442 solid;
@@ -92,7 +88,7 @@ const AccomplishmentModalIcon = styled.div`
   width: 25px;
   height: 25px;
   margin-bottom: 5px;
-  background-image: url(${championImg});
+  background-image: url(${imageHub.championImg});
   background-size: cover;
 `;
 const AccomplishmentModalGoal1Rate = styled.div`

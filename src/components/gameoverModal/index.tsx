@@ -2,11 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import YellowButton from '../buttons/yellowButton';
-import catWin1Img from '../../img/gamepage/game_catWin1.png';
-import catWin2Img from '../../img/gamepage/game_catWin2.png';
-import dogWin1Img from '../../img/gamepage/game_dogWin1.png';
-import dogWin2Img from '../../img/gamepage/game_dogWin2.png';
-import titleImg from '../../img/title.png';
+import imageHub from '../../utils/imageHub';
 
 interface GameProps {
   roomState: string;
@@ -49,7 +45,7 @@ const GameoverModalTitle = styled.div`
   width: 360px;
   height: 84px;
   margin: -50px auto auto auto;
-  background-image: url(${titleImg});
+  background-image: url(${imageHub.titleImg});
   background-size: cover;
   background-position: center;
 `;
@@ -70,46 +66,46 @@ const GameoverModalTitleText = styled.div`
 const GameoverModalDogAnimation = styled.div`
   width: 200px;
   height: 200px;
-  background-image: url(${dogWin1Img});
+  background-image: url(${imageHub.dogWin1Img});
   background-size: cover;
   animation-duration: 1s;
   animation-name: dogAnimation;
   animation-iteration-count: infinite;
   @keyframes dogAnimation {
     0% {
-      background-image: url(${dogWin1Img});
+      background-image: url(${imageHub.dogWin1Img});
     }
     50% {
-      background-image: url(${dogWin1Img});
+      background-image: url(${imageHub.dogWin1Img});
     }
     51% {
-      background-image: url(${dogWin2Img});
+      background-image: url(${imageHub.dogWin2Img});
     }
     100% {
-      background-image: url(${dogWin2Img});
+      background-image: url(${imageHub.dogWin2Img});
     }
   }
 `;
 const GameoverModalCatAnimation = styled.div`
   width: 160px;
   height: 200px;
-  background-image: url(${catWin1Img});
+  background-image: url(${imageHub.catWin1Img});
   background-size: cover;
   animation-duration: 1s;
   animation-name: catAnimation;
   animation-iteration-count: infinite;
   @keyframes catAnimation {
     0% {
-      background-image: url(${catWin1Img});
+      background-image: url(${imageHub.catWin1Img});
     }
     50% {
-      background-image: url(${catWin1Img});
+      background-image: url(${imageHub.catWin1Img});
     }
     51% {
-      background-image: url(${catWin2Img});
+      background-image: url(${imageHub.catWin2Img});
     }
     100% {
-      background-image: url(${catWin2Img});
+      background-image: url(${imageHub.catWin2Img});
     }
   }
 `;

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
-import circleImg from '../../img/circle.png';
+import imageHub from '../../utils/imageHub';
 
 const InvitationBody = styled.div`
   position: absolute;
@@ -46,7 +46,7 @@ const InvitationAgree = styled.div`
   border-right-color: #ffe100;
   border-left-color: #ffe100;
   border-bottom-color: #f88700;
-  background-image: url(${circleImg});
+  background-image: url(${imageHub.circleImg});
   background-size: 35px cover;
   background-color: #ffbf00;
   box-shadow: 0 0 0 4px #002043, 0 0 0 5px #7c92b0;
@@ -66,7 +66,7 @@ const InvitationReject = styled.div`
   border-right-color: #66cfff;
   border-left-color: #66cfff;
   border-bottom-color: #248aed;
-  background-image: url(${circleImg});
+  background-image: url(${imageHub.circleImg});
   background-size: 35px cover;
   background-color: #13bafe;
   box-shadow: 0 0 0 4px #002043, 0 0 0 5px #7c92b0;
