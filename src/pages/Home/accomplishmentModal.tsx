@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ReactLoading from 'react-loading';
 import styled from 'styled-components';
 import getFriend0Img from '../../img/getFriend0.png';
 import getFriend1Img from '../../img/getFriend1.png';
@@ -9,18 +10,13 @@ import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
+import BackButton from '../../components/buttons/BackButton';
 
 interface HomeProps {
   displayAccomplishmentModalHandler: (display: boolean) => void;
   displayLoginModalHandler: (display: boolean) => void;
 }
 
-const AccomplishmentModalBack = styled.div`
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  cursor: pointer;
-`;
 const AccomplishmentModalBoard = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -30,6 +26,15 @@ const AccomplishmentModalBoard = styled.div`
   padding: 15px;
   border-radius: 20px;
   background-color: rgba(159, 189, 201, 0.7);
+`;
+const Loading = styled(ReactLoading)`
+  width: 24px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
 `;
 const AccomplishmentModalGoal1 = styled.div`
   display: flex;
@@ -112,24 +117,18 @@ function AccomplishmentModal({
 
   useEffect(() => {
     async function getAccomplishments() {
-      if (user.uid === undefined) return;
+      if (!isLogin || !user.uid) return;
       const result = await firestore.getAccomplishments(user.uid);
       setAccomplishments(result);
     }
     getAccomplishments();
-  }, [user]);
-  return (
-    <div>
-      <Modal title="成就">
-        <AccomplishmentModalBack
-          onClick={() => {
-            displayAccomplishmentModalHandler(false);
-          }}
-        >
-          ✖
-        </AccomplishmentModalBack>
-        {isLogin ? (
-          <AccomplishmentModalBoard>
+  }, [isLogin, user]);
+
+  function renderAccomplishmentGoals() {
+    return (
+      <AccomplishmentModalBoard>
+        {accomplishments ? (
+          <>
             <AccomplishmentModalGoal1>
               <AccomplishmentModalGoal1Img achieved={accomplishments?.[0].achieved} />
               <AccomplishmentModalGoal1Text>
@@ -148,21 +147,40 @@ function AccomplishmentModal({
               <AccomplishmentModalIcon />
               <AccomplishmentModalGoal2Rate>{`${accomplishments?.[1].progressRate}/1`}</AccomplishmentModalGoal2Rate>
             </AccomplishmentModalGoal2>
-          </AccomplishmentModalBoard>
+          </>
         ) : (
-          <AccomplishmentModalBoard>
-            <AccomplishmentModalLoginBox>
-              <BlueButton
-                content="登入"
-                loading={false}
-                onClick={() => {
-                  displayAccomplishmentModalHandler(false);
-                  displayLoginModalHandler(true);
-                }}
-              />
-            </AccomplishmentModalLoginBox>
-          </AccomplishmentModalBoard>
+          <Loading type="bars" color="#000" height={36} width={36} />
         )}
+      </AccomplishmentModalBoard>
+    );
+  }
+
+  return (
+    <div>
+      <Modal title="成就">
+        <>
+          <BackButton
+            onClick={() => {
+              displayAccomplishmentModalHandler(false);
+            }}
+          />
+          {isLogin ? (
+            renderAccomplishmentGoals()
+          ) : (
+            <AccomplishmentModalBoard>
+              <AccomplishmentModalLoginBox>
+                <BlueButton
+                  content="登入"
+                  loading={false}
+                  onClick={() => {
+                    displayAccomplishmentModalHandler(false);
+                    displayLoginModalHandler(true);
+                  }}
+                />
+              </AccomplishmentModalLoginBox>
+            </AccomplishmentModalBoard>
+          )}
+        </>
       </Modal>
     </div>
   );
