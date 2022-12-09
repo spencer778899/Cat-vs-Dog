@@ -1,18 +1,18 @@
 /* eslint-disable no-use-before-define */
+import WaitOpponentModal from './waitOpponentModal';
+import UserInformationBox from './userInformationBox';
+import firestore, { db } from '../../utils/firestore';
+import GameoverModal from '../../components/gameoverModal';
+import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
+import { useGlobalContext } from '../../context/authContext';
+import Switch from '../../components/switch';
+import imageHub from '../../utils/imageHub';
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { toast } from 'react-toastify';
-import firestore, { db } from '../../utils/firestore';
-import WaitOpponentModal from './waitOpponentModal';
-import GameoverModal from '../../components/gameoverModal';
-import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
-import { useGlobalContext } from '../../context/authContext';
-import UserInformationBox from './userInformationBox';
-import Switch from '../../components/switch';
-import imageHub from '../../utils/imageHub';
 
 const swing = keyframes`
   0%{background-position:center}

@@ -1,12 +1,12 @@
 /* eslint-disable no-use-before-define */
+import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
+import imageHub from '../../utils/imageHub';
+import ExitModal from '../../components/exitModal';
+import GameoverModal from '../../components/gameoverModal';
 import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import styled, { css, keyframes } from 'styled-components';
-import ExitModal from '../../components/exitModal';
-import GameoverModal from '../../components/gameoverModal';
-import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
-import imageHub from '../../utils/imageHub';
 
 const swing = keyframes`
   0%{background-position:center}

@@ -1,4 +1,3 @@
-import React from 'react';
 import getFriend0Img from '../img/getFriend0.png';
 import getFriend1Img from '../img/getFriend1.png';
 import hacker0Img from '../img/hacker0.png';
@@ -48,6 +47,7 @@ import catWin1Img from '../img/gamepage/game_catWin1.png';
 import catWin2Img from '../img/gamepage/game_catWin2.png';
 import dogWin1Img from '../img/gamepage/game_dogWin1.png';
 import dogWin2Img from '../img/gamepage/game_dogWin2.png';
+import React from 'react';
 
 const imageHub = {
   getFriend0Img,

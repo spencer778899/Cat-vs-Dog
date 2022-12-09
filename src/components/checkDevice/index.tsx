@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import YellowButton from '../buttons/yellowButton';
 
 const CheckDeviceBody = styled.div`
   position: absolute;

@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
-import { toast } from 'react-toastify';
 import firestore, { authentication } from '../../utils/firestore';
 import imageHub from '../../utils/imageHub';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import YellowButton from '../../components/buttons/yellowButton';
+import { toast } from 'react-toastify';
+import styled from 'styled-components';
+import React, { useRef, useState } from 'react';
 
 interface HomeProps {
   displayLoginModalHandler: (display: boolean) => void;

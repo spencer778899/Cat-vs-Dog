@@ -1,7 +1,7 @@
+import firestore, { db, realtime } from '../utils/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import firestore, { db, realtime } from '../utils/firestore';
 
 export type GlobalContent = {
   isLogin: boolean;

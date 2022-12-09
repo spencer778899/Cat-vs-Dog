@@ -1,10 +1,10 @@
-import React, { useRef } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import styled from 'styled-components';
 import YellowButton from '../../components/buttons/yellowButton';
 import Modal from '../../components/modal';
 import imageHub from '../../utils/imageHub';
 import firestore from '../../utils/firestore';
+import styled from 'styled-components';
+import { Link, useParams } from 'react-router-dom';
+import React, { useRef } from 'react';
 
 const WaitOpponentModalText = styled.div`
   width: 288px;

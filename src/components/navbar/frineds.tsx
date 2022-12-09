@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
 import MinBlueButton from '../buttons/minBlueBottom';
 import MinYellowButton from '../buttons/minYellowButton';
+import React, { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 interface homeProps {
   invitationList: { uid: string; nickname: string; photoURL: string }[];

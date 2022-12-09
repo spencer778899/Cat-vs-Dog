@@ -1,15 +1,15 @@
 /* eslint-disable no-use-before-define */
-import * as React from 'react';
-import { useState, useRef, useEffect } from 'react';
-import ReactDOM from 'react-dom';
-import styled, { keyframes, css } from 'styled-components';
+import SelectLevelModel from './selectLevelModal';
 import GameoverModal from '../../components/gameoverModal';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
-import SelectLevelModel from './selectLevelModal';
 import ExitModal from '../../components/exitModal';
 import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
 import imageHub from '../../utils/imageHub';
+import styled, { keyframes, css } from 'styled-components';
+import ReactDOM from 'react-dom';
+import { useState, useRef, useEffect } from 'react';
+import * as React from 'react';
 
 const swing = keyframes`
   0%{background-position:center}

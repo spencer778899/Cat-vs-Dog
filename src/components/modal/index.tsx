@@ -1,6 +1,6 @@
+import imageHub from '../../utils/imageHub';
 import React from 'react';
 import styled from 'styled-components';
-import imageHub from '../../utils/imageHub';
 
 interface LayoutProps {
   children: React.ReactNode;

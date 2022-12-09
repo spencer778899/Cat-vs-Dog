@@ -1,14 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import ReactDOM from 'react-dom';
-import styled from 'styled-components';
-import { collection, onSnapshot } from 'firebase/firestore';
+import Friends from './frineds';
+import Invitation from './invitation';
 import { db } from '../../utils/firestore';
 import { useGlobalContext } from '../../context/authContext';
 import imageHub from '../../utils/imageHub';
 import LoginModal from '../../pages/Home/loginModal';
-import Friends from './frineds';
-import Invitation from './invitation';
 import useOnClickOutside from '../../utils/useOnClickOutside';
+import React, { useEffect, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
+import styled from 'styled-components';
+import { collection, onSnapshot } from 'firebase/firestore';
 
 const NavbarBody = styled.div`
   display: flex;

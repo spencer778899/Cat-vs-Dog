@@ -1,13 +1,13 @@
-import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
-import { toast } from 'react-toastify';
-import { useLocation } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
 import imageHub from '../../utils/imageHub';
 import firestore, { authentication, firestorage } from '../../utils/firestore';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import YellowButton from '../../components/buttons/yellowButton';
+import { useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import styled from 'styled-components';
+import React, { useRef, useState } from 'react';
 
 interface HomeProps {
   displayLoginModalHandler: (display: boolean) => void;

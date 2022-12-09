@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import ReactLoading from 'react-loading';
-import styled from 'styled-components';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import BackButton from '../../components/buttons/BackButton';
 import imageHub from '../../utils/imageHub';
+import styled from 'styled-components';
+import ReactLoading from 'react-loading';
+import React, { useEffect, useState } from 'react';
 
 interface HomeProps {
   displayAccomplishmentModalHandler: (display: boolean) => void;

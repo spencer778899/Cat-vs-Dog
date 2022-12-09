@@ -1,10 +1,10 @@
+import SelectLevelModalPreload from './selectLevelModalPreload';
+import YellowButton from '../../components/buttons/yellowButton';
+import Modal from '../../components/modal';
+import imageHub from '../../utils/imageHub';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import YellowButton from '../../components/buttons/yellowButton';
-import Modal from '../../components/modal';
-import SelectLevelModalPreload from './selectLevelModalPreload';
-import imageHub from '../../utils/imageHub';
 
 interface AIgameProps {
   getAILevel: (level: number) => void;

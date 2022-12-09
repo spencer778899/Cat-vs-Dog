@@ -1,12 +1,12 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import { createGlobalStyle } from 'styled-components';
-import { ToastContainer, Flip } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import AuthProvider from './context/authContext';
 import Background from './components/background';
 import Navbar from './components/navbar';
 import CheckDevice from './components/checkDevice';
+import { Outlet } from 'react-router-dom';
+import React from 'react';
+import { createGlobalStyle } from 'styled-components';
+import { ToastContainer, Flip } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const GlobalStyle = createGlobalStyle`
   *{

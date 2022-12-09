@@ -1,8 +1,8 @@
+import YellowButton from '../buttons/yellowButton';
+import imageHub from '../../utils/imageHub';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import YellowButton from '../buttons/yellowButton';
-import imageHub from '../../utils/imageHub';
 
 interface GameProps {
   roomState: string;
