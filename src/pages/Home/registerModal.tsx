@@ -7,11 +7,6 @@ import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import React, { useRef, useState } from 'react';
 
-interface HomeProps {
-  displayLoginModalHandler: (display: boolean) => void;
-  displayRegisterModalHandler: (display: boolean) => void;
-}
-
 const RegisterModalBack = styled.div`
   position: absolute;
   top: 10px;
@@ -112,7 +107,11 @@ const RegisterModalButtonBox = styled.div`
   justify-content: center;
   align-items: center;
 `;
-function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }: HomeProps) {
+function RegisterModal({
+  setShowModal,
+}: {
+  setShowModal: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const regexp = /^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
   const [loading, setLoading] = useState(false);
   const nickname = useRef<HTMLInputElement>(null);
@@ -141,7 +140,7 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
         );
         await firestore.setNewAccomplishment(userCredential?.user.uid);
         toast.success('註冊成功!');
-        displayRegisterModalHandler(false);
+        setShowModal('none');
       } catch (e) {
         toast.error('註冊失敗!');
       }
@@ -161,7 +160,7 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
         <RegisterModalBack
           onClick={() => {
             if (loading === true) return;
-            displayRegisterModalHandler(false);
+            setShowModal('none');
           }}
         >
           ✖
@@ -210,8 +209,7 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
             loading={false}
             onClick={() => {
               if (loading === true) return;
-              displayLoginModalHandler(true);
-              displayRegisterModalHandler(false);
+              setShowModal('loginModal');
             }}
           />
         </RegisterModalButtonBox>

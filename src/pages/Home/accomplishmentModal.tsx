@@ -8,11 +8,6 @@ import styled from 'styled-components';
 import ReactLoading from 'react-loading';
 import React, { useEffect, useState } from 'react';
 
-interface HomeProps {
-  displayAccomplishmentModalHandler: (display: boolean) => void;
-  displayLoginModalHandler: (display: boolean) => void;
-}
-
 const AccomplishmentModalBoard = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -104,9 +99,10 @@ const AccomplishmentModalLoginBox = styled.div`
   width: 100%;
 `;
 function AccomplishmentModal({
-  displayAccomplishmentModalHandler,
-  displayLoginModalHandler,
-}: HomeProps) {
+  setShowModal,
+}: {
+  setShowModal: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const { isLogin, user } = useGlobalContext();
   const [accomplishments, setAccomplishments] =
     useState<{ goalName: string; achieved: boolean; progressRate: number }[]>();
@@ -157,7 +153,7 @@ function AccomplishmentModal({
         <>
           <BackButton
             onClick={() => {
-              displayAccomplishmentModalHandler(false);
+              setShowModal('none');
             }}
           />
           {isLogin ? (
@@ -169,8 +165,7 @@ function AccomplishmentModal({
                   content="登入"
                   loading={false}
                   onClick={() => {
-                    displayAccomplishmentModalHandler(false);
-                    displayLoginModalHandler(true);
+                    setShowModal('loginModal');
                   }}
                 />
               </AccomplishmentModalLoginBox>

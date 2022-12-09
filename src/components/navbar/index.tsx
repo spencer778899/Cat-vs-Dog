@@ -109,14 +109,11 @@ function Navbar() {
   const [invitationList, setInvitationList] = useState<
     { uid: string; nickname: string; photoURL: string }[]
   >([]);
-  const [displayLoginModal, setDisplayLoginModal] = useState(false);
+  const [shoeModal, setShowModal] = useState('none');
   const [displayFriendsCol, setDisplayFriendsCol] = useState(false);
   const [displayInvitationCol, setDisplayInvitationCol] = useState(false);
   const invitationBoxRef = useRef<HTMLDivElement>(null);
   const friendBoxRef = useRef<HTMLDivElement>(null);
-  const displayLoginModalHandler = (display: boolean) => {
-    setDisplayLoginModal(display);
-  };
 
   useOnClickOutside(invitationBoxRef, () => {
     setDisplayInvitationCol(false);
@@ -146,7 +143,7 @@ function Navbar() {
     return () => {
       friendRequestSubscribe();
     };
-  }, [isLogin]);
+  }, [isLogin, user?.email]);
 
   useEffect(() => {
     if (user.inviting?.URL) {
@@ -157,26 +154,17 @@ function Navbar() {
   }, [user.inviting]);
   return (
     <div>
-      {
-        // prettier-ignore
-        displayLoginModal ?
-          ReactDOM.createPortal(
-            <LoginModal
-              displayLoginModalHandler={displayLoginModalHandler}
-              displayRegisterModalHandler={() => {
-                // login state can't register new account
-              }}
-            />,
-            document?.getElementById('modal-root') as HTMLElement,
-          ) :
-          ''
-      }
+      {shoeModal === 'loginModal' &&
+        ReactDOM.createPortal(
+          <LoginModal setShowModal={setShowModal} />,
+          document?.getElementById('modal-root') as HTMLElement,
+        )}
       {isLogin && user.photoURL && user.nickname ? (
         <>
           <NavbarBody>
             <NavbarPlayer
               onClick={() => {
-                setDisplayLoginModal(true);
+                setShowModal('loginModal');
               }}
             >
               <NavbarPlayerImg img={user?.photoURL} />

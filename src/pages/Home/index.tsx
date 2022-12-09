@@ -195,20 +195,7 @@ const HomeNoteImg = styled.div`
 function Home() {
   const navigate = useNavigate();
   const { isLogin, user } = useGlobalContext();
-  const [displayLoginModal, setDisplayLoginModal] = useState(false);
-  const [displayRegisterModal, setDisplayRegisterModal] = useState(false);
-  const [displayAccomplishmentModal, setDisplayAccomplishmentModal] = useState(false);
-  const displayLoginModalHandler = (display: boolean) => {
-    setDisplayLoginModal(display);
-  };
-
-  const displayRegisterModalHandler = (display: boolean) => {
-    setDisplayRegisterModal(display);
-  };
-
-  const displayAccomplishmentModalHandler = (display: boolean) => {
-    setDisplayAccomplishmentModal(display);
-  };
+  const [showModal, setShowModal] = useState<string>('none');
 
   useEffect(() => {
     async function achieveGoal1Handler() {
@@ -226,51 +213,26 @@ function Home() {
     }
   }, [isLogin, user]);
 
+  function renderModal() {
+    if (showModal === 'loginModal') {
+      return <LoginModal setShowModal={setShowModal} />;
+    }
+    if (showModal === 'registerModal') {
+      return <RegisterModal setShowModal={setShowModal} />;
+    }
+    if (showModal === 'accomplishmentModal') {
+      return <AccomplishmentModal setShowModal={setShowModal} />;
+    }
+  }
+
   return (
     <div>
-      {
-        // prettier-ignore
-        displayLoginModal ?
-          ReactDOM.createPortal(
-            <LoginModal
-              displayLoginModalHandler={displayLoginModalHandler}
-              displayRegisterModalHandler={displayRegisterModalHandler}
-            />,
-            document?.getElementById('modal-root') as HTMLElement,
-          ) :
-          ''
-      }
-      {
-        // prettier-ignore
-        displayRegisterModal ?
-          ReactDOM.createPortal(
-            <RegisterModal
-              displayLoginModalHandler={displayLoginModalHandler}
-              displayRegisterModalHandler={displayRegisterModalHandler}
-            />,
-            document?.getElementById('modal-root') as HTMLElement,
-          ) :
-          ''
-      }
-      {
-        // prettier-ignore
-        displayAccomplishmentModal ?
-          ReactDOM.createPortal(
-            <AccomplishmentModal
-              displayAccomplishmentModalHandler={displayAccomplishmentModalHandler}
-              displayLoginModalHandler={displayLoginModalHandler}
-            />,
-            document?.getElementById('modal-root') as HTMLElement,
-          ) :
-          ''
-      }
+      {ReactDOM.createPortal(renderModal(), document?.getElementById('modal-root') as HTMLElement)}
       <HomeMain>
-        {isLogin ? (
-          ''
-        ) : (
+        {!isLogin && (
           <HomeLogin
             onClick={() => {
-              setDisplayLoginModal(true);
+              setShowModal('loginModal');
             }}
           >
             登入
@@ -315,7 +277,7 @@ function Home() {
               content="成就系統"
               loading={false}
               onClick={() => {
-                displayAccomplishmentModalHandler(true);
+                setShowModal('accomplishmentModal');
               }}
             />
           </HomeButtonBox>

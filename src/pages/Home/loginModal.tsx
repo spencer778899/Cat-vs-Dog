@@ -9,11 +9,6 @@ import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import React, { useRef, useState } from 'react';
 
-interface HomeProps {
-  displayLoginModalHandler: (display: boolean) => void;
-  displayRegisterModalHandler: (display: boolean) => void;
-}
-
 const LoginModalBack = styled.div`
   position: absolute;
   top: 10px;
@@ -145,7 +140,11 @@ const LoginModalButtonBox = styled.div`
   align-items: center;
 `;
 
-function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: HomeProps) {
+function LoginModal({
+  setShowModal,
+}: {
+  setShowModal: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const regexp = /^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
   const location = useLocation();
   const { isLogin, user } = useGlobalContext();
@@ -163,7 +162,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
       try {
         await authentication.signIn(email.current?.value, password.current?.value);
         toast.success('登入成功!');
-        displayLoginModalHandler(false);
+        setShowModal('none');
       } catch (e) {
         toast.error('帳號或密碼錯誤!');
       }
@@ -197,7 +196,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
         <LoginModalBack
           onClick={() => {
             if (loading === true) return;
-            displayLoginModalHandler(false);
+            setShowModal('none');
           }}
         >
           ✖
@@ -254,7 +253,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
                 onClick={() => {
                   setLoading(true);
                   authentication.signOut(user.uid);
-                  displayLoginModalHandler(false);
+                  setShowModal('none');
                   setLoading(false);
                 }}
               />
@@ -263,7 +262,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
                 content="返回遊戲"
                 loading={loading}
                 onClick={() => {
-                  displayLoginModalHandler(false);
+                  setShowModal('none');
                 }}
               />
             )}
@@ -276,8 +275,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
               loading={false}
               onClick={() => {
                 if (loading === true) return;
-                displayLoginModalHandler(false);
-                displayRegisterModalHandler(true);
+                setShowModal('registerModal');
               }}
             />
           </LoginModalButtonBox>
