@@ -156,16 +156,20 @@ function LoginModal({
     setLoading(true);
     if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
       toast.warning('請輸入正確的email');
-    } else if (!password.current?.value.trim() || password.current?.value.trim().length < 6) {
+      setLoading(false);
+      return;
+    }
+    if (!password.current?.value.trim() || password.current?.value.trim().length < 6) {
       toast.warning('請輸入至少六位數密碼!(不能輸入空白)');
-    } else {
-      try {
-        await authentication.signIn(email.current?.value, password.current?.value);
-        toast.success('登入成功!');
-        setShowModal('none');
-      } catch (e) {
-        toast.error('帳號或密碼錯誤!');
-      }
+      setLoading(false);
+      return;
+    }
+    try {
+      await authentication.signIn(email.current?.value, password.current?.value);
+      toast.success('登入成功!');
+      setShowModal('none');
+    } catch (e) {
+      toast.error('帳號或密碼錯誤!');
     }
     setLoading(false);
   };

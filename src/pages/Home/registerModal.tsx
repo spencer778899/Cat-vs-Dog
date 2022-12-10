@@ -122,28 +122,35 @@ function RegisterModal({
     setLoading(true);
     if (!nickname.current?.value.trim()) {
       toast.info('請輸入暱稱!');
-    } else if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
+      setLoading(false);
+      return;
+    }
+    if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
       toast.info('請輸入合格的email!');
-    } else if (!password.current?.value.trim() || password.current?.value.trim().length < 6) {
+      setLoading(false);
+      return;
+    }
+    if (!password.current?.value.trim() || password.current?.value.trim().length < 6) {
       toast.info('請輸入至少六位數密碼!(不能輸入空白)');
-    } else {
-      try {
-        const userCredential = await authentication.register(
-          email.current?.value,
-          password.current?.value,
-        );
-        if (userCredential?.user.uid === undefined) return;
-        await firestore.addUser(
-          userCredential?.user.uid,
-          nickname.current.value,
-          email.current.value,
-        );
-        await firestore.setNewAccomplishment(userCredential?.user.uid);
-        toast.success('註冊成功!');
-        setShowModal('none');
-      } catch (e) {
-        toast.error('註冊失敗!');
-      }
+      setLoading(false);
+      return;
+    }
+    try {
+      const userCredential = await authentication.register(
+        email.current?.value,
+        password.current?.value,
+      );
+      if (userCredential?.user.uid === undefined) return;
+      await firestore.addUser(
+        userCredential?.user.uid,
+        nickname.current.value,
+        email.current.value,
+      );
+      await firestore.setNewAccomplishment(userCredential?.user.uid);
+      toast.success('註冊成功!');
+      setShowModal('none');
+    } catch (e) {
+      toast.error('註冊失敗!');
     }
     setLoading(false);
   };

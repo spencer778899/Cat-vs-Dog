@@ -198,20 +198,15 @@ function Home() {
   const [showModal, setShowModal] = useState<string>('none');
 
   useEffect(() => {
-    async function achieveGoal1Handler() {
-      if (user.uid === undefined) return;
-      if (user.friends?.length === 1) {
-        await firestore.updateGoal1ProgressRate(user.uid, 1);
-      } else if (user.friends?.length === 2) {
-        await firestore.achieveGoal1(user?.uid);
-        await firestore.updateChangePhotoRight(user?.uid);
-      }
+    if (!isLogin) return;
+    if (user.friends?.length === 1) {
+      firestore.updateGoal1ProgressRate(user.uid, 1);
     }
-    if (user?.friends === undefined) return;
-    if (user.friends.length <= 2) {
-      achieveGoal1Handler();
+    if (user.friends?.length === 2) {
+      firestore.achieveGoal1(user?.uid);
+      firestore.updateChangePhotoRight(user?.uid);
     }
-  }, [isLogin, user]);
+  }, [isLogin, user.friends, user.uid]);
 
   function renderModal() {
     if (showModal === 'loginModal') {
