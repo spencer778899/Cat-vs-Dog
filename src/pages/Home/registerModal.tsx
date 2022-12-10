@@ -3,16 +3,11 @@ import imageHub from '../../utils/imageHub';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import YellowButton from '../../components/buttons/yellowButton';
+import BackButton from '../../components/buttons/BackButton';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import React, { useRef, useState } from 'react';
 
-const RegisterModalBack = styled.div`
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  cursor: pointer;
-`;
 const RegisterModalAside = styled.div`
   display: flex;
   justify-content: space-between;
@@ -164,14 +159,11 @@ function RegisterModal({
   return (
     <div>
       <Modal title="註冊">
-        <RegisterModalBack
+        <BackButton
           onClick={() => {
-            if (loading === true) return;
             setShowModal('none');
           }}
-        >
-          ✖
-        </RegisterModalBack>
+        />
         <RegisterModalAside>
           <RegisterModalAsideTile>會員專屬功能</RegisterModalAsideTile>
           <RegisterModalImgBox>
@@ -215,7 +207,6 @@ function RegisterModal({
             content="登入帳號"
             loading={false}
             onClick={() => {
-              if (loading === true) return;
               setShowModal('loginModal');
             }}
           />
