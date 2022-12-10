@@ -1,9 +1,9 @@
-import { useGlobalContext } from '../../context/authContext';
+import { useGlobalContext } from '../../context/AuthContext';
 import imageHub from '../../utils/imageHub';
 import firestore, { authentication, firestorage } from '../../utils/firestore';
 import Modal from '../../components/modal';
-import BlueButton from '../../components/buttons/blueButton';
-import YellowButton from '../../components/buttons/yellowButton';
+import BlueButton from '../../components/buttons/BlueButton';
+import YellowButton from '../../components/buttons/YellowButton';
 import BackButton from '../../components/buttons/BackButton';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';

@@ -1,7 +1,7 @@
-import { useGlobalContext } from '../../context/authContext';
+import { useGlobalContext } from '../../context/AuthContext';
 import firestore from '../../utils/firestore';
-import MinBlueButton from '../buttons/minBlueBottom';
-import MinYellowButton from '../buttons/minYellowButton';
+import MinBlueButton from '../buttons/MinBlueBottom';
+import MinYellowButton from '../buttons/MinYellowButton';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';

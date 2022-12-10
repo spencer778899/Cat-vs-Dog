@@ -1,9 +1,9 @@
-import Friends from './frineds';
-import Invitation from './invitation';
+import Friends from './Frineds';
+import Invitation from './Invitation';
 import { db } from '../../utils/firestore';
-import { useGlobalContext } from '../../context/authContext';
+import { useGlobalContext } from '../../context/AuthContext';
 import imageHub from '../../utils/imageHub';
-import LoginModal from '../../pages/Home/loginModal';
+import LoginModal from '../../pages/Home/LoginModal';
 import useOnClickOutside from '../../utils/useOnClickOutside';
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';

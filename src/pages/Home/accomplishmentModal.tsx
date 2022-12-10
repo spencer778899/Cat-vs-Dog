@@ -1,7 +1,7 @@
-import { useGlobalContext } from '../../context/authContext';
+import { useGlobalContext } from '../../context/AuthContext';
 import firestore from '../../utils/firestore';
 import Modal from '../../components/modal';
-import BlueButton from '../../components/buttons/blueButton';
+import BlueButton from '../../components/buttons/BlueButton';
 import BackButton from '../../components/buttons/BackButton';
 import imageHub from '../../utils/imageHub';
 import styled from 'styled-components';

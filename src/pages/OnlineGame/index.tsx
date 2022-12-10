@@ -1,10 +1,10 @@
 /* eslint-disable no-use-before-define */
-import WaitOpponentModal from './waitOpponentModal';
-import UserInformationBox from './userInformationBox';
+import WaitOpponentModal from './WaitOpponentModal';
+import UserInformationBox from './UserInformationBox';
 import firestore, { db } from '../../utils/firestore';
 import GameoverModal from '../../components/gameoverModal';
 import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';
-import { useGlobalContext } from '../../context/authContext';
+import { useGlobalContext } from '../../context/AuthContext';
 import Switch from '../../components/switch';
 import imageHub from '../../utils/imageHub';
 import React, { useEffect, useState, useRef } from 'react';

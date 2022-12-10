@@ -1,8 +1,8 @@
 import firestore, { authentication } from '../../utils/firestore';
 import imageHub from '../../utils/imageHub';
 import Modal from '../../components/modal';
-import BlueButton from '../../components/buttons/blueButton';
-import YellowButton from '../../components/buttons/yellowButton';
+import BlueButton from '../../components/buttons/BlueButton';
+import YellowButton from '../../components/buttons/YellowButton';
 import BackButton from '../../components/buttons/BackButton';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';

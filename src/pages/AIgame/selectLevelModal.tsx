@@ -1,5 +1,5 @@
-import SelectLevelModalPreload from './selectLevelModalPreload';
-import YellowButton from '../../components/buttons/yellowButton';
+import SelectLevelModalPreload from './SelectLevelModalPreload';
+import YellowButton from '../../components/buttons/YellowButton';
 import Modal from '../../components/modal';
 import imageHub from '../../utils/imageHub';
 import React from 'react';
