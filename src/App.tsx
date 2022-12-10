@@ -25,7 +25,7 @@ const GlobalStyle = createGlobalStyle`
 
 function App() {
   return (
-    <div>
+    <>
       <GlobalStyle />
       <AuthProvider>
         <CheckDevice />
@@ -43,11 +43,12 @@ function App() {
           theme="dark"
           transition={Flip}
         />
-        <Background />
-        <Navbar />
-        <Outlet />
+        <Background>
+          <Navbar />
+          <Outlet />
+        </Background>
       </AuthProvider>
-    </div>
+    </>
   );
 }
 
