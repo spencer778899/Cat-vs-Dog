@@ -132,7 +132,7 @@ const FriendIDInput = styled.input`
 
 function Friends({ invitationList, displayFriendsCol }: homeProps) {
   const navigate = useNavigate();
-  const { user } = useGlobalContext();
+  const { isLogin, user } = useGlobalContext();
   const [showColumn, setShowColumn] = useState('friends');
   const [loading, setLoading] = useState(false);
   const [loadingIndex, setLoadingIndex] = useState('none');
@@ -172,6 +172,18 @@ function Friends({ invitationList, displayFriendsCol }: homeProps) {
     }
     getFriendsData();
   }, [user.friends, displayFriendsCol]);
+
+  useEffect(() => {
+    if (!isLogin) return;
+    if (user.friends?.length === 1) {
+      firestore.updateGoal1ProgressRate(user.uid, 1);
+    }
+    if (user.friends?.length === 2) {
+      firestore.achieveGoal1(user?.uid);
+      firestore.updateChangePhotoRight(user?.uid);
+    }
+  }, [isLogin, user.friends, user.uid]);
+
   const sendFriendInvitation = async () => {
     setLoading(true);
     setLoadingIndex('MinBlueButton1');

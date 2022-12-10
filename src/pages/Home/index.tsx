@@ -194,19 +194,8 @@ const HomeNoteImg = styled.div`
 
 function Home() {
   const navigate = useNavigate();
-  const { isLogin, user } = useGlobalContext();
+  const { isLogin } = useGlobalContext();
   const [showModal, setShowModal] = useState<string>('none');
-
-  useEffect(() => {
-    if (!isLogin) return;
-    if (user.friends?.length === 1) {
-      firestore.updateGoal1ProgressRate(user.uid, 1);
-    }
-    if (user.friends?.length === 2) {
-      firestore.achieveGoal1(user?.uid);
-      firestore.updateChangePhotoRight(user?.uid);
-    }
-  }, [isLogin, user.friends, user.uid]);
 
   function renderModal() {
     if (showModal === 'loginModal') {
