@@ -26,24 +26,11 @@ const CheckDeviceMain = styled.div`
   border-radius: 15px;
 `;
 
-const CheckDeviceButtonBox = styled.div`
-  position: absolute;
-  right: 0;
-  left: 0;
-  bottom: -50px;
-  width: 200px;
-  margin: auto;
-`;
-
 function CheckDevice() {
   const [isCompatibleDevice, setIsCompatibleDevice] = useState(true);
 
-  const backPreviousPage = () => {
-    window.history.back();
-  };
-
   useEffect(() => {
-    function checkDeviceHandler() {
+    function handleCheckDevice() {
       if (
         navigator.userAgent.match(/Android/i) ||
         navigator.userAgent.match(/webOS/i) ||
@@ -55,31 +42,23 @@ function CheckDevice() {
         window.innerWidth <= 1124
       ) {
         setIsCompatibleDevice(false);
-      } else {
-        setIsCompatibleDevice(true);
+        return;
       }
+      setIsCompatibleDevice(true);
     }
-    checkDeviceHandler();
-    window.addEventListener('resize', checkDeviceHandler);
+    handleCheckDevice();
+    window.addEventListener('resize', handleCheckDevice);
   }, []);
 
   return (
     <div>
-      {
-        // prettier-ignore
-        isCompatibleDevice ? '' :
-          ReactDOM.createPortal(
-            <CheckDeviceBody>
-              <CheckDeviceMain>
-                網頁只支援PC裝置，視窗寬度要求 1124px 以上
-                <CheckDeviceButtonBox>
-                  {/* <YellowButton content="回上一頁" loading={false} onClick={backPreviousPage} /> */}
-                </CheckDeviceButtonBox>
-              </CheckDeviceMain>
-            </CheckDeviceBody>,
-            document?.getElementById('modal-root') as HTMLElement,
-          )
-      }
+      {!isCompatibleDevice &&
+        ReactDOM.createPortal(
+          <CheckDeviceBody>
+            <CheckDeviceMain>網頁只支援PC裝置，視窗寬度要求 1124px 以上</CheckDeviceMain>
+          </CheckDeviceBody>,
+          document?.getElementById('modal-root') as HTMLElement,
+        )}
     </div>
   );
 }

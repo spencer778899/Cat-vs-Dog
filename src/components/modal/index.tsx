@@ -2,11 +2,6 @@ import imageHub from '../../utils/imageHub';
 import React from 'react';
 import styled from 'styled-components';
 
-interface LayoutProps {
-  children: React.ReactNode;
-  title: string;
-}
-
 const ModalBody = styled.div`
   position: absolute;
   top: 0;
@@ -63,7 +58,7 @@ const ModalTitleText = styled.div`
     #001b51 2.88051px -0.838247px 0;
 `;
 
-function Modal({ children, title }: LayoutProps) {
+function Modal({ children, title }: { children: React.ReactNode; title: string }) {
   return (
     <ModalBody>
       <ModalMain>

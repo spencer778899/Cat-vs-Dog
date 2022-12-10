@@ -4,11 +4,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-interface GameProps {
-  roomState: string;
-  title: string;
-}
-
 const GameoverModalBody = styled.div`
   position: absolute;
   width: 100vw;
@@ -118,7 +113,7 @@ const GameoverModalText = styled.div`
 `;
 const GameoverModalButtonBox = styled.div``;
 
-function GameoverModal({ roomState, title }: GameProps) {
+function GameoverModal({ roomState, title }: { roomState: string; title: string }) {
   const navigate = useNavigate();
 
   return (
@@ -128,8 +123,8 @@ function GameoverModal({ roomState, title }: GameProps) {
           <GameoverModalTitle>
             <GameoverModalTitleText>{title}</GameoverModalTitleText>
           </GameoverModalTitle>
-          {roomState === 'dogWin' ? <GameoverModalDogAnimation /> : ''}
-          {roomState === 'catWin' ? <GameoverModalCatAnimation /> : ''}
+          {roomState === 'dogWin' && <GameoverModalDogAnimation />}
+          {roomState === 'catWin' && <GameoverModalCatAnimation />}
           <GameoverModalText>{roomState === 'dogWin' ? 'Dog Win!' : 'Cat Win!'}</GameoverModalText>
           <GameoverModalButtonBox>
             <YellowButton

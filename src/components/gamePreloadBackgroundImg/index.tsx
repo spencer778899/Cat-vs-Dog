@@ -5,20 +5,17 @@ import styled from 'styled-components';
 const PreloadImgs = styled.div`
   display: none;
 `;
-const Img = styled.img``;
 
 function GamePreloadBackgroundImg() {
   return (
-    <div>
-      <PreloadImgs>
-        <Img src={imageHub.dogImg} />
-        <Img src={imageHub.dogInjuriedImg} />
-        <Img src={imageHub.dogMissImg} />
-        <Img src={imageHub.catInjuriedImg} />
-        <Img src={imageHub.catAttackImg} />
-        <Img src={imageHub.catMissImg} />
-      </PreloadImgs>
-    </div>
+    <PreloadImgs>
+      <img alt="preload" src={imageHub.dogImg} />
+      <img alt="preload" src={imageHub.dogInjuriedImg} />
+      <img alt="preload" src={imageHub.dogMissImg} />
+      <img alt="preload" src={imageHub.catInjuriedImg} />
+      <img alt="preload" src={imageHub.catAttackImg} />
+      <img alt="preload" src={imageHub.catMissImg} />
+    </PreloadImgs>
   );
 }
 
