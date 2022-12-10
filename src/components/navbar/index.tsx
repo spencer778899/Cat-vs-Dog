@@ -124,7 +124,7 @@ function Navbar() {
 
   useEffect(() => {
     setInvitationList([]);
-    if (isLogin === false) return;
+    if (!isLogin || !user.email) return;
     const friendRequestSubscribe = onSnapshot(
       collection(db, 'friendRequest', `${user?.email}`, 'invitation'),
       (res) => {
@@ -159,7 +159,7 @@ function Navbar() {
           <LoginModal setShowModal={setShowModal} />,
           document?.getElementById('modal-root') as HTMLElement,
         )}
-      {isLogin && user.photoURL && user.nickname ? (
+      {isLogin && user.photoURL && user.nickname && (
         <>
           <NavbarBody>
             <NavbarPlayer
@@ -203,8 +203,6 @@ function Navbar() {
             <Friends invitationList={invitationList} displayFriendsCol={displayFriendsCol} />
           </NavbarFriendsBox>
         </>
-      ) : (
-        ''
       )}
     </div>
   );
