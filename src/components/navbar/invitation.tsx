@@ -78,13 +78,15 @@ function Invitation() {
   const navigate = useNavigate();
 
   async function agreeGameInvitation() {
-    if (isLogin === false || user.uid === undefined) return;
-    navigate(`${user.inviting?.URL}`);
-    firestore.updateInviting(user.uid, {});
+    if (isLogin && user.uid) {
+      navigate(`${user.inviting?.URL}`);
+      firestore.updateInviting(user.uid, {});
+    }
   }
   async function rejectGameInvitation() {
-    if (isLogin === false || user.uid === undefined) return;
-    firestore.updateInviting(user.uid, {});
+    if (isLogin && user.uid) {
+      firestore.updateInviting(user.uid, {});
+    }
   }
 
   return (

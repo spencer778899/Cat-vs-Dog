@@ -4,12 +4,11 @@ import AccomplishmentModal from './accomplishmentModal';
 import { useGlobalContext } from '../../context/authContext';
 import YellowButton from '../../components/buttons/yellowButton';
 import BlueButton from '../../components/buttons/blueButton';
-import firestore from '../../utils/firestore';
 import imageHub from '../../utils/imageHub';
-import styled, { css } from 'styled-components';
-import { useNavigate, useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import ReactDOM from 'react-dom';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 const HomeMain = styled.div`
   display: flex;

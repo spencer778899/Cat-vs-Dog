@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface homeProps {
   invitationList: { uid: string; nickname: string; photoURL: string }[];
-  displayFriendsCol: boolean;
+  showFriendsCol: boolean;
 }
 
 const FriendsMain = styled.div`
@@ -130,7 +130,7 @@ const FriendIDInput = styled.input`
   font-size: 18px;
 `;
 
-function Friends({ invitationList, displayFriendsCol }: homeProps) {
+function Friends({ invitationList, showFriendsCol }: homeProps) {
   const navigate = useNavigate();
   const { isLogin, user } = useGlobalContext();
   const [showColumn, setShowColumn] = useState('friends');
@@ -171,7 +171,7 @@ function Friends({ invitationList, displayFriendsCol }: homeProps) {
       setFriends(newList);
     }
     getFriendsData();
-  }, [user.friends, displayFriendsCol]);
+  }, [user.friends, showFriendsCol]);
 
   useEffect(() => {
     if (!isLogin) return;

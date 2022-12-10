@@ -44,7 +44,7 @@ const NavbarPlayerImg = styled.div<{ img: string }>`
 const NavbarPlayerName = styled.div`
   font-size: 24px;
 `;
-const NavbarImgBox = styled.div<{ $display: boolean }>`
+const NavbarImgBox = styled.div<{ show: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -59,7 +59,7 @@ const NavbarImgBox = styled.div<{ $display: boolean }>`
   border-left-color: #ffe100;
   border-bottom-color: #ffe100;
   box-shadow: 0 0 0 4px #002043, 0 0 0 5px #7c92b0;
-  pointer-events: ${(p) => (p.$display ? 'none' : 'auto')};
+  pointer-events: ${(p) => (p.show ? 'none' : 'auto')};
   cursor: pointer;
 
   &:hover {
@@ -109,17 +109,17 @@ function Navbar() {
   const [invitationList, setInvitationList] = useState<
     { uid: string; nickname: string; photoURL: string }[]
   >([]);
-  const [shoeModal, setShowModal] = useState('none');
-  const [displayFriendsCol, setDisplayFriendsCol] = useState(false);
-  const [displayInvitationCol, setDisplayInvitationCol] = useState(false);
+  const [showModal, setShowModal] = useState('none');
+  const [showFriendsCol, setShowFriendsCol] = useState(false);
+  const [showInvitationCol, setShowInvitationCol] = useState(false);
   const invitationBoxRef = useRef<HTMLDivElement>(null);
   const friendBoxRef = useRef<HTMLDivElement>(null);
 
   useOnClickOutside(invitationBoxRef, () => {
-    setDisplayInvitationCol(false);
+    setShowInvitationCol(false);
   });
   useOnClickOutside(friendBoxRef, () => {
-    setDisplayFriendsCol(false);
+    setShowFriendsCol(false);
   });
 
   useEffect(() => {
@@ -147,19 +147,19 @@ function Navbar() {
 
   useEffect(() => {
     if (user.inviting?.URL) {
-      setDisplayInvitationCol(true);
-    } else {
-      setDisplayInvitationCol(false);
+      setShowInvitationCol(true);
+      return;
     }
+    setShowInvitationCol(false);
   }, [user.inviting]);
   return (
     <div>
-      {shoeModal === 'loginModal' &&
+      {showModal === 'loginModal' &&
         ReactDOM.createPortal(
           <LoginModal setShowModal={setShowModal} />,
           document?.getElementById('modal-root') as HTMLElement,
         )}
-      {isLogin && user.photoURL && user.nickname && (
+      {isLogin && (
         <>
           <NavbarBody>
             <NavbarPlayer
@@ -167,40 +167,34 @@ function Navbar() {
                 setShowModal('loginModal');
               }}
             >
-              <NavbarPlayerImg img={user?.photoURL} />
+              <NavbarPlayerImg img={user.photoURL} />
               <NavbarPlayerName>{user.nickname}</NavbarPlayerName>
             </NavbarPlayer>
             <NavbarNotificationBox>
-              <NavbarInvitationReminder isInvitation={user?.inviting?.URL} />
+              <NavbarInvitationReminder isInvitation={user.inviting?.URL} />
               <NavbarImgBox
-                $display={displayInvitationCol}
+                show={showInvitationCol}
                 onClick={() => {
-                  if (!displayInvitationCol) {
-                    setDisplayInvitationCol(true);
-                  }
+                  setShowInvitationCol((pre) => !pre && true);
                 }}
               >
                 <NavbarFriendsCol />
               </NavbarImgBox>
             </NavbarNotificationBox>
             <NavbarImgBox
-              $display={displayFriendsCol}
+              show={showFriendsCol}
               onClick={() => {
-                if (displayFriendsCol) {
-                  setDisplayFriendsCol(false);
-                } else if (!displayFriendsCol) {
-                  setDisplayFriendsCol(true);
-                }
+                setShowFriendsCol((pre) => !pre);
               }}
             >
               <NavbarNotification />
             </NavbarImgBox>
           </NavbarBody>
-          <NavbarInvitationBox ref={invitationBoxRef} $display={displayInvitationCol}>
+          <NavbarInvitationBox ref={invitationBoxRef} $display={showInvitationCol}>
             <Invitation />
           </NavbarInvitationBox>
-          <NavbarFriendsBox ref={friendBoxRef} $display={displayFriendsCol}>
-            <Friends invitationList={invitationList} displayFriendsCol={displayFriendsCol} />
+          <NavbarFriendsBox ref={friendBoxRef} $display={showFriendsCol}>
+            <Friends invitationList={invitationList} showFriendsCol={showFriendsCol} />
           </NavbarFriendsBox>
         </>
       )}
