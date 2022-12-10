@@ -4,18 +4,13 @@ import firestore, { authentication, firestorage } from '../../utils/firestore';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import YellowButton from '../../components/buttons/yellowButton';
+import BackButton from '../../components/buttons/BackButton';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import React, { useRef, useState } from 'react';
 
-const LoginModalBack = styled.div`
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  cursor: pointer;
-`;
-const LoginModalImg = styled.div<{ background: string | undefined }>`
+const LoginModalImg = styled.div<{ background: string }>`
   position: relative;
   width: 130px;
   height: 130px;
@@ -182,14 +177,14 @@ function LoginModal({
 
   async function updateHeadImg(newPhoto: File) {
     setLoading(true);
-    if (newPhoto === undefined || user.uid === undefined || user.uid === undefined) return;
-    try {
-      const photoURL = await firestorage.uploadPhotoURL(newPhoto, user.uid);
-      if (photoURL === undefined) return;
-      await firestore.updatePhotoURL(user.uid, photoURL);
-      toast.success('上傳成功!');
-    } catch (e) {
-      toast.error('上傳失敗!');
+    if (newPhoto && user.uid) {
+      try {
+        const photoURL = await firestorage.uploadPhotoURL(newPhoto, user.uid);
+        await firestore.updatePhotoURL(user.uid, photoURL);
+        toast.success('上傳成功!');
+      } catch (e) {
+        toast.error('上傳失敗!');
+      }
     }
     setLoading(false);
   }
@@ -197,14 +192,11 @@ function LoginModal({
   return (
     <div>
       <Modal title={isLogin ? '會員' : '登入'}>
-        <LoginModalBack
+        <BackButton
           onClick={() => {
-            if (loading === true) return;
             setShowModal('none');
           }}
-        >
-          ✖
-        </LoginModalBack>
+        />
         <LoginModalImg background={user.photoURL}>
           {isLogin && user.changePhotoRight ? (
             <LoginModalHeadBox>
@@ -255,10 +247,8 @@ function LoginModal({
                 content="登出"
                 loading={loading}
                 onClick={() => {
-                  setLoading(true);
                   authentication.signOut(user.uid);
                   setShowModal('none');
-                  setLoading(false);
                 }}
               />
             ) : (
@@ -278,7 +268,6 @@ function LoginModal({
               content="註冊帳號"
               loading={false}
               onClick={() => {
-                if (loading === true) return;
                 setShowModal('registerModal');
               }}
             />
