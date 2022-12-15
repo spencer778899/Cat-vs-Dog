@@ -1,5 +1,5 @@
-import BlueButton from '../buttons/BlueButton';
-import YellowButton from '../buttons/YellowButton';
+import BlueButton from '../buttons/blueButton';
+import YellowButton from '../buttons/yellowButton';
 import Modal from '../modal';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';

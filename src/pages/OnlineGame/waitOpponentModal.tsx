@@ -1,4 +1,4 @@
-import YellowButton from '../../components/buttons/YellowButton';
+import YellowButton from '../../components/buttons/yellowButton';
 import Modal from '../../components/modal';
 import imageHub from '../../utils/imageHub';
 import firestore from '../../utils/firestore';

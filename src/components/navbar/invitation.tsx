@@ -1,4 +1,4 @@
-import { useGlobalContext } from '../../context/AuthContext';
+import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
 import imageHub from '../../utils/imageHub';
 import React from 'react';

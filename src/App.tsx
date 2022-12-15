@@ -1,4 +1,4 @@
-import AuthProvider from './context/AuthContext';
+import AuthProvider from './context/authContext';
 import Background from './components/background';
 import Navbar from './components/navbar';
 import CheckDevice from './components/checkDevice';

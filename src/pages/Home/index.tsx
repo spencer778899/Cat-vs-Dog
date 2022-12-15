@@ -1,9 +1,9 @@
-import LoginModal from './LoginModal';
-import RegisterModal from './RegisterModal';
-import AccomplishmentModal from './AccomplishmentModal';
-import { useGlobalContext } from '../../context/AuthContext';
-import YellowButton from '../../components/buttons/YellowButton';
-import BlueButton from '../../components/buttons/BlueButton';
+import LoginModal from './loginModal';
+import RegisterModal from './registerModal';
+import AccomplishmentModal from './accomplishmentModal';
+import { useGlobalContext } from '../../context/authContext';
+import YellowButton from '../../components/buttons/yellowButton';
+import BlueButton from '../../components/buttons/blueButton';
 import imageHub from '../../utils/imageHub';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';

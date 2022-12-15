@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
-import SelectLevelModel from './SelectLevelModal';
+import SelectLevelModel from './selectLevelModal';
 import GameoverModal from '../../components/gameoverModal';
-import { useGlobalContext } from '../../context/AuthContext';
+import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
 import ExitModal from '../../components/exitModal';
 import GamePreloadBackgroundImg from '../../components/gamePreloadBackgroundImg';

@@ -1,4 +1,4 @@
-import YellowButton from '../buttons/YellowButton';
+import YellowButton from '../buttons/yellowButton';
 import imageHub from '../../utils/imageHub';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
