@@ -4,7 +4,7 @@
 Dog_vs_Cat  
 <br/>
 <a href="https://cat-vs-dog-738e6.web.app/">Website Link</a><br/>
-<a href="https://drive.google.com/file/d/1HHG3bdoxIQjPflgpcdVlhoKX1avP7vKl/view?usp=sharing">Demo Video</a>
+<a href="https://drive.google.com/file/d/1rK19-_9669KfMHdjy6kJufGsLJdpally/view?usp=sharing">Demo Video</a>
 </p>
 
 </p>
@@ -18,19 +18,19 @@ In this retro web game, 2 players are each assigned a character of either the ca
 > Account: mason@gmail.com  
 > Password: 778899
 
-## Skills
+## Package
 
 - TypeScript
-- React (Context, Hooks)
+- React
 - Router
 - Styled-Components
-- Webpack
-- Babel
 - Eslint
 - Prettier
+- React-Toastify
+- React-Loading
 - Firebase
 
-## Functions
+## Skills
 
 - Managed the data flow with the **_useState_** hook, and rendered animation with **_Canvas_**.
 - Completed user management system with **_Firebase Authentication_** and **_Firestore_**.
@@ -38,18 +38,21 @@ In this retro web game, 2 players are each assigned a character of either the ca
 - Accomplished **_SPA_** experience with **_React-Router_**.
 - Promoted code completion with **_TypeScript_** and **_Eslint (Airbnb)_**.
 
+<img src='https://user-images.githubusercontent.com/108862911/208043082-b4714cd6-0b7a-410d-9b3e-ef6e577af1a3.jpg' width='800px' />
+<br/>
+
 ## Function Map
 
-<img src='https://user-images.githubusercontent.com/108862911/207659970-ec22c4a9-6019-4f1b-8590-8a4525b1a460.jpg' width='600px' />
+<img src='https://user-images.githubusercontent.com/108862911/207848722-3e27275a-edd2-4db7-8826-9747309fffc8.jpg' width='800px' />
 
 ## Features Demo
 
 **_Home Page_**
 
-- User can read game introducation.
-- User can choose models of game.
-- User can check achievement system.
-- User can login and register in member system.
+- Read game introducation.
+- Choose model of game.
+- Check achievement system.
+- Login and register in member system.  
   <img src='https://user-images.githubusercontent.com/108862911/207749846-d0f19c54-0b9e-4b30-ad5e-727c1596d45a.png' width='500px' />
 
 **_Member System and Achievement System_**
@@ -62,7 +65,7 @@ In this retro web game, 2 players are each assigned a character of either the ca
 
 - Click and hold mouse button over bharacter to throw a black ball. The game will finish when one side's HP is empty.<br/><img src='https://user-images.githubusercontent.com/108862911/207776999-4dd31a72-134d-4f2c-accb-078097cd6684.gif' width='500px' />
 - A random wind direction will created in each round to influence the trajectory of the thrown ball.<br/><img src='https://user-images.githubusercontent.com/108862911/207777382-20bffe1c-289b-4730-a7c0-97b7190a7ffa.png' />
-- Designed three skills that can be used by players in the game, including healing, power throw, and double attack.g<br/><img src='https://user-images.githubusercontent.com/108862911/207779013-2e1edf10-8eb0-41df-9c06-3b5daaf273fc.gif' width='500px' />
+- Designed three skills that can be used by players in the game, including healing, power throw, and double attack.<br/><img src='https://user-images.githubusercontent.com/108862911/207779013-2e1edf10-8eb0-41df-9c06-3b5daaf273fc.gif' width='500px' />
 
 **_AI Game_**  
 <u>Enabled PC attacks on a user automatically in single mode, and the hit rate is determined by the level selected by the user.</u>
