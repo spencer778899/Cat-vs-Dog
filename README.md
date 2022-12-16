@@ -52,7 +52,7 @@ In this retro web game, 2 players are each assigned a character of either the ca
 - Read game introducation.
 - Choose model of game.
 - Check achievement system.
-- Login and register in member system.
+- Login and register in member system.  
   <img src='https://user-images.githubusercontent.com/108862911/207749846-d0f19c54-0b9e-4b30-ad5e-727c1596d45a.png' width='500px' />
 
 **_Member System and Achievement System_**
