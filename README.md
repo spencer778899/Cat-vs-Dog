@@ -38,9 +38,12 @@ In this retro web game, 2 players are each assigned a character of either the ca
 - Accomplished **_SPA_** experience with **_React-Router_**.
 - Promoted code completion with **_TypeScript_** and **_Eslint (Airbnb)_**.
 
+<img src='https://user-images.githubusercontent.com/108862911/208043082-b4714cd6-0b7a-410d-9b3e-ef6e577af1a3.jpg' width='800px' />
+<br/>
+
 ## Function Map
 
-<img src='(https://user-images.githubusercontent.com/108862911/207806702-8b0ea268-8b37-4b2a-969a-b63ff0b9b500.jpg' width='600px' />
+<img src='https://user-images.githubusercontent.com/108862911/207848722-3e27275a-edd2-4db7-8826-9747309fffc8.jpg' width='800px' />
 
 ## Features Demo
 

@@ -228,7 +228,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
           {isLogin ? (
             <LoginModalUserEmail>{user.email}</LoginModalUserEmail>
           ) : (
-            <LoginModalMailInput ref={email} autoFocus />
+            <LoginModalMailInput ref={email} value="mason@gmail.com" autoFocus />
           )}
         </LoginModalMailbox>
         {isLogin ? (
@@ -241,7 +241,12 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
           <LoginModalPasswordBox>
             <LoginModalPasswordImg />
             <LoginModalPasswordText>密碼:</LoginModalPasswordText>
-            <LoginModalPasswordInput type="password" ref={password} onKeyPress={keyDownHandler} />
+            <LoginModalPasswordInput
+              type="password"
+              ref={password}
+              value="778899"
+              onKeyPress={keyDownHandler}
+            />
           </LoginModalPasswordBox>
         )}
         {isLogin ? (
