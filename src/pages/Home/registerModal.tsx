@@ -1,27 +1,13 @@
-import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
-import { toast } from 'react-toastify';
 import firestore, { authentication } from '../../utils/firestore';
-import nicknameImg from '../../img/nickname.png';
-import emailImg from '../../img/email.png';
-import lockImg from '../../img/lock.png';
-import starImg from '../../img/star.png';
-import friendsImg from '../../img/friends.png';
+import imageHub from '../../utils/imageHub';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import YellowButton from '../../components/buttons/yellowButton';
+import BackButton from '../../components/buttons/backButton';
+import { toast } from 'react-toastify';
+import styled from 'styled-components';
+import React, { useRef, useState } from 'react';
 
-interface HomeProps {
-  displayLoginModalHandler: (display: boolean) => void;
-  displayRegisterModalHandler: (display: boolean) => void;
-}
-
-const RegisterModalBack = styled.div`
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  cursor: pointer;
-`;
 const RegisterModalAside = styled.div`
   display: flex;
   justify-content: space-between;
@@ -46,7 +32,7 @@ const RegisterModalImgBox = styled.div`
 const RegisterModalStar = styled.div`
   width: 40px;
   height: 40px;
-  background-image: url(${starImg});
+  background-image: url(${imageHub.starImg});
   background-size: cover;
   margin-bottom: 10px;
 `;
@@ -56,7 +42,7 @@ const RegisterModalStarText = styled.div`
 const RegisterModalFriends = styled.div`
   width: 40px;
   height: 40px;
-  background-image: url(${friendsImg});
+  background-image: url(${imageHub.friendsImg});
   background-size: cover;
   margin-bottom: 10px;
 `;
@@ -80,21 +66,21 @@ const RegisterModalPasswordImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${lockImg});
+  background-image: url(${imageHub.lockImg});
   background-size: cover;
 `;
 const RegisterModalNicknameImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${nicknameImg});
+  background-image: url(${imageHub.nicknameImg});
   background-size: cover;
 `;
 const RegisterModalMailImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${emailImg});
+  background-image: url(${imageHub.emailImg});
   background-size: cover;
 `;
 const RegisterModalPasswordText = styled.div`
@@ -116,7 +102,11 @@ const RegisterModalButtonBox = styled.div`
   justify-content: center;
   align-items: center;
 `;
-function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }: HomeProps) {
+function RegisterModal({
+  setShowModal,
+}: {
+  setShowModal: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const regexp = /^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
   const [loading, setLoading] = useState(false);
   const nickname = useRef<HTMLInputElement>(null);
@@ -127,30 +117,35 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
     setLoading(true);
     if (!nickname.current?.value.trim()) {
       toast.info('請輸入暱稱!');
-    } else if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
+      setLoading(false);
+      return;
+    }
+    if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
       toast.info('請輸入合格的email!');
-    } else if (!password.current?.value.trim() || password.current?.value.trim().length < 6) {
+      setLoading(false);
+      return;
+    }
+    if (!password.current?.value.trim() || password.current?.value.trim().length < 6) {
       toast.info('請輸入至少六位數密碼!(不能輸入空白)');
-    } else {
-      try {
-        const userCredential = await authentication.register(
-          email.current?.value,
-          password.current?.value,
-        );
-        if (userCredential?.user.uid === undefined) return;
-        await firestore.addUser(
-          userCredential?.user.uid,
-          nickname.current.value,
-          email.current.value,
-        );
-        await firestore.setNewAccomplishment(userCredential?.user.uid);
-        // await firestore.updateUserOnline(userCredential?.user.uid, true);
-        toast.success('註冊成功!');
-        displayRegisterModalHandler(false);
-      } catch (e) {
-        console.log(e);
-        toast.error('註冊失敗!');
-      }
+      setLoading(false);
+      return;
+    }
+    try {
+      const userCredential = await authentication.register(
+        email.current?.value,
+        password.current?.value,
+      );
+      if (userCredential?.user.uid === undefined) return;
+      await firestore.addUser(
+        userCredential?.user.uid,
+        nickname.current.value,
+        email.current.value,
+      );
+      await firestore.setNewAccomplishment(userCredential?.user.uid);
+      toast.success('註冊成功!');
+      setShowModal('none');
+    } catch (e) {
+      toast.error('註冊失敗!');
     }
     setLoading(false);
   };
@@ -164,14 +159,11 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
   return (
     <div>
       <Modal title="註冊">
-        <RegisterModalBack
+        <BackButton
           onClick={() => {
-            if (loading === true) return;
-            displayRegisterModalHandler(false);
+            setShowModal('none');
           }}
-        >
-          ✖
-        </RegisterModalBack>
+        />
         <RegisterModalAside>
           <RegisterModalAsideTile>會員專屬功能</RegisterModalAsideTile>
           <RegisterModalImgBox>
@@ -215,9 +207,7 @@ function RegisterModal({ displayLoginModalHandler, displayRegisterModalHandler }
             content="登入帳號"
             loading={false}
             onClick={() => {
-              if (loading === true) return;
-              displayLoginModalHandler(true);
-              displayRegisterModalHandler(false);
+              setShowModal('loginModal');
             }}
           />
         </RegisterModalButtonBox>

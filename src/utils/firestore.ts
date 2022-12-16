@@ -55,8 +55,6 @@ export const authentication = {
   },
   async signIn(mail: string, password: string) {
     await signInWithEmailAndPassword(auth, mail, password);
-    // await firestore.updateUserOnline(UserData?.user.uid, true);
-    // await realtime.loginRealtime(UserData?.user.uid);
   },
   async signOut(id: string | undefined) {
     await signOut(auth);
@@ -66,7 +64,7 @@ export const authentication = {
 };
 
 export const realtime = {
-  async loginRealtime(uid: string | undefined) {
+  async setUserIsOnline(uid: string | undefined) {
     const local = getDatabase();
     const presenceRef = DBref(local, `users/${uid}/online`);
     await set(DBref(local, `users/${uid}`), {

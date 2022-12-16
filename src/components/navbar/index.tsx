@@ -1,15 +1,14 @@
+import Friends from './friends';
+import Invitation from './invitation';
+import { db } from '../../utils/firestore';
+import { useGlobalContext } from '../../context/authContext';
+import imageHub from '../../utils/imageHub';
+import LoginModal from '../../pages/Home/loginModal';
+import useOnClickOutside from '../../utils/useOnClickOutside';
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '../../utils/firestore';
-import { useGlobalContext } from '../../context/authContext';
-import friendsImg from '../../img/friends.png';
-import notificationImg from '../../img/bell.png';
-import LoginModal from '../../pages/Home/loginModal';
-import Friends from './frineds';
-import Invitation from './invitation';
-import useOnClickOutside from '../../utils/useOnClickOutside';
 
 const NavbarBody = styled.div`
   display: flex;
@@ -45,7 +44,7 @@ const NavbarPlayerImg = styled.div<{ img: string }>`
 const NavbarPlayerName = styled.div`
   font-size: 24px;
 `;
-const NavbarImgBox = styled.div<{ $display: boolean }>`
+const NavbarImgBox = styled.div<{ show: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -60,7 +59,7 @@ const NavbarImgBox = styled.div<{ $display: boolean }>`
   border-left-color: #ffe100;
   border-bottom-color: #ffe100;
   box-shadow: 0 0 0 4px #002043, 0 0 0 5px #7c92b0;
-  pointer-events: ${(p) => (p.$display ? 'none' : 'auto')};
+  pointer-events: ${(p) => (p.show ? 'none' : 'auto')};
   cursor: pointer;
 
   &:hover {
@@ -73,13 +72,13 @@ const NavbarImgBox = styled.div<{ $display: boolean }>`
 const NavbarFriendsCol = styled.div`
   width: 35px;
   height: 35px;
-  background-image: url(${notificationImg});
+  background-image: url(${imageHub.notificationImg});
   background-size: contain;
 `;
 const NavbarNotification = styled.div`
   width: 35px;
   height: 35px;
-  background-image: url(${friendsImg});
+  background-image: url(${imageHub.friendsImg});
   background-size: cover;
 `;
 const NavbarFriendsBox = styled.div<{ $display: boolean }>`
@@ -110,25 +109,22 @@ function Navbar() {
   const [invitationList, setInvitationList] = useState<
     { uid: string; nickname: string; photoURL: string }[]
   >([]);
-  const [displayLoginModal, setDisplayLoginModal] = useState(false);
-  const [displayFriendsCol, setDisplayFriendsCol] = useState(false);
-  const [displayInvitationCol, setDisplayInvitationCol] = useState(false);
+  const [showModal, setShowModal] = useState('none');
+  const [showFriendsCol, setShowFriendsCol] = useState(false);
+  const [showInvitationCol, setShowInvitationCol] = useState(false);
   const invitationBoxRef = useRef<HTMLDivElement>(null);
   const friendBoxRef = useRef<HTMLDivElement>(null);
-  const displayLoginModalHandler = (display: boolean) => {
-    setDisplayLoginModal(display);
-  };
 
   useOnClickOutside(invitationBoxRef, () => {
-    setDisplayInvitationCol(false);
+    setShowInvitationCol(false);
   });
   useOnClickOutside(friendBoxRef, () => {
-    setDisplayFriendsCol(false);
+    setShowFriendsCol(false);
   });
 
   useEffect(() => {
     setInvitationList([]);
-    if (isLogin === false) return;
+    if (!isLogin || !user.email) return;
     const friendRequestSubscribe = onSnapshot(
       collection(db, 'friendRequest', `${user?.email}`, 'invitation'),
       (res) => {
@@ -147,77 +143,60 @@ function Navbar() {
     return () => {
       friendRequestSubscribe();
     };
-  }, [isLogin]);
+  }, [isLogin, user?.email]);
 
   useEffect(() => {
     if (user.inviting?.URL) {
-      setDisplayInvitationCol(true);
-    } else {
-      setDisplayInvitationCol(false);
+      setShowInvitationCol(true);
+      return;
     }
+    setShowInvitationCol(false);
   }, [user.inviting]);
   return (
     <div>
-      {
-        // prettier-ignore
-        displayLoginModal ?
-          ReactDOM.createPortal(
-            <LoginModal
-              displayLoginModalHandler={displayLoginModalHandler}
-              displayRegisterModalHandler={() => {
-                // login state can't register new account
-              }}
-            />,
-            document?.getElementById('modal-root') as HTMLElement,
-          ) :
-          ''
-      }
-      {isLogin && user.photoURL && user.nickname ? (
+      {showModal === 'loginModal' &&
+        ReactDOM.createPortal(
+          <LoginModal setShowModal={setShowModal} />,
+          document?.getElementById('modal-root') as HTMLElement,
+        )}
+      {isLogin && (
         <>
           <NavbarBody>
             <NavbarPlayer
               onClick={() => {
-                setDisplayLoginModal(true);
+                setShowModal('loginModal');
               }}
             >
-              <NavbarPlayerImg img={user?.photoURL} />
+              <NavbarPlayerImg img={user.photoURL} />
               <NavbarPlayerName>{user.nickname}</NavbarPlayerName>
             </NavbarPlayer>
             <NavbarNotificationBox>
-              <NavbarInvitationReminder isInvitation={user?.inviting?.URL} />
+              <NavbarInvitationReminder isInvitation={user.inviting?.URL} />
               <NavbarImgBox
-                $display={displayInvitationCol}
+                show={showInvitationCol}
                 onClick={() => {
-                  if (!displayInvitationCol) {
-                    setDisplayInvitationCol(true);
-                  }
+                  setShowInvitationCol((pre) => !pre && true);
                 }}
               >
                 <NavbarFriendsCol />
               </NavbarImgBox>
             </NavbarNotificationBox>
             <NavbarImgBox
-              $display={displayFriendsCol}
+              show={showFriendsCol}
               onClick={() => {
-                if (displayFriendsCol) {
-                  setDisplayFriendsCol(false);
-                } else if (!displayFriendsCol) {
-                  setDisplayFriendsCol(true);
-                }
+                setShowFriendsCol((pre) => !pre);
               }}
             >
               <NavbarNotification />
             </NavbarImgBox>
           </NavbarBody>
-          <NavbarInvitationBox ref={invitationBoxRef} $display={displayInvitationCol}>
+          <NavbarInvitationBox ref={invitationBoxRef} $display={showInvitationCol}>
             <Invitation />
           </NavbarInvitationBox>
-          <NavbarFriendsBox ref={friendBoxRef} $display={displayFriendsCol}>
-            <Friends invitationList={invitationList} displayFriendsCol={displayFriendsCol} />
+          <NavbarFriendsBox ref={friendBoxRef} $display={showFriendsCol}>
+            <Friends invitationList={invitationList} showFriendsCol={showFriendsCol} />
           </NavbarFriendsBox>
         </>
-      ) : (
-        ''
       )}
     </div>
   );

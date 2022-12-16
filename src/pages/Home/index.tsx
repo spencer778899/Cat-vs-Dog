@@ -1,23 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
-import { useNavigate, useParams } from 'react-router-dom';
-import styled from 'styled-components';
 import LoginModal from './loginModal';
 import RegisterModal from './registerModal';
 import AccomplishmentModal from './accomplishmentModal';
 import { useGlobalContext } from '../../context/authContext';
-import firestore from '../../utils/firestore';
-import titleBarImg from '../../img/board.png';
-import dogHeadImg from '../../img/dogHead.png';
-import catHeadImg from '../../img/catHead.png';
 import YellowButton from '../../components/buttons/yellowButton';
 import BlueButton from '../../components/buttons/blueButton';
-import dogIcon from '../../img/gamepage/game_dog.png';
-import catIcon from '../../img/gamepage/game_cat.png';
-import powerUpImg from '../../img/gamepage/game_powerUp.png';
-import doubleHitImg from '../../img/gamepage/game_X2.png';
-import healImg from '../../img/gamepage/game_heal.png';
-import windIcon from '../../img/wind.png';
+import imageHub from '../../utils/imageHub';
+import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
+import ReactDOM from 'react-dom';
+import React, { useState } from 'react';
 
 const HomeMain = styled.div`
   display: flex;
@@ -70,7 +61,7 @@ const HomeLogoBox = styled.div`
   width: 500px;
   height: 75px;
   margin: auto;
-  background-image: url(${titleBarImg});
+  background-image: url(${imageHub.titleBarImg});
   background-size: cover;
 `;
 const HomeLogo = styled.div`
@@ -86,7 +77,7 @@ const HomeLogoCatImg = styled.div`
   width: 100px;
   height: 50px;
   margin: auto;
-  background-image: url(${catHeadImg});
+  background-image: url(${imageHub.catHeadImg});
   background-size: cover;
 `;
 const HomeLogoDogImg = styled.div`
@@ -97,7 +88,7 @@ const HomeLogoDogImg = styled.div`
   width: 100px;
   height: 60px;
   margin: auto;
-  background-image: url(${dogHeadImg});
+  background-image: url(${imageHub.dogHeadImg});
   background-size: cover;
 `;
 const HomeLinkBox = styled.div`
@@ -142,14 +133,14 @@ const HomeCatIcon = styled.div`
   display: inline-block;
   width: 40px;
   height: 40px;
-  background-image: url(${catIcon});
+  background-image: url(${imageHub.catImg});
   background-size: cover;
 `;
 const HomeDogIcon = styled.div`
   display: inline-block;
   width: 40px;
   height: 40px;
-  background-image: url(${dogIcon});
+  background-image: url(${imageHub.dogImg});
   background-size: cover;
 `;
 const HomeBallIcon = styled.div`
@@ -175,19 +166,19 @@ const HomeSkillBox = styled.div`
 const HomePowerUpImg = styled.div`
   width: 50px;
   height: 50px;
-  background-image: url(${powerUpImg});
+  background-image: url(${imageHub.powerUpImg});
   background-size: cover;
 `;
 const HomeDoubleHitImg = styled.div`
   width: 50px;
   height: 50px;
-  background-image: url(${doubleHitImg});
+  background-image: url(${imageHub.doubleHitImg});
   background-size: cover;
 `;
 const HomeHealImg = styled.div`
   width: 50px;
   height: 50px;
-  background-image: url(${healImg});
+  background-image: url(${imageHub.healImg});
   background-size: cover;
 `;
 const HomeSkillsText = styled.div``;
@@ -196,89 +187,35 @@ const HomeNoteImg = styled.div`
   display: inline-block;
   width: 30px;
   height: 30px;
-  background-image: url(${windIcon});
+  background-image: url(${imageHub.windIcon});
   background-size: cover;
 `;
 
 function Home() {
   const navigate = useNavigate();
-  const { isLogin, user } = useGlobalContext();
-  const [displayLoginModal, setDisplayLoginModal] = useState(false);
-  const [displayRegisterModal, setDisplayRegisterModal] = useState(false);
-  const [displayAccomplishmentModal, setDisplayAccomplishmentModal] = useState(false);
-  const displayLoginModalHandler = (display: boolean) => {
-    setDisplayLoginModal(display);
-  };
+  const { isLogin } = useGlobalContext();
+  const [showModal, setShowModal] = useState<string>('none');
 
-  const displayRegisterModalHandler = (display: boolean) => {
-    setDisplayRegisterModal(display);
-  };
-
-  const displayAccomplishmentModalHandler = (display: boolean) => {
-    setDisplayAccomplishmentModal(display);
-  };
-
-  useEffect(() => {
-    async function achieveGoal1Handler() {
-      if (user.uid === undefined) return;
-      if (user.friends?.length === 1) {
-        await firestore.updateGoal1ProgressRate(user.uid, 1);
-      } else if (user.friends?.length === 2) {
-        await firestore.achieveGoal1(user?.uid);
-        await firestore.updateChangePhotoRight(user?.uid);
-      }
+  function renderModal() {
+    if (showModal === 'loginModal') {
+      return <LoginModal setShowModal={setShowModal} />;
     }
-    if (user?.friends === undefined) return;
-    if (user.friends.length <= 2) {
-      achieveGoal1Handler();
+    if (showModal === 'registerModal') {
+      return <RegisterModal setShowModal={setShowModal} />;
     }
-  }, [isLogin, user]);
+    if (showModal === 'accomplishmentModal') {
+      return <AccomplishmentModal setShowModal={setShowModal} />;
+    }
+  }
 
   return (
     <div>
-      {
-        // prettier-ignore
-        displayLoginModal ?
-          ReactDOM.createPortal(
-            <LoginModal
-              displayLoginModalHandler={displayLoginModalHandler}
-              displayRegisterModalHandler={displayRegisterModalHandler}
-            />,
-            document?.getElementById('modal-root') as HTMLElement,
-          ) :
-          ''
-      }
-      {
-        // prettier-ignore
-        displayRegisterModal ?
-          ReactDOM.createPortal(
-            <RegisterModal
-              displayLoginModalHandler={displayLoginModalHandler}
-              displayRegisterModalHandler={displayRegisterModalHandler}
-            />,
-            document?.getElementById('modal-root') as HTMLElement,
-          ) :
-          ''
-      }
-      {
-        // prettier-ignore
-        displayAccomplishmentModal ?
-          ReactDOM.createPortal(
-            <AccomplishmentModal
-              displayAccomplishmentModalHandler={displayAccomplishmentModalHandler}
-              displayLoginModalHandler={displayLoginModalHandler}
-            />,
-            document?.getElementById('modal-root') as HTMLElement,
-          ) :
-          ''
-      }
+      {ReactDOM.createPortal(renderModal(), document?.getElementById('modal-root') as HTMLElement)}
       <HomeMain>
-        {isLogin ? (
-          ''
-        ) : (
+        {!isLogin && (
           <HomeLogin
             onClick={() => {
-              setDisplayLoginModal(true);
+              setShowModal('loginModal');
             }}
           >
             登入
@@ -323,7 +260,7 @@ function Home() {
               content="成就系統"
               loading={false}
               onClick={() => {
-                displayAccomplishmentModalHandler(true);
+                setShowModal('accomplishmentModal');
               }}
             />
           </HomeButtonBox>

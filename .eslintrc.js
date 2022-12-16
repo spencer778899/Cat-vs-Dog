@@ -21,6 +21,12 @@ module.exports = {
     'react/jsx-filename-extension': [1, { extensions: ['.jsx', '.tsx'] }],
     'react-hooks/exhaustive-deps': 'warn',
     'linebreak-style': ['error', 'windows'],
+    'import/order': [
+      'error',
+      {
+        groups: ['builtin', 'index', 'sibling', 'parent', 'internal', 'external', 'object', 'type'],
+      },
+    ],
     'object-curly-newline': 'off',
     'import/extensions': [
       'error',
