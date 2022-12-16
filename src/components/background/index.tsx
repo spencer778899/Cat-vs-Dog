@@ -1,6 +1,6 @@
+import backgroundImg from '../../img/globalBackground.jpg';
 import React from 'react';
 import styled from 'styled-components';
-import backgroundImg from '../../img/globalBackground.jpg';
 
 const BackgroundImg = styled.div`
   position: absolute;
@@ -13,10 +13,11 @@ const BackgroundImg = styled.div`
   opacity: 45%;
   z-index: -99;
 `;
-function Background() {
+function Background({ children }: { children: React.ReactNode }) {
   return (
     <div>
       <BackgroundImg />
+      {children}
     </div>
   );
 }

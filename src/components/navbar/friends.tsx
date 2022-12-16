@@ -1,15 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
 import firestore from '../../utils/firestore';
 import MinBlueButton from '../buttons/minBlueBottom';
 import MinYellowButton from '../buttons/minYellowButton';
+import React, { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 interface homeProps {
   invitationList: { uid: string; nickname: string; photoURL: string }[];
-  displayFriendsCol: boolean;
+  showFriendsCol: boolean;
 }
 
 const FriendsMain = styled.div`
@@ -130,9 +130,9 @@ const FriendIDInput = styled.input`
   font-size: 18px;
 `;
 
-function Friends({ invitationList, displayFriendsCol }: homeProps) {
+function Friends({ invitationList, showFriendsCol }: homeProps) {
   const navigate = useNavigate();
-  const { user } = useGlobalContext();
+  const { isLogin, user } = useGlobalContext();
   const [showColumn, setShowColumn] = useState('friends');
   const [loading, setLoading] = useState(false);
   const [loadingIndex, setLoadingIndex] = useState('none');
@@ -171,7 +171,19 @@ function Friends({ invitationList, displayFriendsCol }: homeProps) {
       setFriends(newList);
     }
     getFriendsData();
-  }, [user.friends, displayFriendsCol]);
+  }, [user.friends, showFriendsCol]);
+
+  useEffect(() => {
+    if (!isLogin) return;
+    if (user.friends?.length === 1) {
+      firestore.updateGoal1ProgressRate(user.uid, 1);
+    }
+    if (user.friends?.length === 2) {
+      firestore.achieveGoal1(user?.uid);
+      firestore.updateChangePhotoRight(user?.uid);
+    }
+  }, [isLogin, user.friends, user.uid]);
+
   const sendFriendInvitation = async () => {
     setLoading(true);
     setLoadingIndex('MinBlueButton1');

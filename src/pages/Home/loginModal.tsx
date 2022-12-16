@@ -1,36 +1,22 @@
-import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
-import { toast } from 'react-toastify';
-import { useLocation, useParams } from 'react-router-dom';
 import { useGlobalContext } from '../../context/authContext';
-import emailImg from '../../img/email.png';
-import lockImg from '../../img/lock.png';
-import nicknameImg from '../../img/nickname.png';
-import memberImg from '../../img/member.png';
-import pencilImg from '../../img/pencil.png';
-import firestore, { authentication, firestorage, realtime } from '../../utils/firestore';
+import imageHub from '../../utils/imageHub';
+import firestore, { authentication, firestorage } from '../../utils/firestore';
 import Modal from '../../components/modal';
 import BlueButton from '../../components/buttons/blueButton';
 import YellowButton from '../../components/buttons/yellowButton';
+import BackButton from '../../components/buttons/backButton';
+import { useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import styled from 'styled-components';
+import React, { useRef, useState } from 'react';
 
-interface HomeProps {
-  displayLoginModalHandler: (display: boolean) => void;
-  displayRegisterModalHandler: (display: boolean) => void;
-}
-
-const LoginModalBack = styled.div`
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  cursor: pointer;
-`;
-const LoginModalImg = styled.div<{ background: string | undefined }>`
+const LoginModalImg = styled.div<{ background: string }>`
   position: relative;
   width: 130px;
   height: 130px;
   margin-top: 20px;
   margin-bottom: 50px;
-  background-image: url(${(p) => p.background || memberImg});
+  background-image: url(${(p) => p.background || imageHub.memberImg});
   background-size: cover;
   border: ${(p) => (p.background ? '3px solid #000000' : 'none')};
   border-radius: 50%;
@@ -48,7 +34,7 @@ const LoginModalHeadBox = styled.label`
   background-color: #0a5efb;
   border: 4px #fff solid;
   border-radius: 50%;
-  background-image: url(${pencilImg});
+  background-image: url(${imageHub.pencilImg});
   background-size: contain;
   cursor: pointer;
 `;
@@ -67,7 +53,7 @@ const LoginModalMailImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${emailImg});
+  background-image: url(${imageHub.emailImg});
   background-size: cover;
 `;
 const LoginModalMailText = styled.div`
@@ -100,7 +86,7 @@ const LoginModalPasswordImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${lockImg});
+  background-image: url(${imageHub.lockImg});
   background-size: cover;
 `;
 const LoginModalPasswordText = styled.div`
@@ -127,7 +113,7 @@ const LoginModalNicknameImg = styled.div`
   width: 25px;
   height: 25px;
   margin-right: 10px;
-  background-image: url(${nicknameImg});
+  background-image: url(${imageHub.nicknameImg});
   background-size: cover;
 `;
 const LoginModalNicknameText = styled.div`
@@ -149,7 +135,11 @@ const LoginModalButtonBox = styled.div`
   align-items: center;
 `;
 
-function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: HomeProps) {
+function LoginModal({
+  setShowModal,
+}: {
+  setShowModal: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const regexp = /^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
   const location = useLocation();
   const { isLogin, user } = useGlobalContext();
@@ -161,16 +151,20 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
     setLoading(true);
     if (!email.current?.value.trim() || regexp.test(email.current?.value.trim()) === false) {
       toast.warning('請輸入正確的email');
-    } else if (!password.current?.value.trim() || password.current?.value.trim().length < 6) {
+      setLoading(false);
+      return;
+    }
+    if (!password.current?.value.trim() || password.current?.value.trim().length < 6) {
       toast.warning('請輸入至少六位數密碼!(不能輸入空白)');
-    } else {
-      try {
-        await authentication.signIn(email.current?.value, password.current?.value);
-        toast.success('登入成功!');
-        displayLoginModalHandler(false);
-      } catch (e) {
-        toast.error('帳號或密碼錯誤!');
-      }
+      setLoading(false);
+      return;
+    }
+    try {
+      await authentication.signIn(email.current?.value, password.current?.value);
+      toast.success('登入成功!');
+      setShowModal('none');
+    } catch (e) {
+      toast.error('帳號或密碼錯誤!');
     }
     setLoading(false);
   };
@@ -183,14 +177,14 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
 
   async function updateHeadImg(newPhoto: File) {
     setLoading(true);
-    if (newPhoto === undefined || user.uid === undefined || user.uid === undefined) return;
-    try {
-      const photoURL = await firestorage.uploadPhotoURL(newPhoto, user.uid);
-      if (photoURL === undefined) return;
-      await firestore.updatePhotoURL(user.uid, photoURL);
-      toast.success('上傳成功!');
-    } catch (e) {
-      toast.error('上傳失敗!');
+    if (newPhoto && user.uid) {
+      try {
+        const photoURL = await firestorage.uploadPhotoURL(newPhoto, user.uid);
+        await firestore.updatePhotoURL(user.uid, photoURL);
+        toast.success('上傳成功!');
+      } catch (e) {
+        toast.error('上傳失敗!');
+      }
     }
     setLoading(false);
   }
@@ -198,14 +192,11 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
   return (
     <div>
       <Modal title={isLogin ? '會員' : '登入'}>
-        <LoginModalBack
+        <BackButton
           onClick={() => {
-            if (loading === true) return;
-            displayLoginModalHandler(false);
+            setShowModal('none');
           }}
-        >
-          ✖
-        </LoginModalBack>
+        />
         <LoginModalImg background={user.photoURL}>
           {isLogin && user.changePhotoRight ? (
             <LoginModalHeadBox>
@@ -256,10 +247,8 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
                 content="登出"
                 loading={loading}
                 onClick={() => {
-                  setLoading(true);
                   authentication.signOut(user.uid);
-                  displayLoginModalHandler(false);
-                  setLoading(false);
+                  setShowModal('none');
                 }}
               />
             ) : (
@@ -267,7 +256,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
                 content="返回遊戲"
                 loading={loading}
                 onClick={() => {
-                  displayLoginModalHandler(false);
+                  setShowModal('none');
                 }}
               />
             )}
@@ -279,9 +268,7 @@ function LoginModal({ displayLoginModalHandler, displayRegisterModalHandler }: H
               content="註冊帳號"
               loading={false}
               onClick={() => {
-                if (loading === true) return;
-                displayLoginModalHandler(false);
-                displayRegisterModalHandler(true);
+                setShowModal('registerModal');
               }}
             />
           </LoginModalButtonBox>

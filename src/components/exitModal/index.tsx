@@ -1,9 +1,9 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
 import BlueButton from '../buttons/blueButton';
 import YellowButton from '../buttons/yellowButton';
 import Modal from '../modal';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
 const ExitModalText = styled.div`
   position: absolute;

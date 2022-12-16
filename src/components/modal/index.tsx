@@ -1,11 +1,6 @@
-import React, { Children } from 'react';
+import imageHub from '../../utils/imageHub';
+import React from 'react';
 import styled from 'styled-components';
-import titleImg from '../../img/title.png';
-
-interface LayoutProps {
-  children: React.ReactNode;
-  title: string;
-}
 
 const ModalBody = styled.div`
   position: absolute;
@@ -44,7 +39,7 @@ const ModalTitle = styled.div`
   width: 360px;
   height: 84px;
   margin: -50px auto auto auto;
-  background-image: url(${titleImg});
+  background-image: url(${imageHub.titleImg});
   background-size: cover;
   background-position: center;
 `;
@@ -63,7 +58,7 @@ const ModalTitleText = styled.div`
     #001b51 2.88051px -0.838247px 0;
 `;
 
-function Modal({ children, title }: LayoutProps) {
+function Modal({ children, title }: { children: React.ReactNode; title: string }) {
   return (
     <ModalBody>
       <ModalMain>
