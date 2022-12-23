@@ -19,7 +19,7 @@ import healImg from '../img/gamepage/game_heal.png';
 import windIcon from '../img/wind.png';
 import screenImg from '../img/gamepage/game_screen.png';
 import hitPointsBarImg from '../img/gamepage/game_hitPointsBar.png';
-import windBarImg from '../img/gamepage/game_windBar.png';
+import windBarImg from '../img/gamepage/game_windbar.png';
 import dogImg from '../img/gamepage/game_dog.png';
 import dogAttackImg from '../img/gamepage/game_dogAttack.png';
 import dogInjuriedImg from '../img/gamepage/game_dogInjuried.png';
