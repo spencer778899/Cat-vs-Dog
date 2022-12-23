@@ -1,5 +1,5 @@
 import App from './App';
-import AIGame from './pages/AIGame';
+import AIGame from './pages/AIgame';
 import Home from './pages/Home';
 import Game from './pages/Game';
 import OnlineGame from './pages/OnlineGame';
