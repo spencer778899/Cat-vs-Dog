@@ -219,7 +219,7 @@ function LoginModal({
           {isLogin ? (
             <LoginModalUserEmail>{user.email}</LoginModalUserEmail>
           ) : (
-            <LoginModalMailInput ref={email} value="mason@gmail.com" autoFocus />
+            <LoginModalMailInput ref={email} defaultValue="mason@gmail.com" autoFocus />
           )}
         </LoginModalMailbox>
         {isLogin ? (
@@ -235,7 +235,7 @@ function LoginModal({
             <LoginModalPasswordInput
               type="password"
               ref={password}
-              value="778899"
+              defaultValue="778899"
               onKeyPress={keyDownHandler}
             />
           </LoginModalPasswordBox>
